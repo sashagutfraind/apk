@@ -1,0 +1,135 @@
+2015-01-09
+---------------------------
+changes
+-better stats
+
+2014-08-20
+---------------------------
+changes
+
+bug fixes
+- immunology error
+- support for true reciprocity
+
+2014-06-13
+---------------------------
+changes
+- changed how the age of arriving agents is set
+
+bug fixes
+- corrected failure to report status for late-arriving agents 
+- stop reporting status from dead agents (ZIP=null)
+
+2014-05-06
+---------------------------
+changes
+- mature installer
+- new features in the GUI
+
+fixes
+- aging bug
+
+
+2014-04-06
+---------------------------
+changes
+- support for burn-in mode
+- fixed installer
+- synthetic data generator
+
+fixes
+- burn-in explicitly allows infections
+
+
+2014-02-23
+---------------------------
+changes
+- support for entry with infectious state
+- syringe source attribute
+- generation of gap population
+- annual reporting of status for all agents
+
+fixes
+- missed return of drug out degree
+- incorrect comparison with Double.NaN: now using "... Double.isNaN(v);"
+- incorrect generation of newly arriving IDUs.
+
+2013-11-29
+---------------------------
+changes
+- bug traps
+- rewamped recording of events
+- tested integration with synth population in batch and gui mode
+- support for 5 distinct drug markets
+- improved parameter handling
+- parameters distinguish acute time for naive and rechallenged
+
+fixes
+- fixed incorrect handling of incarceration, leading to high infections
+- IDUs generated during the course of the simulation did not have HCV_state==susceptible.
+- minor bug in randomization for PersonGenerator
+- errors with masking of parameter error by a default value
+- correct a problem with classifier of HCV (RandomForest) due to insufficient number of trees, leading to swings in prevalence
+
+2013-9-02
+---------------------------
+changes
+- migration to Repast Simphony 2.1
+- faster handling of links
+- preliminary support for synthetic agents with APK-Synth
+
+fixes
+- agent color is now indicative of their HCV status.
+
+
+2013-6-26
+---------------------------
+changes
+- mortality and tie attrition are now given in years, instead of ticks.
+
+fixes
+- parameters for mortality and tie lifetime were not passed to the IDU class.  
+- make sure that chronic cases cannot be reinfected (unlike resistant)
+
+
+2013-5-29
+---------------------------
+new
+* more safe storage of IDU attributes
+* gender differences in self-clearance rates
+* more detailed event stats
+* parameters to control various internals:
+	probability of acute and chronic in AB test is +
+	interaction rates
+
+fixes
+* correct support for multiple runs
+* getZip() exception
+
+2013-02-19
+---------------------------
+new
+* improved color scheme
+* removed csv library
+* new batch mode
+* support for run length parameter
+* detailed validation
+* support for serialization
+
+fixes
+* fixed estimation of zone population
+* fixed frequency of call to linking
+
+known problem
+* getZip() fails intermittently 
+
+
+
+2012-12-31
+---------------------------
+new
+* improved color scheme
+
+fixes
+* fixed estimation of zone population
+

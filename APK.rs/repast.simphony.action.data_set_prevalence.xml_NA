@@ -1,0 +1,30 @@
+<repast.simphony.data2.engine.DataSetDescriptor>
+  <name>PrevalenceData</name>
+  <type>NON_AGGREGATE</type>
+  <inclTick>true</inclTick>
+  <inclBatchRun>false</inclBatchRun>
+  <inclRandomSeed>false</inclRandomSeed>
+  <scheduleParams>
+    <start>1.0</start>
+    <interval>1.0</interval>
+    <priority>-Infinity</priority>
+    <pType>LAST</pType>
+    <duration>-1.0</duration>
+    <frequency>REPEAT</frequency>
+    <hashCode>0</hashCode>
+  </scheduleParams>
+  <sourceType>edu.uic.apk.Statistics</sourceType>
+  <atEnd>false</atEnd>
+  <methodDataSources class="linked-hash-map"/>
+  <countSources class="linked-hash-map"/>
+  <customNADataSources class="linked-hash-map">
+    <entry>
+      <string>prevalence_ALL</string>
+      <repast.simphony.data2.engine.CustomDataSourceDefinition>
+        <dsClassName>edu.uic.apk.Statistics</dsClassName>
+        <id>prevalence_ALL</id>
+      </repast.simphony.data2.engine.CustomDataSourceDefinition>
+    </entry>
+  </customNADataSources>
+  <customAggDataSources class="linked-hash-map"/>
+</repast.simphony.data2.engine.DataSetDescriptor>
