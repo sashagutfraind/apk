@@ -1,0 +1,6 @@
+<model name="Agent-Based Pathogen Kinetics model (APK)" oldname="edu.uic.apk">
+	<classpath>
+		<agents path="../bin" />
+        <entry path="../lib" />
+	</classpath>
+</model>

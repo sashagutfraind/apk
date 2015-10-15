@@ -1,0 +1,77 @@
+<repast.simphony.data2.engine.DataSetDescriptor>
+  <name>HCV_Data</name>
+  <type>AGGREGATE</type>
+  <sourceType>Boolean</sourceType>
+  <inclTick>true</inclTick>
+  <inclBatchRun>false</inclBatchRun>
+  <inclRandomSeed>false</inclRandomSeed>
+  <scheduleParams>
+    <start>1.0</start>
+    <interval>1.0</interval>
+    <priority>-Infinity</priority>
+    <pType>LAST</pType>
+    <duration>-1.0</duration>
+    <frequency>REPEAT</frequency>
+    <hashCode>0</hashCode>
+  </scheduleParams>
+  <atEnd>false</atEnd>
+  <methodDataSources class="linked-hash-map">
+    <entry>
+      <string>Naive</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Naive</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isNaive</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Acute</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Acute</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isAcute</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Resistant</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Resistant</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isResistant</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Chronic</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Chronic</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isChronic</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Cured</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Cured</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isCured</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>InTreatment</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>InTreatment</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isInTreatment</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    </methodDataSources>
+  <countSources class="linked-hash-map"/>
+  <customNADataSources class="linked-hash-map"/>
+  <customAggDataSources class="linked-hash-map"/>
+</repast.simphony.data2.engine.DataSetDescriptor>

@@ -1,0 +1,40 @@
+<sweep jobNum="223" runs="1">
+		
+		<parameter constant_type="double" name="ab_prob_acute" type="constant" value="0.0271545313262" />
+		<parameter constant_type="double" name="ab_prob_chronic" type="constant" value="0.723083549629" />
+		<parameter constant_type="double" name="attrition_rate" type="constant" value="0.0236258078895" />
+		<parameter constant_type="double" name="burn_in_days" type="constant" value="365.0" value_nob="0" />
+		<parameter constant_type="number" name="dump_network_distances" type="constant" value="-1" />
+		<parameter constant_type="double" name="homophily_strength" type="constant" value="0.788019706692" />
+		<parameter constant_type="number" name="initial_pwid_count" type="constant" value="32108" />
+		<parameter constant_type="double" name="interaction_home_cutoff" type="constant" value="2.04279427789" />
+		<parameter constant_type="double" name="interaction_rate_constant" type="constant" value="0.0196946159366" />
+		<parameter constant_type="double" name="interaction_rate_at_drug_sites" type="constant" value="8.62824564467e-05" />
+		<parameter constant_type="double" name="interaction_rate_exzone" type="constant" value="0.0874597289439" />
+		<parameter constant_type="double" name="mean_career_duration" type="constant" value="29.0855524237" />
+        <parameter constant_type="double" name="mean_days_acute_naive" type="constant" value="121.392802884" />
+		<parameter constant_type="double" name="mean_days_acute_rechallenged" type="constant" value="19.2274339409" />
+		<parameter constant_type="double" name="mean_days_naive_to_infectious" type="constant" value="3.93179015699" />
+		<parameter constant_type="double" name="mean_enrichment_ChicagoNonNEP" type="constant" value="0.427116439852" />
+		<parameter constant_type="double" name="mean_enrichment_suburbs" type="constant" value="1.80554382893" />
+		<parameter constant_type="double" name="mean_tie_lifetime" type="constant" value="2.0219400278" />
+		<parameter constant_type="double" name="net_inflow" type="constant" value="0.0" />
+		<parameter constant_type="double" name="nonNEP_age_boost" type="constant" value="2.09694403776" />
+		<parameter constant_type="double" name="nonNEP_age_started_boost" type="constant" value="1.08423067723" />
+		<parameter constant_type="double" name="nonNEP_degree_boost" type="constant" value="0.179796269184" />
+		<parameter constant_type="double" name="nonNEP_hcv_ab_boost" type="constant" value="0.0058878633251" />
+		<parameter constant_type="double" name="nonNEP_injection_ratio" type="constant" value="0.848145722195" />
+		<parameter constant_type="double" name="nonNEP_sharing_boost" type="constant" value="0.349808134931" />
+		<parameter constant_type="string" name="output_directory" type="constant" value="output" />
+		<parameter constant_type="double" name="prob_cessation" type="constant" value="0.283443323226" />
+		<parameter constant_type="double" name="prob_infected_when_arrive" type="constant" value="0.0471454977301" />
+		<parameter constant_type="double" name="prob_self_limiting_female" type="constant" value="0.372526954123" />
+		<parameter constant_type="double" name="prob_self_limiting_male" type="constant" value="0.117930848383" />
+		<parameter constant_type="double" name="prob_clearing" type="constant" value="0.809256319814" />
+		<parameter constant_type="double" name="pwid_maturity_threshold" type="constant" value="5.62014081735" />
+        <parameter comment="365*5 + 365 burnin" constant_type="number" name="run_length" shortvalue="4015" type="constant" value="4040" />
+        <parameter constant_type="double" name="status_report_frequency" type="constant" value="365.0" />
+        <parameter constant_type="double" name="transmissibility" type="constant" value="0.0492679837714" />
+        <parameter constant_type="string" name="NEP_data" simulated_value="datagen/NEP_mock_2014.csv" type="constant" value="data/NEP_Risk_Base_Merge.csv" />
+        <parameter constant_type="string" name="NHBS_data" simulated_value="datagen/NHBS_mock_2014.csv" type="constant" value="data/IDU2_HCV_model_012913_cleaned.csv" value2012="data/IDU3_2012-2014-04-17.csv" />
+</sweep>
