@@ -11,13 +11,13 @@
 		<parameter name="attrition_rate" type="constant" constant_type="double" 
 						 value="0.024d" />
 		<parameter name="burn_in_days" type="constant" constant_type="double" 
-						 value="1" FIXMEvalue="365.0d" />
+						 TRIALvalue="1" value="365.0d" />
 		<parameter name="dump_network_distances" type="constant" constant_type="number" 
 						 value="1"/>
 		<parameter name="homophily_strength" type="constant" constant_type="double" 
 						value="0.7" />
 		<parameter name="initial_pwid_count" type="constant" constant_type="number" 
-						value="32000"/>
+						TRIALvalue="1000" value="32000"/>
 		<parameter name="interaction_home_cutoff" type="constant" constant_type="double" 
 						value="2.0" />
 		<parameter name="interaction_rate_constant" type="constant" constant_type="double" 
@@ -77,23 +77,34 @@
         <parameter name="transmissibility" type="constant" constant_type="double" 
 					    value="0.01d" />
         <parameter name="treatment_duration" type="constant" constant_type="double" 
-					    value="74.0d" />
+					    value="84.0d" />
+        <parameter name="treatment_enrollment_start_delay" type="constant" constant_type="double" 
+					    TRIALvalue="10" value="2190" />
+        <parameter name="treatment_enrollment_probability_unbiased" type="constant" constant_type="double" 
+					    value="0.5d" />
+        <parameter name="treatment_enrollment_probability_HRP" type="constant" constant_type="double" 
+					    value="0.2d" />
+        <parameter name="treatment_enrollment_probability_fullnetwork" type="constant" constant_type="double" 
+	    				value="0.1d" />
+        <parameter name="treatment_enrollment_probability_inpartner" type="constant" constant_type="double" 
+	    				value="0.1d" />
+        <parameter name="treatment_enrollment_probability_outpartner" type="constant" constant_type="double" 
+	    				value="0.1d" />
         <parameter name="treatment_nonadherence" type="constant" constant_type="double" 
 					    value="0.1d" />
-        <parameter name="treatment_recruitment_method" type="constant" constant_type="string" 
-					    value="random" value6="fullnetwork" value5="random" value2="inneighbor" value3="outneighbor" value4="random_HR"/>
         <parameter name="treatment_repeatable" type="constant" constant_type="boolean" 
 					    value="false"/>
-        <parameter name="treatment_recruitment_per_PY" type="constant" constant_type="double" 
-					    value="0.01d" value2="0d"/>
+        <parameter name="treatment_enrollment_per_PY" type="constant" constant_type="double" 
+					    value="10.0d" valueTRUE="0.01d"/>
         <parameter name="treatment_svr" type="constant" constant_type="double" 
 					    value="0.9d" />
         <parameter name="treatment_susceptibility" type="constant" constant_type="double" 
 					    value="1.0d" />
         <parameter name="NEP_data" type="constant" constant_type="string" 
-						simulated_value="datagen/NEP_mock_2014.csv" value="data/NEP_Risk_Base_Merge.csv" />
+						MOCKvalue="datagen/NEP_mock_2014.csv" 
+						value="data/NEP_Risk_Base_Merge.csv" />
         <parameter name="NHBS_data" type="constant" constant_type="string" 
-						simulated_value="datagen/NHBS_mock_2014.csv" 
+						MOCKvalue="datagen/NHBS_mock_2014.csv" 
 						value2012="data/IDU3_2012-2014-04-17.csv" 
 						value="data/IDU2_HCV_model_012913_cleaned.csv" />
 </sweep>

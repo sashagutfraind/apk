@@ -9,6 +9,7 @@ package edu.uic.apk;
 import org.joda.time.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +84,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 	 * Southside Field Station 		-87.66458,41.77946
 	 * Southeastside Field Station  -87.55171,41.73325
 	 */ 
-	
+	public enum EnrollmentMethod {
+		unbiased, HRP, fullnetwork, inpartner, outpartner;
+	}
+		
 	private static Context context;
 	private static Geography geography;
 	private static Network network;
@@ -98,10 +102,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 	private static double interaction_rate_exzone         = Double.NaN; 
 	
 	private long run_start_time = System.currentTimeMillis();
-	private String treatment_recruitment_method = "random";
-	private Double treatment_recruitment_per_PY = 0.0;
-	
-	private int treatment_residual_recruitment_num = 0; //carried over from day to day to allow large clusters
+	private HashMap <EnrollmentMethod, Double> treatment_enrollment_probability = new HashMap <EnrollmentMethod,Double> ();
+	private Double treatment_enrollment_per_PY = 0.0;
+	private double treatment_mean_daily = 0.0; //updated just once when we load the parameters
+	private HashMap <EnrollmentMethod, Double> treatment_residual_enrollment = new HashMap <EnrollmentMethod,Double> ();
 
 	//we generally assume that the simulation is based on 2009 prevalence and starts on 2010-01-01
 	public static LocalDate simulation_start_date = new LocalDate(2010, 1, 1, null);
@@ -149,8 +153,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 		Parameters params = RunEnvironment.getInstance().getParameters();		
 		burn_in_control((Double)params.getValue("burn_in_days"));
 		run_end((Integer)params.getValue("run_length"));
-		treatment_recruitment_per_PY  = (Double)params.getValue("treatment_recruitment_per_PY");
-		treatment_recruitment_method  = (String)params.getValue("treatment_recruitment_method");
 		
 		Immunology.setStatics(params);
 		IDUbuilder1.setStatics(params);
@@ -170,6 +172,21 @@ public class APKBuilder implements ContextBuilder<Object> {
 
 		zone_population			  = new HashMap <ZoneAgent,ArrayList<IDU>> ();
 		effective_zone_population = new HashMap <ZoneAgent,LinkedList<IDU>> ();
+
+		treatment_enrollment_per_PY  = (Double)params.getValue("treatment_enrollment_per_PY");
+		
+		treatment_enrollment_probability.put(EnrollmentMethod.unbiased, (Double)params.getValue("treatment_enrollment_probability_unbiased"));
+		treatment_enrollment_probability.put(EnrollmentMethod.HRP, (Double)params.getValue("treatment_enrollment_probability_HRP"));
+		treatment_enrollment_probability.put(EnrollmentMethod.fullnetwork, (Double)params.getValue("treatment_enrollment_probability_fullnetwork"));
+		treatment_enrollment_probability.put(EnrollmentMethod.inpartner, (Double)params.getValue("treatment_enrollment_probability_inpartner"));
+		treatment_enrollment_probability.put(EnrollmentMethod.outpartner, (Double)params.getValue("treatment_enrollment_probability_outpartner")); 
+		//wishlist: check that the probabilities add to 1.0
+		treatment_residual_enrollment.put(EnrollmentMethod.unbiased, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethod.HRP, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethod.fullnetwork, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethod.inpartner, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethod.outpartner, 0.0);
+		
 
 		Statistics.build(params, context, network, zip_to_zones, zone_zone_distance);
 		Statistics.dump_network_distances(params.getValue("dump_network_distances"));
@@ -192,9 +209,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 		do_initial_linking();
 		//schedule.schedule(ScheduleParameters.createRepeating(1, 1), this, "update_display");
 		
-		if(treatment_recruitment_per_PY > 0) {
-			double start_of_recruitment = (Double)params.getValue("burn_in_days") + 1;
-			main_schedule.schedule(ScheduleParameters.createRepeating(start_of_recruitment, 1, -1), this, "do_treatment");
+		if(treatment_enrollment_per_PY > 0) {
+			double start_of_enrollment = (Double)params.getValue("burn_in_days") + (Double)params.getValue("treatment_enrollment_start_delay");
+			main_schedule.schedule(ScheduleParameters.createRepeating(start_of_enrollment, 1, -1), this, "do_treatment");
 		}
 
 			
@@ -324,86 +341,111 @@ public class APKBuilder implements ContextBuilder<Object> {
 		//System.out.println("Done. New links:" + num_new_links);
 	}
 
+	/*
+	 * runs daily and recruits PWID for treatment
+	 * 
+	 */
 	public void do_treatment() {
-		double mean_daily = total_IDU_population * treatment_recruitment_per_PY / 365.0;
-		treatment_residual_recruitment_num += RandomHelper.createPoisson(mean_daily).nextInt();
-		HashSet<IDU> recruited = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
+		treatment_mean_daily =  total_IDU_population * treatment_enrollment_per_PY / 365.0; //the value changes if the population changes. recall, we assume year is exactly 365 days
+		double todays_total_enrollment = RandomHelper.createPoisson(treatment_mean_daily).nextInt();
 		
-		int max_trials = 2*context.size();
+		if (todays_total_enrollment <= 0) {
+			return; //do nothing.  occurs when we previously over-enrolled
+		} 
+		
+		//TODO: test by changing the methods.  Is the outcome responsive?
+		//TODO: is the total daily target achieved?
+		ArrayList <IDU> candidates = new ArrayList<IDU>();
+		for(ArrayList <IDU> zonePop : zone_population.values()) {
+			for(IDU candidate : zonePop) {
+				if(candidate.isTreatable()) {
+					candidates.add(candidate);
+				}
+			}
+		}
+		if(candidates.size() == 0) {
+			System.out.println("Treatable PWIDs: 0");
+		}
+		for(EnrollmentMethod mthd : EnrollmentMethod.values()) {
+			HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
+			double enrollment_target = todays_total_enrollment * treatment_enrollment_probability.get(mthd) + treatment_residual_enrollment.get(mthd);
+			double max_trials = enrollment_target*10;
+			for(int trial=0; (enrolled.size() < enrollment_target) && (trial < max_trials); ++trial) {
+				enrolled.addAll(do_treatment_select(mthd, candidates));
+			}
+			treatment_residual_enrollment.put(mthd, enrollment_target - enrolled.size()); 	//can shoot below 0
+			for(IDU idu : enrolled) {
+				idu.startTreatment();
+			}
+			System.out.println("Method: " + mthd + ". Enrolled: " + enrolled.size() + ". Residual: " + (enrollment_target - enrolled.size()));
+		}
+	}
+	
+	/*
+	 * attempts to recruit an individual for treatment
+	 * does not modify treatment_residual_enrollment_num, does not guarantee success
+	 */
+	public HashSet<IDU> do_treatment_select(EnrollmentMethod enrMethod, ArrayList <IDU> candidates) {
+		HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
+		
+		if(candidates.size() == 0) {
+			return enrolled;
+		}
+		int max_trials = 100;
 		//TODO: ensure graceful performance when agent density is very low
-		if (treatment_residual_recruitment_num <= 0) {
-			; //do nothing
-		} else if(treatment_recruitment_method.equals("random")) {
-			for(int trial=0; (recruited.size() < treatment_residual_recruitment_num) && (trial < max_trials); ++trial) {
-				Object obj = context.getRandomObject();
-				if(! (obj instanceof IDU)) {
-					continue;
-				}
-				IDU idu = (IDU)obj;
+		//TODO: shuffle the candidates, and just access them one by one.  -> no more blind trying
+		if(enrMethod == EnrollmentMethod.unbiased) {
+			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
+				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
 				if(idu.isTreatable()) {
-					recruited.add((IDU)obj);
+					enrolled.add(idu);
 				}
 			}
-		} else if(treatment_recruitment_method.equals("random_HR")) {
-			for(int trial=0; recruited.size() < (treatment_residual_recruitment_num) && (trial < max_trials); ++trial) {
-				Object obj = context.getRandomObject();
-				if(! (obj instanceof IDU)) {
-					continue;
-				}
-				IDU idu = (IDU)obj;
+		} else if(enrMethod == EnrollmentMethod.HRP) {
+			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
+				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
 				if(idu.isTreatable() && idu.isInHarmReduction()) {
-					recruited.add((IDU)obj);
+					enrolled.add(idu);
 				}
 			}
-		} else if(treatment_recruitment_method.equals("fullnetwork")) {
-			for(int trial=0; recruited.size() < (treatment_residual_recruitment_num) && (trial < max_trials); ++trial) {
-				Object obj = context.getRandomObject();
-				if(! (obj instanceof IDU)) {
-					continue;
-				}
-				IDU idu = (IDU)obj;
+		} else if(enrMethod == EnrollmentMethod.fullnetwork) {
+			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
+				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
 				if(! idu.isTreatable()) {
 					continue;
 				}
-				recruited.add((IDU)obj);
-				Iterable nbs = network.getAdjacent(obj);
+				enrolled.add(idu);
+				Iterable nbs = network.getAdjacent(idu);
 				for(Object nb : nbs) {
 					if(nb != null && (nb instanceof IDU) && ((IDU)nb).isTreatable()) {
-						recruited.add((IDU)nb);
+						enrolled.add((IDU)nb);
+					}
+				}
+			}//TODO: rename inpartner -> inpartner
+		} else if(enrMethod == EnrollmentMethod.inpartner || enrMethod == EnrollmentMethod.outpartner) {
+			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
+				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
+				if(! idu.isTreatable()) {
+					continue;
+				}
+				enrolled.add(idu);
+				Iterable nbs = null;
+				if(enrMethod == EnrollmentMethod.inpartner) {
+					nbs = network.getPredecessors(idu); 
+				} else {
+					nbs = network.getSuccessors(idu);
+				}
+				for(Object nb : nbs) {
+					if(nb != null && (nb instanceof IDU) && ((IDU)nb).isTreatable()) {
+						enrolled.add((IDU)nb);
+						break; //only one
 					}
 				}
 			}
-		} else if(treatment_recruitment_method.equals("inneighbor")
-				|| treatment_recruitment_method.equals("outneighbor")) {
-			for(int trial=0; (recruited.size() < treatment_residual_recruitment_num) && (trial < max_trials); ++trial) {
-				Object obj = context.getRandomObject();
-				if(! (obj instanceof IDU)) {
-					continue;
-				}
-				IDU idu = (IDU)obj;
-				if(idu.isTreatable()) {
-					recruited.add((IDU)obj);
-					continue;
-				}
-				IDU nb = null;
-				if(treatment_recruitment_method.equals("inneighbor")) {
-					nb = (IDU) network.getRandomPredecessor(idu);					
-				} else {
-					nb = (IDU) network.getRandomSuccessor(idu);					
-				}
-				if(nb != null && nb.isTreatable()) {
-					recruited.add(nb);
-				}
-			}
-		} else { 
-			assert false; //not supported
 		}
-		treatment_residual_recruitment_num -= recruited.size();  //can shoot below 0
-		//System.out.println("Recruited: " + recruited.size() + ". Residual: " + treatment_residual_recruitment_num);
-		for(IDU idu : recruited) {
-			idu.startTreatment();
-		}
+		return enrolled;
 	}
+	
 	/*
 	 * Determine how many IDUs in each zones are available to form new connections
 	 * - the census is stored in zone_population (all) and effective_zone_population (only those that can form new connections)

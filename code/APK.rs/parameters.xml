@@ -150,17 +150,37 @@
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
                 <parameter name="treatment_duration" displayName="treatment_duration" type="double" 
 						isReadOnly="false" 
-					    defaultValue="74.0d"
+					    defaultValue="84.0d"
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"  />
                 <parameter name="treatment_nonadherence" displayName="treatment_nonadherence" type="double" 
 						isReadOnly="false" 
 					    defaultValue="0.1d" 
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
-                <parameter name="treatment_recruitment_method" displayName="treatment_recruitment_method" type="string" 
+                <parameter name="treatment_enrollment_probability_unbiased" displayName="treatment_enrollment_probability_unbiased" type="double" 
 						isReadOnly="false" 
-					    defaultValue="random" value2="inneighbor"
-						converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter" />
-                <parameter name="treatment_recruitment_per_PY" displayName="treatment_recruitment_per_PY" type="double" 
+					    defaultValue="0.5" 
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
+                <parameter name="treatment_enrollment_probability_HRP" displayName="treatment_enrollment_probability_HRP" type="double" 
+						isReadOnly="false" 
+					    defaultValue="0.2d" 
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
+                <parameter name="treatment_enrollment_probability_fullnetwork" displayName="treatment_enrollment_probability_fullnetwork" type="double" 
+						isReadOnly="false" 
+					    defaultValue="0.1d" 
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
+                <parameter name="treatment_enrollment_probability_inpartner" displayName="treatment_enrollment_probability_inpartner" type="double" 
+						isReadOnly="false" 
+					    defaultValue="0.1d" 
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
+                <parameter name="treatment_enrollment_probability_outpartner" displayName="treatment_enrollment_probability_outpartner" type="double" 
+						isReadOnly="false" 
+					    defaultValue="0.1d" 
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
+                <parameter name="treatment_enrollment_start_delay" displayName="treatment_nonadherence" type="double" 
+						isReadOnly="false" 
+					    defaultValue="2190"
+						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />				
+                <parameter name="treatment_enrollment_per_PY" displayName="treatment_enrollment_per_PY" type="double" 
 						isReadOnly="false" 
 					    defaultValue="0.01d" value2="0d"
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />

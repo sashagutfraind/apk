@@ -509,85 +509,86 @@ public class Statistics {
 		//EventClass is currently just D=disease.  potentially could help presort events based on EventClass - one parser per class
 		assert singleton != null;
 		String eventClass = "D"; //for now
-		if(agent==null) {
-			eventsStream.printf("NOTE: we don't record failed exposure events or successful exposures during acute or chronic HCV (for space reasons)" + lineSep);
-			eventsStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
-			eventsStream.printf(IDU.toString_header());
-			eventsStream.printf(lineSep);
-
-			statusStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
-			statusStream.printf(IDU.toString_header());
-			statusStream.printf(lineSep);
-
-			regularStatusStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
-			regularStatusStream.printf(IDU.toString_header());
-			regularStatusStream.printf(lineSep);
-			return;
-		}
-
-		if(burn_in_mode) {
-			return;
-		}
-		if(! context.contains(agent)) {
-			//System.err.println("Warning: attempted event on agent not in context: " + agent.hashCode());
-			return;
-		}
-		double time_now = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), APKBuilder.getSimulation_start_date()); //RunEnvironment.getInstance().getCurrentSchedule().getTickCount()
-		
-		fire_aggregatehelper(time_now, agent, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-		
-		switch(message) {
-			case activated:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.activations_ALL += 1;
-				break;
-			case cured:
-			case failed_treatment:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case chronic:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case deactivated:
-				Statistics.losses_ALL += 1;
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case exposed:
-				break; //not recorded - too many events
-			case infected:
-				boolean is_agents_first_exposure = (agent.getLastExposureDate().getYear() < 1900);
-				if (is_agents_first_exposure || agent.isPostTreatment()) {
-					//warning: this does not consider the burn-in time
-					double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getEntryDate());					
-					fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "-", "-", agent.toString());
-				} else {
-					//time_to_exposure = time_now - agent.getLastExposureDate();
-					//NOTE: we don't record this event for space reasons
-					//fire_helper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "", "", agent.toString());
-				}
-				break;
-			case infectious:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case info:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case recovered:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case regular_status:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case status:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case started_treatment:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.recruitments_ALL += 1;
-				break;
-			default:
-				break;
-		}
+		return; //FIXME
+//		if(agent==null) {
+//			eventsStream.printf("NOTE: we don't record failed exposure events or successful exposures during acute or chronic HCV (for space reasons)" + lineSep);
+//			eventsStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
+//			eventsStream.printf(IDU.toString_header());
+//			eventsStream.printf(lineSep);
+//
+//			statusStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
+//			statusStream.printf(IDU.toString_header());
+//			statusStream.printf(lineSep);
+//
+//			regularStatusStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
+//			regularStatusStream.printf(IDU.toString_header());
+//			regularStatusStream.printf(lineSep);
+//			return;
+//		}
+//
+//		if(burn_in_mode) {
+//			return;
+//		}
+//		if(! context.contains(agent)) {
+//			//System.err.println("Warning: attempted event on agent not in context: " + agent.hashCode());
+//			return;
+//		}
+//		double time_now = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), APKBuilder.getSimulation_start_date()); //RunEnvironment.getInstance().getCurrentSchedule().getTickCount()
+//		
+//		fire_aggregatehelper(time_now, agent, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//		
+//		switch(message) {
+//			case activated:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				Statistics.activations_ALL += 1;
+//				break;
+//			case cured:
+//			case failed_treatment:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case chronic:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case deactivated:
+//				Statistics.losses_ALL += 1;
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case exposed:
+//				break; //not recorded - too many events
+//			case infected:
+//				boolean is_agents_first_exposure = (agent.getLastExposureDate().getYear() < 1900);
+//				if (is_agents_first_exposure || agent.isPostTreatment()) {
+//					//warning: this does not consider the burn-in time
+//					double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getEntryDate());					
+//					fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "-", "-", agent.toString());
+//				} else {
+//					//time_to_exposure = time_now - agent.getLastExposureDate();
+//					//NOTE: we don't record this event for space reasons
+//					//fire_helper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "", "", agent.toString());
+//				}
+//				break;
+//			case infectious:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case info:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case recovered:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case regular_status:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case status:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				break;
+//			case started_treatment:
+//				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+//				Statistics.recruitments_ALL += 1;
+//				break;
+//			default:
+//				break;
+//		}
 	}
 	/*
 	 * update certain aggregate statistics for this time step
@@ -826,7 +827,7 @@ public class Statistics {
 	@ScheduledMethod(start = daily_stats_timing, interval = 1, priority=1000)
 	public void statsDailyAction(){
 		if(burn_in_mode) {
-			System.out.printf(lineSep+"Day: %.3f. Doing burn-in. ", RepastEssentials.GetTickCount());
+			System.out.printf(lineSep+"Day (incl. burnin): %.3f. Doing burn-in. ", RepastEssentials.GetTickCount());
 			return; //optionally, we could record the events, but discard the row with "burn_in_mode=1"
 		}
 		assert this == singleton;
@@ -846,6 +847,8 @@ public class Statistics {
 			}
 			if (! Double.isNaN(currentData.get("prevalence_ALL"))) {
 				System.out.printf(lineSep+"Day: %.3f. Prevalence_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("prevalence_ALL"));
+				System.out.printf("Day: %.3f. Prevalence_ALL(RNA+): %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("infected_ALL")/currentData.get("population_ALL"));
+				//System.out.printf("Day: %.3f. InTreatment_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("intreatment_ALL"));
 			}
 			popStatsStream.printf(lineSep);
 
