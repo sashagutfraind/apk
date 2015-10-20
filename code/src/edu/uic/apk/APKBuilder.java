@@ -6,51 +6,48 @@
 
 package edu.uic.apk;
 
-import org.joda.time.*;
+import gov.nasa.worldwind.WorldWindow;
+import gov.nasa.worldwind.geom.LatLon;
+import gov.nasa.worldwind.geom.Position;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.swing.JPanel;
 
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.joda.time.LocalDate;
+import org.jscience.physics.amount.Amount;
+import org.opengis.feature.simple.SimpleFeature;
+
 import repast.simphony.context.Context;
+import repast.simphony.context.space.gis.GeographyFactoryFinder;
 import repast.simphony.context.space.graph.NetworkBuilder;
 import repast.simphony.dataLoader.ContextBuilder;
+import repast.simphony.engine.environment.GUIRegistry;
 import repast.simphony.engine.environment.RunEnvironment;
+import repast.simphony.engine.environment.RunState;
+import repast.simphony.engine.schedule.ISchedule;
+import repast.simphony.engine.schedule.ScheduleParameters;
+import repast.simphony.essentials.RepastEssentials;
 import repast.simphony.parameter.Parameters;
 import repast.simphony.random.RandomHelper;
-import repast.simphony.context.space.gis.GeographyFactoryFinder;
-import repast.simphony.engine.environment.GUIRegistry;
-import repast.simphony.engine.environment.RunState;
-import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.space.gis.Geography;
 import repast.simphony.space.gis.GeographyParameters;
 import repast.simphony.space.graph.Network;
 import repast.simphony.visualization.IDisplay;
 import repast.simphony.visualization.gis3D.DisplayGIS3D;
-import repast.simphony.engine.schedule.ISchedule;
-import repast.simphony.essentials.RepastEssentials;
-import gov.nasa.worldwind.WorldWindow;
-import gov.nasa.worldwind.geom.Angle;
-import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.globes.Earth;
-
-import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.data.simple.SimpleFeatureIterator;
-import org.opengis.feature.simple.SimpleFeature;
-import org.jscience.physics.amount.Amount;
-
 import cern.jet.random.Exponential;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -88,6 +85,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 		unbiased, HRP, fullnetwork, inpartner, outpartner;
 	}
 		
+	public static void main(String[] args) {
+		getDistanceTest();
+	}
 	private static Context context;
 	private static Geography geography;
 	private static Network network;
@@ -145,10 +145,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 		
 		System.out.println("Building simulation...\n  seed=" +RandomHelper.getSeed() + ". In batch mode, the seed is carried over to subsequent runs, but the RNG state is new.");
 
-		zip_to_zones    = load_zone_agents(zip_to_zones, "gisdata/illinois_zips/zt17_d00.shp");
-		zip_to_zones    = load_zone_agents(zip_to_zones, "gisdata/michigan_zips/zt26_d00.shp");
-		zip_to_zones    = load_zone_agents(zip_to_zones, "gisdata/indiana_zips/zt18_d00.shp");
-		zip_to_zones    = load_zone_agents(zip_to_zones, "gisdata/wisconsin_zips/zt55_d00.shp");
+		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/illinois_zips/zt17_d00.shp");
+		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/michigan_zips/zt26_d00.shp");
+		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/indiana_zips/zt18_d00.shp");
+		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/wisconsin_zips/zt55_d00.shp");
 
 		Parameters params = RunEnvironment.getInstance().getParameters();		
 		burn_in_control((Double)params.getValue("burn_in_days"));
@@ -223,12 +223,13 @@ public class APKBuilder implements ContextBuilder<Object> {
 	 */
 	private void assign_drug_market(ZoneAgent zone) {
 		Coordinate z_center = zone.getCentroid().getCoordinate();
-		LatLon idu_loc      = new LatLon(Angle.fromDegrees(z_center.y), Angle.fromDegrees(z_center.x));
+        GeodeticCalculator calc = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
+		calc.setStartingGeographicPoint(z_center.x, z_center.y);
 		int closest_market  = -1;
 		double closest_d   = Double.MAX_VALUE;
 		for (int market_index=0; market_index < market_lons.length; ++market_index) {
-			LatLon market_loc = new LatLon(Angle.fromDegrees(market_lats[market_index]), Angle.fromDegrees(market_lons[market_index]));
-			double d = LatLon.ellipsoidalDistance(idu_loc, market_loc, Earth.WGS84_EQUATORIAL_RADIUS, Earth.WGS84_POLAR_RADIUS);
+			calc.setDestinationGeographicPoint(market_lons[market_index], market_lats[market_index]);
+			double d = calc.getOrthodromicDistance();
 			if (d < closest_d) {
 				closest_market = market_index;
 				closest_d = d;
@@ -491,13 +492,14 @@ public class APKBuilder implements ContextBuilder<Object> {
 		}
 		//distance between centroids of the zones
 		Coordinate c1 = zone1.getCentroid().getCoordinate();
-		LatLon p1 = new LatLon(Angle.fromDegrees(c1.y), Angle.fromDegrees(c1.x));
+        GeodeticCalculator calc = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
+		calc.setStartingGeographicPoint(c1.x, c1.y);
 		
 		Coordinate c2 = zone2.getCentroid().getCoordinate();
-		LatLon p2 = new LatLon(Angle.fromDegrees(c2.y), Angle.fromDegrees(c2.x));
+        calc.setDestinationGeographicPoint(c2.x, c2.y);
 
 		//returns the distance in meters
-		return 0.001 * LatLon.ellipsoidalDistance(p1, p2, Earth.WGS84_EQUATORIAL_RADIUS, Earth.WGS84_POLAR_RADIUS);
+		return 0.001 * calc.getOrthodromicDistance();
 	}
 
 	/*
@@ -505,10 +507,14 @@ public class APKBuilder implements ContextBuilder<Object> {
 	 * - used in testing only
 	 */
 	protected static void getDistanceTest() {
-		LatLon p1 = new LatLon(Angle.fromDegrees(41.869057), Angle.fromDegrees(-87.66736));  //UIC-SPH
-		LatLon p2 = new LatLon(Angle.fromDegrees(41.8702), Angle.fromDegrees(-87.650217));   //UIC recreation facility
+		GeodeticCalculator calc = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
+		calc.setStartingGeographicPoint(-87.66736, 41.869057);
+		calc.setDestinationGeographicPoint(-87.650217, 41.8702);
+//		LatLon p1 = new LatLon(Angle.fromDegrees(41.869057), Angle.fromDegrees(-87.66736));  //UIC-SPH
+//		LatLon p2 = new LatLon(Angle.fromDegrees(41.8702), Angle.fromDegrees(-87.650217));   //UIC recreation facility
 
-		double dis = 0.001 * LatLon.ellipsoidalDistance(p1, p2, Earth.WGS84_EQUATORIAL_RADIUS, Earth.WGS84_POLAR_RADIUS);
+		double dis = 0.001*calc.getOrthodromicDistance();
+		System.out.println(dis);
 		//"0.001" because it returns the distance in meters
 		final double true_dis = 1.65; //known value
 		

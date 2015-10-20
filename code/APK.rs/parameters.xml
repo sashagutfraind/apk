@@ -28,7 +28,7 @@
 						defaultValue="0.7" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
-				<parameter name="initial_pwid_count" type="int" 
+				<parameter name="initial_pwid_count" displayName="initial_pwid_count" type="int" 
 						defaultValue="1000" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />

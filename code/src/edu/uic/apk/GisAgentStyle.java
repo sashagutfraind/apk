@@ -6,22 +6,22 @@
 
 package edu.uic.apk;
 
-import edu.uic.apkSynth.HCV_state;
-import gov.nasa.worldwind.render.BasicWWTexture;
-import gov.nasa.worldwind.render.Offset;
-import gov.nasa.worldwind.render.PatternFactory;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 
 import repast.simphony.visualization.gis3D.style.DefaultMarkStyle;
+import edu.uic.apkSynth.HCV_state;
+import gov.nasa.worldwind.render.BasicWWTexture;
+import gov.nasa.worldwind.render.Offset;
+import gov.nasa.worldwind.render.PatternFactory;
+import gov.nasa.worldwind.render.WWTexture;
 
 public class GisAgentStyle extends DefaultMarkStyle<IDU>{
 	HCV_state last_state = null;
 	@Override
-	public BasicWWTexture getTexture(IDU idu, BasicWWTexture texture) {
+	public WWTexture getTexture(IDU idu, WWTexture texture) {
 		if (texture != null && idu.getHcvState() == last_state) {
 			return texture;
 		}
