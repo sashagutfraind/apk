@@ -10,3 +10,5 @@ velocity.log*
 
 **/.settings/org.eclipse.jdt.groovy.core.prefs
 **/.settings/org.eclipse.jdt.core.prefs
+
+code/output/
