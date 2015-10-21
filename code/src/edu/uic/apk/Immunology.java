@@ -48,7 +48,7 @@ public class Immunology implements java.io.Serializable {
 	private boolean past_recovered = false;
 	private transient IDU agent; //back reference to the IDU
 	private HCV_state hcv_state = HCV_state.susceptible;
-	private boolean in_treatment_viral_suppression = false; //set as soon as titers drops, and false when leave
+	private boolean in_treatment_viral_suppression = false; //set true as soon as titers drop, and false when leave
 	private boolean in_treatment = false; //true as soon as initiate treatment, and false when leave
 	private Double treatment_start_date = null; //null indicates never treated
 	
@@ -133,11 +133,13 @@ public class Immunology implements java.io.Serializable {
 				|| hcv_state == HCV_state.infectiousacute 
 				|| hcv_state == HCV_state.chronic 
 				|| in_treatment_viral_suppression;
+		//TODO: when in_treatment_viral_suppression==true, isInfectious should be false
 	}
 	public boolean isInfectious() {
 		return hcv_state == HCV_state.infectiousacute 
 				|| hcv_state == HCV_state.chronic 
 				|| in_treatment_viral_suppression;
+		//TODO: when in_treatment_viral_suppression==true, isInfectious should be false
 	}
 	public boolean isInTreatment() {
 		return in_treatment;

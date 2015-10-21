@@ -58,8 +58,8 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	//all of those variables are not currently used
 	static final double mean_time_in_community = Double.NaN;
 	static final double mean_time_incarcerated = Double.NaN;
-	static final double mean_time_in_treatment = Double.NaN;
-	static final double treatment_risk_factor  = Double.NaN;
+	static final double mean_time_in_rehab = Double.NaN;
+	static final double rehab_risk_factor  = Double.NaN;
 
 	static private double homophily            = Double.NaN; 
 	static private double mean_tie_lifetime    = Double.NaN; //days
@@ -605,7 +605,7 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
         } else if (profile == Activity_profile.in_community) {
         	mean_wait = mean_time_incarcerated;
         } else {
-        	mean_wait = mean_time_in_treatment;
+        	mean_wait = mean_time_in_rehab;
         }
 
 		double start_time = RunEnvironment.getInstance().getCurrentSchedule().getTickCount() 
@@ -897,8 +897,8 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 			//infection (NOTE: ActivityProfile is now always in_community)
 			if (profile != Activity_profile.incarcerated) {
 				double num_sharing_episodes = Math.round(RandomHelper.getUniform().nextDouble()*injection_intensity*fraction_recept_sharing);
-				if (profile == Activity_profile.in_treatment) {
-					num_sharing_episodes = num_sharing_episodes/treatment_risk_factor;
+				if (profile == Activity_profile.in_rehab) {
+					num_sharing_episodes = num_sharing_episodes/rehab_risk_factor;
 				}
 				for (int episode=0; episode<num_sharing_episodes; ++episode) {
 					receive_equipment_or_drugs();
