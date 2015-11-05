@@ -1,3 +1,11 @@
+2015-10-15
+---------------------------
+changes
+- treatment
+- multiple enrollment to treatment is possible in parallel
+- enrollment selection is also much faster
+
+
 2015-01-09
 ---------------------------
 changes
