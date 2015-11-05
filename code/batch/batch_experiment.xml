@@ -1,110 +1,107 @@
-<sweep runs="1">
-		<!-- 
-		<parameter name="randomSeed" type="constant" constant_type="number" 
-						 value="42"
-		/> 
-		-->
+<?xml version="1.0" ?><sweep runs="1">
+		<parameter name="randomSeed" type="number" number_type="int" 
+		    start="1" end="2" step="1" ></parameter>
 		<parameter name="ab_prob_acute" type="constant" constant_type="double" 
-						 value="0.02" />
+						 value="0.02" ></parameter>
 		<parameter name="ab_prob_chronic" type="constant" constant_type="double" 
-						 value="0.67" />
+						 value="0.67" ></parameter>
 		<parameter name="attrition_rate" type="constant" constant_type="double" 
-						 value="0.024d" />
+						 value="0.024d" ></parameter>
 		<parameter name="burn_in_days" type="constant" constant_type="double" 
-						 TESTvalue="1" value="365.0d" />
+						 TESTvalue="1" value="365.0d" ></parameter>
 		<parameter name="dump_network_distances" type="constant" constant_type="number" 
-						 value="1"/>
+						 value="1"></parameter>
 		<parameter name="homophily_strength" type="constant" constant_type="double" 
-						value="0.7" />
+						value="0.7" ></parameter>
 		<parameter name="initial_pwid_count" type="constant" constant_type="number" 
-						TESTvalue="1000" value="32000"/>
+						TESTvalue="1000" value="32000"></parameter>
 		<parameter name="interaction_home_cutoff" type="constant" constant_type="double" 
-						value="2.0" />
+						value="2.0" ></parameter>
 		<parameter name="interaction_rate_constant" type="constant" constant_type="double" 
-						value="0.016"/>
+						value="0.016"></parameter>
 		<parameter name="interaction_rate_at_drug_sites" type="constant" constant_type="double" 
-						value="0.0001" />
+						value="0.0001" ></parameter>
 		<parameter name="interaction_rate_exzone" type="constant" constant_type="double" 
-						value="0.086" />
+						value="0.086" ></parameter>
 		<parameter name="mean_career_duration" type="constant" constant_type="double" 
-						value="30.3" />
+						value="30.3" ></parameter>
         <parameter name="mean_days_acute_naive" type="constant" constant_type="double" 
-						value="102d" />
+						value="102d" ></parameter>
 		<parameter name="mean_days_acute_rechallenged" type="constant" constant_type="double" 
-						value="28" />
+						value="28" ></parameter>
 		<parameter name="mean_days_naive_to_infectious" type="constant" constant_type="double" 
-						value="3" />
+						value="3" ></parameter>
 		<parameter name="mean_days_residual_hcv_infectivity" type="constant" constant_type="double" 
-						value="5" />
+						value="5" ></parameter>
 		<parameter name="mean_enrichment_ChicagoNonNEP" type="constant" constant_type="double" 
-						value="0.5d" />
+						value="0.5d" ></parameter>
 		<parameter name="mean_enrichment_suburbs" type="constant" constant_type="double" 
-						value="2.0d" />
+						value="2.0d" ></parameter>
 		<parameter name="mean_tie_lifetime" type="constant"  constant_type="double" 
-						value="1.72d" />
+						value="1.72d" ></parameter>
 		<parameter name="net_inflow" type="constant" constant_type="double" 
-						value="0.0d" />
+						value="0.0d" ></parameter>
 		<parameter name="nonNEP_age_boost" type="constant" constant_type="double" 
-						value="3.0d" />
+						value="3.0d" ></parameter>
 		<parameter name="nonNEP_age_started_boost" type="constant" constant_type="double" 
-						value="1.7d" />
+						value="1.7d" ></parameter>
 		<parameter name="nonNEP_degree_boost" type="constant" constant_type="double" 
-						value="0.24d" />
+						value="0.24d" ></parameter>
 		<parameter name="nonNEP_hcv_ab_boost" type="constant" constant_type="double" 
-						value="0.011d" />
+						value="0.011d" ></parameter>
 		<parameter name="nonNEP_injection_ratio" type="constant" constant_type="double" 
-						value="0.85d" />
+						value="0.85d" ></parameter>
 		<parameter name="nonNEP_sharing_boost" type="constant" constant_type="double" 
-						value="0.33d" />
+						value="0.33d" ></parameter>
 		<parameter name="output_directory" type="constant" constant_type="string" 
-						value="output" />
+						value="output" ></parameter>
 		<parameter name="prob_cessation" type="constant" constant_type="double"
-						value="0.232"/>
+						value="0.232"></parameter>
 		<parameter name="prob_infected_when_arrive" type="constant" constant_type="double"
-						value="0.05" />
+						value="0.05" ></parameter>
 		<parameter name="prob_self_limiting_female" type="constant" constant_type="double"
-						value="0.346" />
+						value="0.346" ></parameter>
 		<parameter name="prob_self_limiting_male" type="constant" constant_type="double"
-						value="0.121" />
+						value="0.121" ></parameter>
 		<parameter name="prob_clearing" type="constant" constant_type="double"
-						value="0.85" />
+						value="0.85" ></parameter>
 		<parameter name="pwid_maturity_threshold" type="constant" constant_type="double" 
-						value="5.0" />
+						value="5.0" ></parameter>
         <parameter name="run_length" type="constant" constant_type="number" 
-                        longvalue="8035" value="4015" comment="365*10 + 365 burnin" />
+                        longvalue="8035" value="4015" comment="365*10 + 365 burnin" ></parameter>
         <parameter name="status_report_frequency" type="constant" constant_type="double" 
-						value="365.0" />
+						value="365.0" ></parameter>
         <parameter name="transmissibility" type="constant" constant_type="double" 
-					    value="0.01d" />
+					    value="0.01d" ></parameter>
         <parameter name="treatment_duration" type="constant" constant_type="double" 
-					    value="84.0d" />
+					    value="84.0d" ></parameter>
         <parameter name="treatment_enrollment_start_delay" type="constant" constant_type="double" 
-					    TESTvalue="10" value="2190" />
+					    TESTvalue="10" value="2190" ></parameter>
         <parameter name="treatment_enrollment_probability_unbiased" type="constant" constant_type="double" 
-					    value="0.5d" />
+					    value="0.5d" ></parameter>
         <parameter name="treatment_enrollment_probability_HRP" type="constant" constant_type="double" 
-					    value="0.2d" />
+					    value="0.2d" ></parameter>
         <parameter name="treatment_enrollment_probability_fullnetwork" type="constant" constant_type="double" 
-	    				value="0.1d" />
+	    				value="0.1d" ></parameter>
         <parameter name="treatment_enrollment_probability_inpartner" type="constant" constant_type="double" 
-	    				value="0.1d" />
+	    				value="0.1d" ></parameter>
         <parameter name="treatment_enrollment_probability_outpartner" type="constant" constant_type="double" 
-	    				value="0.1d" />
+	    				value="0.1d" ></parameter>
         <parameter name="treatment_nonadherence" type="constant" constant_type="double" 
-					    value="0.1d" />
+					    value="0.1d" ></parameter>
         <parameter name="treatment_repeatable" type="constant" constant_type="boolean" 
-					    value="false"/>
+					    value="false"></parameter>
         <parameter name="treatment_enrollment_per_PY" type="constant" constant_type="double" 
-					    TESTvalue="10.0d" value="0.01d"/>
+					    TESTvalue="10.0d" value="0.01d"></parameter>
         <parameter name="treatment_svr" type="constant" constant_type="double" 
-					    value="0.9d" />
+					    value="0.9d" ></parameter>
         <parameter name="treatment_susceptibility" type="constant" constant_type="double" 
-					    value="1.0d" />
+					    value="1.0d" ></parameter>
         <parameter name="NEP_data" type="constant" constant_type="string" 
 						MOCKvalue="datagen/NEP_mock_2014.csv" 
-						value="data/NEP_Risk_Base_Merge.csv" />
+						value="data/NEP_Risk_Base_Merge.csv" ></parameter>
         <parameter name="NHBS_data" type="constant" constant_type="string" 
 						MOCKvalue="datagen/NHBS_mock_2014.csv" 
 						value2012="data/IDU3_2012-2014-04-17.csv" 
-						value="data/IDU2_HCV_model_012913_cleaned.csv" />
+						value="data/IDU2_HCV_model_012913_cleaned.csv" ></parameter>
 </sweep>

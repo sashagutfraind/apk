@@ -1,0 +1,14 @@
+bin/
+.DS_Store
+src-gen/
+
+
+# Repast specific
+Repast.settings
+debug.log*
+velocity.log*
+
+**/.settings/org.eclipse.jdt.groovy.core.prefs
+**/.settings/org.eclipse.jdt.core.prefs
+
+code/output/
