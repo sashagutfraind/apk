@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="APK2/ModelInitializer.groovy|edu/uic/apk/GisNetStyle.java|edu/uic/apk/SimHelper.java|APK2/|edu/uic/apk/Gender.java|edu/uic/apk/Race.java|edu/uic/apk/HCV_state.java|edu/uic/apk/APKAgent.java|edu/uic/apk/Activity_profile.java|edu/uic/apk/HashMap2.java|edu/uic/apkSynth/HashMap2.java|edu/uic/apk/Snippets.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry exported="true" kind="con" path="REPAST_SIMPHONY_SUPPORT"/>
+	<classpathentry exported="true" kind="lib" path="/home/sasha/Documents/projects/hcv/code/lib/jogl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/gluegen-rt-1.1.1+dak1.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java"/>
+	<classpathentry kind="lib" path="/home/sasha/hcv/code/lib/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/weka.jar" sourcepath="lib/weka-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/sasha/Documents/projects/hcv/code/lib/joda-time-2.2.jar" sourcepath="/home/sasha/Documents/projects/hcv/code/lib/joda-time-2.2-dist.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/sasha/Documents/projects/hcv/code/lib/joda-time-2.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/sasha/hcv/code/lib/colt-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/colt-1.2.0.zip"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Ant HOME"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/RepastInstallerAdditional"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
