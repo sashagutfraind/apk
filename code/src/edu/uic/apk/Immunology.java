@@ -48,7 +48,7 @@ public class Immunology implements java.io.Serializable {
 	private boolean past_recovered = false;
 	private transient IDU agent; //back reference to the IDU
 	private HCV_state hcv_state = HCV_state.susceptible;
-	private boolean in_treatment_viral_suppression = false; //set true as soon as titers drop, and false when leave
+	//private boolean in_treatment_viral_suppression = false; //true as soon as titers drop, and false when leave treatment (true even if not adherent)
 	private boolean in_treatment = false; //true as soon as initiate treatment, and false when leave
 	private Double treatment_start_date = null; //null indicates never treated
 	
@@ -129,20 +129,24 @@ public class Immunology implements java.io.Serializable {
 				|| (hcv_state == HCV_state.cured);
 	}
 	public boolean isHcvRNA() {
-		return hcv_state == HCV_state.exposed 
+		return (hcv_state == HCV_state.exposed 
 				|| hcv_state == HCV_state.infectiousacute 
-				|| hcv_state == HCV_state.chronic 
-				|| in_treatment_viral_suppression;
-		//TODO: when in_treatment_viral_suppression==true, isInfectious should be false
+				|| hcv_state == HCV_state.chronic) 
+			&& (! isIn_treatment_viral_suppression());
 	}
 	public boolean isInfectious() {
-		return hcv_state == HCV_state.infectiousacute 
-				|| hcv_state == HCV_state.chronic 
-				|| in_treatment_viral_suppression;
-		//TODO: when in_treatment_viral_suppression==true, isInfectious should be false
+		return (hcv_state == HCV_state.infectiousacute 
+				|| hcv_state == HCV_state.chronic) 
+			&& (! isIn_treatment_viral_suppression());
 	}
 	public boolean isInTreatment() {
 		return in_treatment;
+	}
+	private boolean isIn_treatment_viral_suppression() {
+		if(! in_treatment) {
+			return false;
+		}
+		return (treatment_start_date + Immunology.mean_days_residual_hcv_infectivity) < RepastEssentials.GetTickCount();
 	}
 	public boolean isNaive() {
 		return hcv_state == HCV_state.susceptible;
@@ -150,11 +154,11 @@ public class Immunology implements java.io.Serializable {
 	public boolean isResistant() {
 		return hcv_state == HCV_state.recovered;
 	}
-	public boolean isPostTreatment() {
+	public boolean isPostTreatment() { //i.e. completed a course of treatment
 		return (! in_treatment) & (treatment_start_date != null);
 	}
 	public boolean isTreatable() {
-		return isHcvRNA() && (! in_treatment) && (treatment_repeatable || (! isPostTreatment()));
+		return (! in_treatment) && isHcvRNA() && (treatment_repeatable || (! isPostTreatment()));
 	}
 	public HCV_state getHcvState() {
 		return hcv_state;
@@ -265,18 +269,14 @@ public class Immunology implements java.io.Serializable {
 		Statistics.fire_status_change(AgentMessage.infectious, agent, "", null);
 	}
 	
-	public void leave_infectious_titers() {
-		in_treatment_viral_suppression = true;
-	}
-	
 	public void leave_treatment(boolean treatment_succeeded) {
 		in_treatment = false;
-		in_treatment_viral_suppression = false;
 		if (treatment_succeeded) {
 			hcv_state = HCV_state.cured; 
 			Statistics.fire_status_change(AgentMessage.cured, agent, "", null); 
 		} else {
 			Statistics.fire_status_change(AgentMessage.failed_treatment, agent, "", null); 
+			hcv_state = HCV_state.chronic; //even if entered as acute.  ignore the case where was about to self-limit 
 		}
 	}
 
@@ -293,7 +293,6 @@ public class Immunology implements java.io.Serializable {
 		}
 		next_immunology_actions.clear(); 
 		in_treatment = false;
-		in_treatment_viral_suppression = false;
 	}
 	/*
 	 * start a NATURAL infection via exposure.  
@@ -335,24 +334,27 @@ public class Immunology implements java.io.Serializable {
 		
 		return true;
 	}
+	/*
+	 * called to initiate treatment
+	 */
 	public void startTreatment(boolean adherent) {
 		if(! isTreatable()) {
 			System.out.println("Agent cannot be treated [doubly recruited?] ..." + agent.toString());
 			return;
 		}
-		purge_actions(); //here - to purge any residual actions
+		//prevent any accidental switch to chronic during treatment
+		purge_actions(); //here - to purge any residual actions, such as switch to chronic
 		treatment_start_date = RepastEssentials.GetTickCount();
 		in_treatment = true;
-		//prevent any accidental switch to chronic during treatment
 		Statistics.fire_status_change(AgentMessage.started_treatment, this.agent, "", null);
 
 		ISchedule schedule = RunEnvironment.getInstance().getCurrentSchedule();
-		Normal residual_infectivity_rng_stream = RandomHelper.createNormal(Immunology.mean_days_residual_hcv_infectivity, 1);
-		//end infectivity, then end treatment (see leave_infectious)
-		double infectious_end_time = RepastEssentials.GetTickCount()
-			   		  + residual_infectivity_rng_stream.nextDouble();
-		ScheduleParameters leave_infectious_titers_time = ScheduleParameters.createOneTime(infectious_end_time);
-		next_immunology_actions.add(schedule.schedule(leave_infectious_titers_time, this, "leave_infectious_titers"));
+//		Normal residual_infectivity_rng_stream = RandomHelper.createNormal(Immunology.mean_days_residual_hcv_infectivity, 1);
+//		//end infectivity, then end treatment (see leave_infectious)
+//		double infectious_end_time = RepastEssentials.GetTickCount()
+//			   		  + residual_infectivity_rng_stream.nextDouble();
+//		ScheduleParameters leave_infectious_titers_time = ScheduleParameters.createOneTime(infectious_end_time);
+//		next_immunology_actions.add(schedule.schedule(leave_infectious_titers_time, this, "leave_infectious_titers"));
 
 		Normal treatment_end_rng_stream = RandomHelper.createNormal(Immunology.treatment_duration, 1);
 		double treatment_end_time = RepastEssentials.GetTickCount()
