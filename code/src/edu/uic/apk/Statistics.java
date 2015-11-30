@@ -76,14 +76,16 @@ public class Statistics {
 	
 	private static final double daily_stats_timing = 1.001;  //should be near 1.  
 	private static Parameters params;
-	private static int aggregate_courses = 0; 
-	private static int aggregate_treated = 0; 
+	private static int aggregate_courses = 0; //of treatment since start
+	private static int aggregate_posttreat = 0; //IDUs treated since start 
 	//probably unnecessary: private static TreeSet<Integer> treated_hashes = new TreeSet <Integer>();
 
-	private static int activations_ALL = 0;    //daily losses (attrition, retirement, etc). updated during fire_status_change
-	private static int incidence_ALL = 0; //daily incidence. updated during fire_status_change
-	private static int losses_ALL = 0;    //daily losses (attrition, retirement, etc). updated during fire_status_change
-	private static int recruitments_ALL = 0;    //recruitment into treatment. updated during fire_status_change
+	//these are updated during fire_status_change:
+	private static int activations_daily = 0;    
+	private static int cured_daily = 0;   
+	private static int incidence_daily = 0; 
+	private static int losses_daily = 0;    
+	private static int treatment_recruited_daily = 0;
 	private static ArrayList <String> runtimeStatNames;
 	private static boolean burn_in_mode = false;
 
@@ -93,8 +95,8 @@ public class Statistics {
 	public static void build(Parameters _params, Context _context, Network _network, HashMap <String, ZoneAgent> _zip_to_zones, HashMap <ZoneAgent,HashMap<ZoneAgent,Double>> _zone_zone_distance) {
 		singleton = new Statistics();
 		
-		//needed to be recognized as a DataSource.  automatically schedules any annotated objects
-		_context.add(singleton);  
+		_context.add(singleton);  //needed to be recognized as a DataSource.  also needed for scheduling actions. automatically schedules any annotated objects
+		 
 		build_helper(_params, _context, _network, _zip_to_zones, _zone_zone_distance);
 	}
 	public static void setBurnInMode(boolean b) {
@@ -109,80 +111,90 @@ public class Statistics {
 		zone_zone_distance = _zone_zone_distance;
 		
 		runtimeStatNames = new ArrayList<String>();
-		runtimeStatNames.add("activations_ALL");
-		runtimeStatNames.add("losses_ALL");
-		runtimeStatNames.add("incidence_ALL");
-		runtimeStatNames.add("recruitments_ALL");
+		runtimeStatNames.add("activations_daily");
+		runtimeStatNames.add("aggregate_courses");
+		runtimeStatNames.add("aggregate_posttreat");
+		runtimeStatNames.add("cured_daily");
+		runtimeStatNames.add("incidence_daily");
+		runtimeStatNames.add("losses_daily");
+		runtimeStatNames.add("treatment_recruited_daily");
 		runtimeStatNames.add("mean-age_ALL");
 		runtimeStatNames.add("mean-career_ALL");
 		runtimeStatNames.add("mean-dailyinj_ALL");
 		runtimeStatNames.add("mean-indeg_ALL");
 		runtimeStatNames.add("mean-outdeg_ALL");
 		runtimeStatNames.add("mean-sharing_ALL");
+		runtimeStatNames.add("cured_ALL");
 		runtimeStatNames.add("fraction_ALL"); //will always = 1.0
 		runtimeStatNames.add("hcvabpos_ALL");
 		runtimeStatNames.add("infected_ALL");
 		runtimeStatNames.add("population_ALL");
 		runtimeStatNames.add("prevalence_ALL");
 		runtimeStatNames.add("intreatment_ALL");
-		runtimeStatNames.add("treated_ALL");
-		runtimeStatNames.add("treatments_ALL");
+		runtimeStatNames.add("intreatment_ALL");
 
 		for (Gender g : Gender.values()) {
+			runtimeStatNames.add("cured_Gender=" + g.toString());			
 			runtimeStatNames.add("hcvabpos_Gender=" + g.toString());			
 			runtimeStatNames.add("fraction_Gender=" + g.toString());			
 			runtimeStatNames.add("infected_Gender=" + g.toString());			
 			runtimeStatNames.add("population_Gender=" + g.toString());
 			runtimeStatNames.add("prevalence_Gender=" + g.toString());			
-			runtimeStatNames.add("treated_Gender=" + g.toString());			
+			runtimeStatNames.add("intreatment_Gender=" + g.toString());			
 		}
 		for (HCV_state s : HCV_state.values()) {
+			runtimeStatNames.add("cured_HCV=" + s.toString());			
 			runtimeStatNames.add("hcvabpos_HCV=" + s.toString());			
 			runtimeStatNames.add("fraction_HCV=" + s.toString());			
 			runtimeStatNames.add("infected_HCV=" + s.toString());			
 			runtimeStatNames.add("population_HCV=" + s.toString());
 			runtimeStatNames.add("prevalence_HCV=" + s.toString());			
-			runtimeStatNames.add("treated_HCV=" + s.toString());			
+			runtimeStatNames.add("intreatment_HCV=" + s.toString());			
 		}
 		for (Race r : Race.values()) {
+			runtimeStatNames.add("cured_Race=" + r.toString());			
 			runtimeStatNames.add("fraction_Race=" + r.toString());
 			runtimeStatNames.add("hcvabpos_Race=" + r.toString());
 			runtimeStatNames.add("infected_Race=" + r.toString());
 			runtimeStatNames.add("population_Race=" + r.toString());
 			runtimeStatNames.add("prevalence_Race=" + r.toString());			
-			runtimeStatNames.add("treated_Race=" + r.toString());			
+			runtimeStatNames.add("intreatment_Race=" + r.toString());			
 		}
 		for (HarmReduction syrsrc : HarmReduction.values()) {
+			runtimeStatNames.add("cured_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("fraction_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("hcvabpos_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("infected_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("population_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("prevalence_SyringeSource=" + syrsrc.toString());
-			runtimeStatNames.add("treated_SyringeSource=" + syrsrc.toString());			
+			runtimeStatNames.add("intreatment_SyringeSource=" + syrsrc.toString());			
 		}
 		for (IDU.AgeDecade age_dec : IDU.AgeDecade.values()) {
+			runtimeStatNames.add("cured_AgeDec=" + age_dec);
 			runtimeStatNames.add("fraction_AgeDec=" + age_dec);
 			runtimeStatNames.add("hcvabpos_AgeDec=" + age_dec);
 			runtimeStatNames.add("infected_AgeDec=" + age_dec);
 			runtimeStatNames.add("population_AgeDec=" + age_dec);
 			runtimeStatNames.add("prevalence_AgeDec=" + age_dec);
-			runtimeStatNames.add("treated_AgeDec=" + age_dec);
+			runtimeStatNames.add("intreatment_AgeDec=" + age_dec);
 		}
 		for (IDU.AgeGroup age_grp : IDU.AgeGroup.values()) {
+			runtimeStatNames.add("cured_Age=" + age_grp);
 			runtimeStatNames.add("fraction_Age=" + age_grp);
 			runtimeStatNames.add("hcvabpos_Age=" + age_grp);
 			runtimeStatNames.add("infected_Age=" + age_grp);
 			runtimeStatNames.add("population_Age=" + age_grp);
 			runtimeStatNames.add("prevalence_Age=" + age_grp);
-			runtimeStatNames.add("treated_Age=" + age_grp);
+			runtimeStatNames.add("intreatment_Age=" + age_grp);
 		}
 		for (IDU.AreaType area_cat : IDU.AreaType.values()) {
+			runtimeStatNames.add("cured_Area=" + area_cat);
 			runtimeStatNames.add("fraction_Area=" + area_cat);
 			runtimeStatNames.add("hcvabpos_Area=" + area_cat);
 			runtimeStatNames.add("infected_Area=" + area_cat);
 			runtimeStatNames.add("population_Area=" + area_cat);
 			runtimeStatNames.add("prevalence_Area=" + area_cat);
-			runtimeStatNames.add("treated_Area=" + area_cat);
+			runtimeStatNames.add("intreatment_Area=" + area_cat);
 		}
 
 		System.out.printf("Random seed: %d"+lineSep+lineSep, RandomHelper.getSeed());
@@ -294,6 +306,9 @@ public class Statistics {
 
 	}
 	
+	/*
+	 * stores all the stats into a dictionary.
+	 */
 	public Hashtable <String,Double> collect_stats() {
 		Hashtable <String,Double> currentData = new Hashtable <String,Double> (); 
 		for(String k : runtimeStatNames) {
@@ -347,15 +362,25 @@ public class Statistics {
 				currentData.put("hcvabpos_"+agegrp,  currentData.get("hcvabpos_"+agegrp)+1);
 				currentData.put("hcvabpos_"+areatype,   currentData.get("hcvabpos_"+areatype)+1);
 			}
-			if(agent.isInTreatment() || agent.isCured()) {
-				currentData.put("treated_ALL",       currentData.get("treated_ALL") + 1);
-				currentData.put("treated_"+gender,   currentData.get("treated_"+gender)+1);
-				currentData.put("treated_"+hcvstate, currentData.get("treated_"+hcvstate)+1);
-				currentData.put("treated_"+race, 	 currentData.get("treated_"+race)+1);
-				currentData.put("treated_"+syrsrc,   currentData.get("treated_"+syrsrc)+1);
-				currentData.put("treated_"+agedec,   currentData.get("treated_"+agedec)+1);
-				currentData.put("treated_"+agegrp,   currentData.get("treated_"+agegrp)+1);
-				currentData.put("treated_"+areatype, currentData.get("treated_"+areatype)+1);
+			if(agent.isInTreatment()) {
+				currentData.put("intreatment_",       currentData.get("intreatment_ALL") + 1);
+				currentData.put("intreatment_"+gender,   currentData.get("intreatment_"+gender)+1);
+				currentData.put("intreatment_"+hcvstate, currentData.get("intreatment_"+hcvstate)+1);
+				currentData.put("intreatment_"+race, 	 currentData.get("intreatment_"+race)+1);
+				currentData.put("intreatment_"+syrsrc,   currentData.get("intreatment_"+syrsrc)+1);
+				currentData.put("intreatment_"+agedec,   currentData.get("intreatment_"+agedec)+1);
+				currentData.put("intreatment_"+agegrp,   currentData.get("intreatment_"+agegrp)+1);
+				currentData.put("intreatment_"+areatype, currentData.get("intreatment_"+areatype)+1);
+			}
+			if(agent.isCured()) {
+				currentData.put("cured_ALL",       currentData.get("cured_ALL") + 1);
+				currentData.put("cured_"+gender,   currentData.get("cured_"+gender)+1);
+				currentData.put("cured_"+hcvstate, currentData.get("cured_"+hcvstate)+1);
+				currentData.put("cured_"+race, 	   currentData.get("cured_"+race)+1);
+				currentData.put("cured_"+syrsrc,   currentData.get("cured_"+syrsrc)+1);
+				currentData.put("cured_"+agedec,   currentData.get("cured_"+agedec)+1);
+				currentData.put("cured_"+agegrp,   currentData.get("cured_"+agegrp)+1);
+				currentData.put("cured_"+areatype, currentData.get("cured_"+areatype)+1);
 			}
 		}
 		Double total_population = Math.max(1.0, currentData.get("population_ALL"));
@@ -382,13 +407,14 @@ public class Statistics {
 		}
 
 		//we collect these separately when the events arrive
-		currentData.put("activations_ALL", new Double(Statistics.activations_ALL));
-		currentData.put("losses_ALL",      new Double(Statistics.losses_ALL));
-		currentData.put("incidence_ALL",   new Double(Statistics.incidence_ALL));
-		currentData.put("recruitments_ALL",new Double(Statistics.recruitments_ALL));		
-		currentData.put("treated_ALL",     new Double(aggregate_treated));
-		currentData.put("treatments_ALL",  new Double(aggregate_courses));
-		
+		currentData.put("activations_daily", new Double(Statistics.activations_daily));
+		currentData.put("aggregate_courses", new Double(aggregate_courses));
+		currentData.put("aggregate_posttreat", new Double(aggregate_posttreat));
+		currentData.put("cured_daily",       new Double(Statistics.cured_daily));
+		currentData.put("incidence_daily",   new Double(Statistics.incidence_daily));
+		currentData.put("losses_daily",      new Double(Statistics.losses_daily));
+		currentData.put("treatment_recruited_daily",new Double(Statistics.treatment_recruited_daily));		
+
 		return currentData;
 	}
 
@@ -412,7 +438,7 @@ public class Statistics {
 	 */
 	public static int daily_losses() {
 		assert singleton != null;
-		return Statistics.losses_ALL;
+		return Statistics.losses_daily;
 	}
 
 	/*
@@ -535,27 +561,31 @@ public class Statistics {
 		}
 		double time_now = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), APKBuilder.getSimulation_start_date()); //RunEnvironment.getInstance().getCurrentSchedule().getTickCount()
 		
-		fire_aggregatehelper(time_now, agent, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-		
 		switch(message) {
 			case activated:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.activations_ALL += 1;
+				Statistics.activations_daily += 1;
 				break;
 			case cured:
-			case failed_treatment:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				Statistics.cured_daily += 1;
+				Statistics.aggregate_posttreat += 1;
 				break;
 			case chronic:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case deactivated:
-				Statistics.losses_ALL += 1;
+				Statistics.losses_daily += 1;
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case exposed:
 				break; //not recorded - too many events
+			case failed_treatment:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				Statistics.aggregate_posttreat += 1;
+				break;
 			case infected:
+				Statistics.incidence_daily += 1;
 				boolean is_agents_first_exposure = (agent.getLastExposureDate().getYear() < 1900);
 				if (is_agents_first_exposure || agent.isPostTreatment()) {
 					//warning: this does not consider the burn-in time
@@ -584,28 +614,8 @@ public class Statistics {
 				break;
 			case started_treatment:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.recruitments_ALL += 1;
-				break;
-			default:
-				break;
-		}
-	}
-	/*
-	 * update certain aggregate statistics for this time step
-	 */
-	private static void fire_aggregatehelper(double time_now, IDU agent, String eventClass, int agentID, AgentMessage message, Object message_info,
-		    String label1, Object data1, String label2, Object data2, 
-		    Object agentDetails) {
-		switch(message) {
-			case infected:
-				Statistics.incidence_ALL += 1;
-				break;
-			case started_treatment:
+				Statistics.treatment_recruited_daily += 1;
 				Statistics.aggregate_courses += 1;
-				break;
-			case cured:
-			case failed_treatment:
-				Statistics.aggregate_treated += 1;
 				break;
 			default:
 				break;
@@ -674,6 +684,7 @@ public class Statistics {
 	public Double prevalence_AgeLEQ30() {
 		return getCurrentStat("prevalence_Age="+AgeGroup.LEQ30);
 	}
+//wishlist: consider implementing
 //	public Double prevalence_treated() {
 //		return getCurrentStat("prevalence_treated");
 //	}
@@ -829,6 +840,8 @@ public class Statistics {
 		if(burn_in_mode) {
 			System.out.printf(lineSep+"Day (incl. burnin): %.3f. Doing burn-in. ", RepastEssentials.GetTickCount());
 			return; //optionally, we could record the events, but discard the row with "burn_in_mode=1"
+		} else {
+			System.out.printf(lineSep+"Day (incl. burnin): %.3f.\n ", RepastEssentials.GetTickCount());
 		}
 		assert this == singleton;
 		try{
@@ -844,6 +857,7 @@ public class Statistics {
 				}
 				popStatsStream.printf("%f,",val);
 				runningStats.get(statName).add(val);
+				System.out.printf(statName + "=" + val + "\n"); 
 			}
 			if (! Double.isNaN(currentData.get("prevalence_ALL"))) {
 //				System.out.printf(lineSep+"Day: %.3f. Prevalence_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("prevalence_ALL"));
@@ -853,10 +867,12 @@ public class Statistics {
 			popStatsStream.printf(lineSep);
 
 			//System.out.println("T" + RepastEssentials.GetTickCount() + ". Lost: " + losses_now);
-			incidence_ALL 	= 0;  //initialize accumulator for current tick
-			activations_ALL = 0;  //initialize accumulator for current tick
-			losses_ALL    	= 0;  //initialize accumulator for current tick
-			recruitments_ALL    	= 0;  //initialize accumulator for current tick
+			//initialize accumulators for current tick
+			activations_daily = 0;  
+			cured_daily       = 0;
+			incidence_daily   = 0;
+			losses_daily      = 0;
+			treatment_recruited_daily= 0;
 		} catch (Exception ex) {
 			System.out.println("Error while computing statistics:");
 			ex.printStackTrace();

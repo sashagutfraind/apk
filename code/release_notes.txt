@@ -1,3 +1,20 @@
+2015-11-29
+---------------------------
+changes
+- improved recruitment code
+- more informed stats
+
+Completed Testing:
+- very strong recruitment ultimately wipes out HCV
+- doses are counted correctly
+- adherence=0 leads to lots of treatment, but no decline in prevalence
+- one acute person goes through all key stages of the disease
+- one chronic person goes through all key stages of the disease
+
+known problems:
+-agents are not clickable in GUI
+
+
 2015-10-15
 ---------------------------
 changes
