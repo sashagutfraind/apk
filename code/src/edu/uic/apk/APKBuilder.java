@@ -371,6 +371,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		}
 		for(EnrollmentMethod mthd : EnrollmentMethod.values()) {
 			double enrollment_target = todays_total_enrollment * treatment_enrollment_probability.get(mthd) + treatment_residual_enrollment.get(mthd);
+			treatment_residual_enrollment.put(mthd, enrollment_target);  //update.  might be fractional increase 	
 			if(enrollment_target < 1) {
 				continue;
 			}
