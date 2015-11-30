@@ -857,7 +857,7 @@ public class Statistics {
 				}
 				popStatsStream.printf("%f,",val);
 				runningStats.get(statName).add(val);
-				System.out.printf(statName + "=" + val + "\n"); 
+				//System.out.printf(statName + "=" + val + "\n"); 
 			}
 			if (! Double.isNaN(currentData.get("prevalence_ALL"))) {
 //				System.out.printf(lineSep+"Day: %.3f. Prevalence_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("prevalence_ALL"));

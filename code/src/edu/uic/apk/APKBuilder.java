@@ -373,6 +373,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 			double enrollment_target = todays_total_enrollment * treatment_enrollment_probability.get(mthd) + treatment_residual_enrollment.get(mthd);
 			treatment_residual_enrollment.put(mthd, enrollment_target);  //update.  might be fractional increase 	
 			if(enrollment_target < 1) {
+				//System.out.println("Method: " + mthd + ". Enrolled: " + 0 + ". Residual: " + (enrollment_target - 0));
 				continue;
 			}
 			Collections.shuffle(candidates); //shuffle for every method
@@ -381,7 +382,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 			for(IDU idu : enrolled) {
 				idu.startTreatment();
 			}
-			System.out.println("Method: " + mthd + ". Enrolled: " + enrolled.size() + ". Residual: " + (enrollment_target - enrolled.size()));
+			//System.out.println("Method: " + mthd + ". Enrolled: " + enrolled.size() + ". Residual: " + (enrollment_target - enrolled.size()));
 		}
 	}
 	
