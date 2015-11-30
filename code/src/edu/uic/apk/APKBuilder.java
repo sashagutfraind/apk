@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -365,16 +366,17 @@ public class APKBuilder implements ContextBuilder<Object> {
 			}
 		}
 		if(candidates.size() == 0) {
-			System.out.println("Treatable PWIDs: 0");
+			System.out.println("Not treating - treatable PWIDs: 0");
+			return;
 		}
 		for(EnrollmentMethod mthd : EnrollmentMethod.values()) {
-			HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
 			double enrollment_target = todays_total_enrollment * treatment_enrollment_probability.get(mthd) + treatment_residual_enrollment.get(mthd);
-			double max_trials = enrollment_target*10;
-			for(int trial=0; (enrolled.size() < enrollment_target) && (trial < max_trials); ++trial) {
-				enrolled.addAll(do_treatment_select(mthd, candidates));
+			if(enrollment_target < 1) {
+				continue;
 			}
-			treatment_residual_enrollment.put(mthd, enrollment_target - enrolled.size()); 	//can shoot below 0
+			Collections.shuffle(candidates); //shuffle for every method
+			HashSet<IDU> enrolled = do_treatment_select(mthd, candidates, enrollment_target); //set, to avoid accidentally double-recruiting
+			treatment_residual_enrollment.put(mthd, enrollment_target - enrolled.size()); 	//carried over from day to the next day.  this can give below 0
 			for(IDU idu : enrolled) {
 				idu.startTreatment();
 			}
@@ -383,35 +385,32 @@ public class APKBuilder implements ContextBuilder<Object> {
 	}
 	
 	/*
-	 * attempts to recruit an individual for treatment
-	 * does not modify treatment_residual_enrollment_num, does not guarantee success
+	 * attempts to recruit for treatment using method enrMethod
+	 * graceful operation - does not guarantee success in recruiting the desired number
 	 */
-	public HashSet<IDU> do_treatment_select(EnrollmentMethod enrMethod, ArrayList <IDU> candidates) {
+	public HashSet<IDU> do_treatment_select(EnrollmentMethod enrMethod, ArrayList <IDU> candidates, double enrollment_target) {
 		HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
-		
 		if(candidates.size() == 0) {
 			return enrolled;
 		}
-		int max_trials = 100;
-		//TODO: ensure graceful performance when agent density is very low
-		//TODO: shuffle the candidates, and just access them one by one.  -> no more blind trying
+		int next_candidate_idx = 0;
 		if(enrMethod == EnrollmentMethod.unbiased) {
-			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
-				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
+				IDU idu = candidates.get(next_candidate_idx);
 				if(idu.isTreatable()) {
 					enrolled.add(idu);
 				}
 			}
 		} else if(enrMethod == EnrollmentMethod.HRP) {
-			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
-				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
+				IDU idu = candidates.get(next_candidate_idx);
 				if(idu.isTreatable() && idu.isInHarmReduction()) {
 					enrolled.add(idu);
 				}
 			}
 		} else if(enrMethod == EnrollmentMethod.fullnetwork) {
-			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
-				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
+				IDU idu = candidates.get(next_candidate_idx);
 				if(! idu.isTreatable()) {
 					continue;
 				}
@@ -422,9 +421,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 						enrolled.add((IDU)nb);
 					}
 				}
-			}//TODO: rename inpartner -> inpartner
+			}
 		} else if(enrMethod == EnrollmentMethod.inpartner || enrMethod == EnrollmentMethod.outpartner) {
-			for(int trial=0; (enrolled.size() == 0) && (trial < max_trials); ++trial) {
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
 				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
 				if(! idu.isTreatable()) {
 					continue;
@@ -437,7 +436,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 					nbs = network.getSuccessors(idu);
 				}
 				for(Object nb : nbs) {
-					if(nb != null && (nb instanceof IDU) && ((IDU)nb).isTreatable()) {
+					if((nb != null) && (nb instanceof IDU) && ((IDU)nb).isTreatable()) {
 						enrolled.add((IDU)nb);
 						break; //only one
 					}
