@@ -10,7 +10,7 @@
 		<parameter name="attrition_rate" type="constant" constant_type="double" 
 						 value="0.024d" ></parameter>
 		<parameter name="burn_in_days" type="constant" constant_type="double" 
-						 value="1" FIXMEvalue="365.0d" ></parameter>
+						 TRIALvalue="1" value="365.0d" ></parameter>
 		<parameter name="dump_network_distances" type="constant" constant_type="number" 
 						 value="-1"></parameter>
 		<parameter name="homophily_strength" type="constant" constant_type="double" 
@@ -70,7 +70,7 @@
 		<parameter name="pwid_maturity_threshold" type="constant" constant_type="double" 
 						value="5.0" ></parameter>
         <parameter name="run_length" type="constant" constant_type="number" 
-                        longvalue="8035" value="4015" comment="365*10 + 365 burnin" ></parameter>
+                        value="11315" comment="365*30 + 365 burnin" ></parameter>
         <parameter name="status_report_frequency" type="constant" constant_type="double" 
 						value="365.0" ></parameter>
         <parameter name="transmissibility" type="constant" constant_type="double" 
@@ -78,7 +78,7 @@
         <parameter name="treatment_duration" type="constant" constant_type="double" 
 					    value="84.0d" ></parameter>
         <parameter name="treatment_enrollment_start_delay" type="constant" constant_type="double" 
-					    value="10" FIXMEvalue="2190" ></parameter>
+					    TRIALvalue="10" value="2190" ></parameter>
         <parameter name="treatment_enrollment_probability_unbiased" type="constant" constant_type="double" 
 					    value="0.5d" ></parameter>
         <parameter name="treatment_enrollment_probability_HRP" type="constant" constant_type="double" 

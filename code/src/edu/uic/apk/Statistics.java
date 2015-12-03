@@ -130,6 +130,7 @@ public class Statistics {
 		runtimeStatNames.add("infected_ALL");
 		runtimeStatNames.add("population_ALL");
 		runtimeStatNames.add("prevalence_ALL");
+		runtimeStatNames.add("RNApreval_ALL");
 		runtimeStatNames.add("intreatment_ALL");
 		runtimeStatNames.add("intreatment_ALL");
 
@@ -140,6 +141,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_Gender=" + g.toString());			
 			runtimeStatNames.add("population_Gender=" + g.toString());
 			runtimeStatNames.add("prevalence_Gender=" + g.toString());			
+			runtimeStatNames.add("RNApreval_Gender=" + g.toString());			
 			runtimeStatNames.add("intreatment_Gender=" + g.toString());			
 		}
 		for (HCV_state s : HCV_state.values()) {
@@ -149,6 +151,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_HCV=" + s.toString());			
 			runtimeStatNames.add("population_HCV=" + s.toString());
 			runtimeStatNames.add("prevalence_HCV=" + s.toString());			
+			runtimeStatNames.add("RNApreval_HCV=" + s.toString());			
 			runtimeStatNames.add("intreatment_HCV=" + s.toString());			
 		}
 		for (Race r : Race.values()) {
@@ -158,6 +161,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_Race=" + r.toString());
 			runtimeStatNames.add("population_Race=" + r.toString());
 			runtimeStatNames.add("prevalence_Race=" + r.toString());			
+			runtimeStatNames.add("RNApreval_Race=" + r.toString());			
 			runtimeStatNames.add("intreatment_Race=" + r.toString());			
 		}
 		for (HarmReduction syrsrc : HarmReduction.values()) {
@@ -167,6 +171,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("population_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("prevalence_SyringeSource=" + syrsrc.toString());
+			runtimeStatNames.add("RNApreval_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("intreatment_SyringeSource=" + syrsrc.toString());			
 		}
 		for (IDU.AgeDecade age_dec : IDU.AgeDecade.values()) {
@@ -176,6 +181,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_AgeDec=" + age_dec);
 			runtimeStatNames.add("population_AgeDec=" + age_dec);
 			runtimeStatNames.add("prevalence_AgeDec=" + age_dec);
+			runtimeStatNames.add("RNApreval_AgeDec=" + age_dec);
 			runtimeStatNames.add("intreatment_AgeDec=" + age_dec);
 		}
 		for (IDU.AgeGroup age_grp : IDU.AgeGroup.values()) {
@@ -185,6 +191,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_Age=" + age_grp);
 			runtimeStatNames.add("population_Age=" + age_grp);
 			runtimeStatNames.add("prevalence_Age=" + age_grp);
+			runtimeStatNames.add("RNApreval_Age=" + age_grp);
 			runtimeStatNames.add("intreatment_Age=" + age_grp);
 		}
 		for (IDU.AreaType area_cat : IDU.AreaType.values()) {
@@ -194,6 +201,7 @@ public class Statistics {
 			runtimeStatNames.add("infected_Area=" + area_cat);
 			runtimeStatNames.add("population_Area=" + area_cat);
 			runtimeStatNames.add("prevalence_Area=" + area_cat);
+			runtimeStatNames.add("RNApreval_Area=" + area_cat);
 			runtimeStatNames.add("intreatment_Area=" + area_cat);
 		}
 
@@ -398,10 +406,13 @@ public class Statistics {
 			String group_name  = metric.split("_")[1];
 			Double population  = currentData.get(metric);
 			Double hcvabpos    = currentData.get("hcvabpos_"+group_name);
+			Double infected    = currentData.get("infected_"+group_name); //specifically, RNA+
 			if (population != null && population > 0) {
 				currentData.put("prevalence_"+group_name, hcvabpos/population);
+				currentData.put("RNApreval_"+group_name, infected/population);
 			} else {
 				currentData.put("prevalence_"+group_name, Double.NaN);
+				currentData.put("RNApreval_"+group_name, Double.NaN);
 			}
 			currentData.put("fraction_"+group_name, population/total_population);
 		}
