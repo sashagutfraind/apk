@@ -22,6 +22,7 @@ import sys
 import numpy as np
 import numpy.random as npr
 import random
+import csv
 import re, os, subprocess, sys, time, pickle, pdb
 import ConfigParser
 import elementtree.ElementTree as ET  #XML parser
@@ -526,6 +527,17 @@ def writeJobs(runData, samples, driverParams):
         raise
     finally:
         f.close()
+
+    jobsSummaryFilePath    = os.path.join(runData['dataDir'], "LHS_params" + timeNow() + '.csv')
+    with open(jobsSummaryFilePath, 'w') as summaryFile:
+        fieldnames = samples[0].keys()
+        fieldnames.sort()
+        writer = csv.DictWriter(summaryFile, fieldnames=fieldnames)
+        writer.writeheader()
+        for sample in samples:
+            vals = {k:sample[k]['value'] for k in fieldnames}
+            writer.writerow(vals)
+    print 'Written params summary: ' + jobsSummaryFilePath
 
     return jobsListFilepath
 
