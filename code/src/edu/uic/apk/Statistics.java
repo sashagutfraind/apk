@@ -74,6 +74,12 @@ public class Statistics {
 	private static PrintStream regularStatusStream;
 	private static PrintStream statusStream;
 	
+	private boolean verbose_events			= false;
+	private boolean verbose_populations 		= false;
+	private boolean verbose_regular_status 	= false;
+	private boolean verbose_status 			= false;
+	
+	
 	private static final double daily_stats_timing = 1.001;  //should be near 1.  
 	private static Parameters params;
 	private static int aggregate_courses = 0; //of treatment since start
@@ -311,6 +317,13 @@ public class Statistics {
 			Vector<Double> ar = (Vector<Double>) it.next();
 			ar.ensureCapacity((int)runLength+1);
 		}
+		
+		String verbosity = params.getValueAsString("verbosity");
+		singleton.verbose_events			= verbosity.contains("events"); 
+		singleton.verbose_populations 		= verbosity.contains("populations");
+		singleton.verbose_regular_status 	= verbosity.contains("regularStatus");
+		singleton.verbose_status 			= verbosity.contains("status");
+		//parse value="events,populations,regularStatus,status"
 
 	}
 	
@@ -650,11 +663,14 @@ public class Statistics {
 			message_info = "";
 		}
 		PrintStream target_stream = singleton.eventsStream;
-		if(message == AgentMessage.status){ 
+		if(message == AgentMessage.status && singleton.verbose_status){ 
 			target_stream = singleton.statusStream;
-		} else if (message == AgentMessage.regular_status) {
+		} else if (message == AgentMessage.regular_status && singleton.verbose_regular_status) {
 			target_stream = singleton.regularStatusStream;
+		} else if (! singleton.verbose_events) { 
+			return; //don't report status
 		}
+		
         target_stream.printf("%.3f,%s,%d,%s,%s,",	time_now, eventClass, agentID, message.toString(), message_info.toString());
         target_stream.printf("%s,%s,%s,%s,,%s" + System.lineSeparator(), label1, data1.toString(), label2, label2.toString(), agentDetails.toString());
 	}
@@ -855,6 +871,9 @@ public class Statistics {
 			System.out.printf(lineSep+"Day (incl. burnin): %.3f.\n ", RepastEssentials.GetTickCount());
 		}
 		assert this == singleton;
+		if(! singleton.verbose_populations) {
+			return;
+		}
 		try{
 			Hashtable <String,Double> currentData = collect_stats(); 
 			popStatsStream.printf("%d,%.4f,",(burn_in_mode?1:0),RepastEssentials.GetTickCount()); 

@@ -10,7 +10,7 @@
 		<parameter name="attrition_rate" type="constant" constant_type="double" 
 						 value="0.024d" ></parameter>
 		<parameter name="burn_in_days" type="constant" constant_type="double" 
-						 TRIALvalue="1" value="365.0d" ></parameter>
+						 value="365.0d" ></parameter>
 		<parameter name="dump_network_distances" type="constant" constant_type="number" 
 						 value="-1"></parameter>
 		<parameter name="homophily_strength" type="constant" constant_type="double" 
@@ -99,6 +99,9 @@
 					    value="0.9d" ></parameter>
         <parameter name="treatment_susceptibility" type="constant" constant_type="double" 
 					    value="1.0d" ></parameter>
+        <parameter name="verbosity" type="constant" constant_type="string" 
+					    value="populations"
+					    FULLvalue="events,populations,regularStatus,status" ></parameter>
         <parameter name="NEP_data" type="constant" constant_type="string" 
 						MOCKvalue="datagen/NEP_mock_2014.csv" 
 						value="data/NEP_Risk_Base_Merge.csv" ></parameter>

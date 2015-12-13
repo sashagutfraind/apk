@@ -185,7 +185,7 @@ def parseLHSbatch(path):
             continue
 
         param = {}
-        paramsData[section.lower()] = param
+        paramsData[section] = param
         #note: we enforce that some 'min' exists in every numerical parameter
         param['type'] = str.lower(config.get(section, 'type')) #string, boolean, double, int[note: rounded]
         param['dist'] = str.lower(config.get(section, 'dist')) 
@@ -483,10 +483,10 @@ def writeJobFile(dataDir, xml_template, sample, jobNum, timeNow):
         tree.getroot().set('jobNum', str(jobNum))
         for parameter_info in tree.getroot().getchildren():
             param_name  = parameter_info.get('name')
-            if param_name.lower() not in sample:
+            if param_name not in sample:
                 print 'Warning: parameter "%s" not in sample.'%param_name
                 continue 
-            param_value = sample[param_name.lower()]['value']
+            param_value = sample[param_name]['value']
             parameter_info.set('value', str(param_value))
         tree.write(jobFilePath)
     except Exception, inst:
