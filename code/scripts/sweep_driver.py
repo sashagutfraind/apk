@@ -22,6 +22,7 @@ import sys
 import numpy as np
 import numpy.random as npr
 import random
+import csv
 import re, os, subprocess, sys, time, pickle, pdb
 import ConfigParser
 import elementtree.ElementTree as ET  #XML parser
@@ -184,7 +185,7 @@ def parseLHSbatch(path):
             continue
 
         param = {}
-        paramsData[section.lower()] = param
+        paramsData[section] = param
         #note: we enforce that some 'min' exists in every numerical parameter
         param['type'] = str.lower(config.get(section, 'type')) #string, boolean, double, int[note: rounded]
         param['dist'] = str.lower(config.get(section, 'dist')) 
@@ -482,10 +483,10 @@ def writeJobFile(dataDir, xml_template, sample, jobNum, timeNow):
         tree.getroot().set('jobNum', str(jobNum))
         for parameter_info in tree.getroot().getchildren():
             param_name  = parameter_info.get('name')
-            if param_name.lower() not in sample:
+            if param_name not in sample:
                 print 'Warning: parameter "%s" not in sample.'%param_name
                 continue 
-            param_value = sample[param_name.lower()]['value']
+            param_value = sample[param_name]['value']
             parameter_info.set('value', str(param_value))
         tree.write(jobFilePath)
     except Exception, inst:
@@ -526,6 +527,17 @@ def writeJobs(runData, samples, driverParams):
         raise
     finally:
         f.close()
+
+    jobsSummaryFilePath    = os.path.join(runData['dataDir'], "LHS_params" + timeNow() + '.csv')
+    with open(jobsSummaryFilePath, 'w') as summaryFile:
+        fieldnames = samples[0].keys()
+        fieldnames.sort()
+        writer = csv.DictWriter(summaryFile, fieldnames=fieldnames)
+        writer.writeheader()
+        for sample in samples:
+            vals = {k:sample[k]['value'] for k in fieldnames}
+            writer.writerow(vals)
+    print 'Written params summary: ' + jobsSummaryFilePath
 
     return jobsListFilepath
 
