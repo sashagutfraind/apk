@@ -12,3 +12,5 @@ velocity.log*
 **/.settings/org.eclipse.jdt.core.prefs
 
 code/output/
+
+*.pyc
