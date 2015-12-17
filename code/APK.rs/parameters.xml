@@ -1,6 +1,6 @@
 <parameters>
 				<parameter name="randomSeed" displayName="Default Random Seed" type="int" 
-						defaultValue="__NULL__"
+						defaultValue="0"
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter" />
 				<parameter name="ab_prob_acute" displayName="ab_prob_acute" type="double" 
@@ -137,7 +137,7 @@
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
                 <parameter name="run_length" displayName="run length" type="int" 
-						defaultValue="2690" 
+						defaultValue="11315" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 				<parameter name="status_report_frequency" displayName="status_report_frequency" type="double" 
