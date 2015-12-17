@@ -662,11 +662,17 @@ public class Statistics {
 		if (message_info == null) {
 			message_info = "";
 		}
-		PrintStream target_stream = singleton.eventsStream;
-		if(message == AgentMessage.status && singleton.verbose_status){ 
-			target_stream = singleton.statusStream;
-		} else if (message == AgentMessage.regular_status && singleton.verbose_regular_status) {
-			target_stream = singleton.regularStatusStream;
+		PrintStream target_stream = eventsStream;
+		if(message == AgentMessage.status){ 
+			target_stream = statusStream;
+			if(! singleton.verbose_status) {
+				return;
+			}
+		} else if (message == AgentMessage.regular_status) {
+			target_stream = regularStatusStream;
+			if(! singleton.verbose_regular_status) {
+				return;
+			}
 		} else if (! singleton.verbose_events) { 
 			return; //don't report status
 		}
