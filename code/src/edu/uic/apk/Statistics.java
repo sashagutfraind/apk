@@ -290,7 +290,7 @@ public class Statistics {
 			popStatsStream.printf(lineSep);
 
 			//line 5: header of the stats
-			popStatsStream.printf("BurnInMode,Tick,");
+			popStatsStream.printf("BurnInMode,Tick,Year,");
 			for (int i=0; i<runtimeStatNames.size(); ++i) {
 				popStatsStream.printf("%s,",runtimeStatNames.get(i));
 			}
@@ -881,8 +881,11 @@ public class Statistics {
 			return;
 		}
 		try{
-			Hashtable <String,Double> currentData = collect_stats(); 
-			popStatsStream.printf("%d,%.4f,",(burn_in_mode?1:0),RepastEssentials.GetTickCount()); 
+			Hashtable <String,Double> currentData = collect_stats();
+			Double tick = RepastEssentials.GetTickCount();
+			Double simYear = APKBuilder.simulation_start_date.getYear() + (tick - (double)params.getValue("burn_in_days"))/365; //we model year as exactly 365 days
+			popStatsStream.printf("%d,%.4f,",(burn_in_mode?1:0),tick.doubleValue()); 
+			popStatsStream.printf("%s,",(tick%365<0.1)?simYear.toString():"-1");
 			for (String statName : runtimeStatNames) {
 				double val;
 				if(currentData.containsKey(statName)) {

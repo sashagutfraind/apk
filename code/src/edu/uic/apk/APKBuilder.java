@@ -779,7 +779,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 			    System.out.println("-----------------------------------------");
 			    System.out.printf ("------ Simulation Finished: ticks=%.1f\n", RepastEssentials.GetTickCount());
 			    System.out.println("-----------------------------------------");
-			    System.out.println("Wall time duration: " + run_time_in_sec);
+			    System.out.println("Wall time duration: " + run_time_in_sec + " sec.");
 			}
 			catch (Exception e) {
 			    System.err.println("Error: " + e.getMessage());
