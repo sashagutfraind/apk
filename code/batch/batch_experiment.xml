@@ -70,7 +70,7 @@
 		<parameter name="pwid_maturity_threshold" type="constant" constant_type="double" 
 						value="5.0" ></parameter>
         <parameter name="run_length" type="constant" constant_type="number" 
-                        value="11315" comment="365*30 + 365 burnin" ></parameter>
+                        value="13505" comment="365*36 + 365 burnin" ></parameter>
         <parameter name="status_report_frequency" type="constant" constant_type="double" 
 						value="365.0" ></parameter>
         <parameter name="transmissibility" type="constant" constant_type="double" 
@@ -94,7 +94,7 @@
         <parameter name="treatment_repeatable" type="constant" constant_type="boolean" 
 					    value="false"></parameter>
         <parameter name="treatment_enrollment_per_PY" type="constant" constant_type="double" 
-					    value="0.01d"></parameter>
+					    value="0.0d"></parameter>
         <parameter name="treatment_svr" type="constant" constant_type="double" 
 					    value="0.9d" ></parameter>
         <parameter name="treatment_susceptibility" type="constant" constant_type="double" 
