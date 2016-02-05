@@ -94,7 +94,7 @@
         <parameter name="treatment_repeatable" type="constant" constant_type="boolean" 
 					    value="false"></parameter>
         <parameter name="treatment_enrollment_per_PY" type="constant" constant_type="double" 
-					    value="0.0d"></parameter>
+					    value="0.00d"></parameter>
         <parameter name="treatment_svr" type="constant" constant_type="double" 
 					    value="0.9d" ></parameter>
         <parameter name="treatment_susceptibility" type="constant" constant_type="double" 
