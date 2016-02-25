@@ -389,6 +389,8 @@ public class APKBuilder implements ContextBuilder<Object> {
 	/*
 	 * attempts to recruit for treatment using method enrMethod
 	 * graceful operation - does not guarantee success in recruiting the desired number
+	 * 
+	 * TODO: recruitment of individuals with no network
 	 */
 	public HashSet<IDU> do_treatment_select(EnrollmentMethod enrMethod, ArrayList <IDU> candidates, double enrollment_target) {
 		HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
