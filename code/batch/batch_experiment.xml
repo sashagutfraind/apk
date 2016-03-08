@@ -101,7 +101,7 @@
 					    value="1.0d" ></parameter>
         <parameter name="verbosity" type="constant" constant_type="string" 
 					    value="populations"
-					    FULLvalue="events,populations,regularStatus,status" ></parameter>
+					    FULLvalue="events+populations+regularStatus+status" ></parameter>
         <parameter name="NEP_data" type="constant" constant_type="string" 
 						MOCKvalue="datagen/NEP_mock_2014.csv" 
 						value="data/NEP_Risk_Base_Merge.csv" ></parameter>
