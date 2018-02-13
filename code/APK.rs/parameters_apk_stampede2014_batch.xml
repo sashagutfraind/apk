@@ -3,17 +3,10 @@
 	<parameter name="ab_prob_acute" displayName="ab_prob_acute" type="double" defaultValue="0.02" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="ab_prob_chronic" displayName="ab_prob_chronic" type="double" defaultValue="0.67" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="attrition_rate" displayName="attrition_rate" type="double" defaultValue="0.024" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
-	<parameter
-		name="burn_in_days"
-		displayName="burn_in_days"
-		type="double"
-		defaultValue="-1"
-		isReadOnly="false"
-		NOTE="burn_in_days is set to 0, otherwise the visualization of prevalence shows 0"
-		converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
+	<parameter name="burn_in_days" displayName="burn_in_days" type="double" defaultValue="365" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="dump_network_distances" displayName="dump_network_distances" type="int" defaultValue="-1" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 	<parameter name="homophily_strength" displayName="homophily_strength" type="double" defaultValue="0.7" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
-	<parameter name="initial_pwid_count" displayName="initial_pwid_count" type="int" defaultValue="1000" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
+	<parameter name="initial_pwid_count" displayName="initial_pwid_count" type="int" defaultValue="32000" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 	<parameter name="interaction_home_cutoff" displayName="interaction_home_cutoff" type="double" defaultValue="2.0" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="interaction_rate_constant" displayName="interaction_rate_constant" type="double" defaultValue="0.016" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="interaction_rate_at_drug_sites" displayName="interaction_rate_at_drug_sites" type="double" defaultValue="0.0001" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
