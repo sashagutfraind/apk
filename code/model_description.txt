@@ -1,3 +1,0 @@
-The Agent-based Pathogen Kinetics Model (APK)
-
-Please see README.txt for more information about APK: Installing, Running and Extending 
