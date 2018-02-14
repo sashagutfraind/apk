@@ -200,7 +200,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 		
 		IDUbuilder1 factory1 = new IDUbuilder1(context, population_params, extra_params);
 		factory1.generate_initial();
-		//factory1.systematic_NEP_synthetic(); //special testing code
+		
+		//factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population
+		//run_end(-1); 
+		//System.exit(1);
 		
 		main_schedule.schedule(ScheduleParameters.createOneTime(-0.2),        				   this, "rotate_globe");
 		main_schedule.schedule(ScheduleParameters.createRepeating(1, 1, 0), 				   this, "do_zone_census");

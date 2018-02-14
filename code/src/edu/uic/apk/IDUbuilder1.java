@@ -312,22 +312,21 @@ public class IDUbuilder1 implements AgentFactory {
 	}
 	
 	/*
-     * used for debugging: constructs IDUs based on each of the NEP synthetic pops
-     * - note that this algorithm assumes that the dblabels are sequential
+     * used for debugging: constructs IDUs based on each of the CNEP+ synthetic persons
 	 */
-	public void systematic_NEP_synthetic() {
-		assert Math.abs((Double)sim_params.get("mean_enrichment_suburbs") - 0.0) < 0.00001;
-		assert Math.abs((Double)sim_params.get("mean_enrichment_ChicagoNonNEP") - 0.0) < 0.00001;
+	public void systematic_CNEPplus_synthetic() {
+		//assert Math.abs((Double)sim_params.get("mean_enrichment_suburbs") - 0.0) < 0.00001;
+		//assert Math.abs((Double)sim_params.get("mean_enrichment_ChicagoNonNEP") - 0.0) < 0.00001;
         ArrayList <IDU> idu_list = new ArrayList <IDU> ();
 		GeometryFactory fac = new GeometryFactory();
 		HashMap <String, Object> generator_params = new HashMap<String, Object> ();
 		generator_params.put("max_trials", 1);
-		for(Integer db_reference_number = 0; db_reference_number < pg.catalogueSize(); db_reference_number ++) {
+		for(Integer iduID = 0; iduID < pg.catalogueSize(); iduID ++) {
 			IDU idu = null;
 			try {
-				generator_params.put("db_reference_number", db_reference_number);
+				generator_params.put("db_reference_number", iduID);
 				//LOAD the characteristics of the agents
-				System.out.print("\n NEP#"+generator_params.get("db_reference_number"));
+				System.out.print("\n CNEPplus#"+generator_params.get("db_reference_number"));
 				idu = (IDU) generate_SynthNEP(generator_params);
 				if(idu == null) {
 					continue;

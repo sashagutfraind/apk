@@ -68,6 +68,6 @@
 	<parameter name="treatment_svr" displayName="treatment_svr" type="double" isReadOnly="false" defaultValue="0.9"/>
 	<parameter name="treatment_susceptibility" displayName="treatment_susceptibility" type="double" isReadOnly="false" defaultValue="1.0"/>
 	<parameter name="verbosity" displayName="verbosity" type="string" isReadOnly="false" defaultValue="events+populations+regularStatus+status"/>
-	<parameter name="NEP_data" displayName="NEP_data" type="string" defaultValue="datagen/NEP_mock_2014.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
-	<parameter name="NHBS_data" displayName="NHBS_data" type="string" defaultValue="datagen/NHBS_mock_2014.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
+	<parameter name="NEP_data" displayName="NEP_data" type="string" defaultValue="data/NEP_Risk_Base_Merge.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
+	<parameter name="NHBS_data" displayName="NHBS_data" type="string" defaultValue="data/IDU2_HCV_model_012913_cleaned.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
 </parameters>
