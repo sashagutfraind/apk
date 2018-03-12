@@ -197,14 +197,14 @@ public class APKBuilder implements ContextBuilder<Object> {
 		HashMap <String,Object> extra_params    	= new HashMap <String,Object> ();
 		extra_params.put("zip_to_zones", zip_to_zones);
 		
-		
 		IDUbuilder1 factory1 = new IDUbuilder1(context, population_params, extra_params);
+
+		factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population
+		run_end(-1); 
+		System.exit(1);
+		
 		factory1.generate_initial();
-		
-		//factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population
-		//run_end(-1); 
-		//System.exit(1);
-		
+				
 		main_schedule.schedule(ScheduleParameters.createOneTime(-0.2),        				   this, "rotate_globe");
 		main_schedule.schedule(ScheduleParameters.createRepeating(1, 1, 0), 				   this, "do_zone_census");
 		main_schedule.schedule(ScheduleParameters.createRepeating(1, linking_time_window, -1), this, "do_linking", 0.0); 		//"-1" to ensure after the census

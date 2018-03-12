@@ -378,6 +378,7 @@ public class IDUbuilder1 implements AgentFactory {
 		}
 
 		System.out.println("\nDone. Finished " + idu_list.size() + " agents.");
+		//System.exit(0);
 		return;
 	}
 }

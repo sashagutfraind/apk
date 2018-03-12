@@ -14,3 +14,5 @@ velocity.log*
 code/output/
 
 *.pyc
+code/repast-licenses/
+OLD/

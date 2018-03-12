@@ -159,6 +159,8 @@ public class Immunology implements java.io.Serializable {
 	}
 	public boolean isTreatable() {
 		return (! in_treatment) && isHcvRNA() && (treatment_repeatable || (! isPostTreatment()));
+		//note: in the future we will have a parameter "treatment_repeatable" to allow multiple courses
+		//TODO: it's not converting in the batch params
 	}
 	public HCV_state getHcvState() {
 		return hcv_state;
