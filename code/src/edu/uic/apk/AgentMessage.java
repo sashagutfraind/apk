@@ -8,5 +8,5 @@ package edu.uic.apk;
 
 public enum AgentMessage {
 	activated, exposed, infected, infectious, chronic, recovered, deactivated, info, status, 
-	started_treatment, cured, regular_status, failed_treatment;
+	started_treatment, cured, regular_status, failed_treatment, vaccinated, followup, followup2, trialcompleted;
 }

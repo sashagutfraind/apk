@@ -7,7 +7,9 @@
 package edu.uic.apk;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cern.jet.random.Normal;
 import edu.uic.apkSynth.Gender;
@@ -26,6 +28,10 @@ import repast.simphony.random.RandomHelper;
  * The IDU only 
  */
 public class Immunology implements java.io.Serializable {
+	public static enum TRIAL_ARM {none, placebo, study}; //only changes once
+	public static enum TRIAL_STAGE {none, received_dose1, received_dose2, received_dose3, followup, followup2, completed};
+	
+
 	private static final long serialVersionUID = 3121231231231211L;
 	private static final double contact_risk  			= 1.0;   //future use for various modes of contact
 	private final static double acute_boost = 1;
@@ -42,10 +48,17 @@ public class Immunology implements java.io.Serializable {
 	private static boolean treatment_repeatable 			= Boolean.FALSE;
 	private static double treatment_svr   				= Double.NaN; //
 	private static double treatment_susceptibility       = Double.NaN; //
+
+	private static String vaccine_schedule = ""; //wishlist: make enum.  this should indicate the efficacy
+	private static Map<String,double[]> vaccine_eff;	
 	
 	//private fields
 	private boolean past_cured     = false;
 	private boolean past_recovered = false;
+	private TRIAL_ARM   vaccine_trial_arm = TRIAL_ARM.none;
+	private TRIAL_STAGE vaccine_stage = TRIAL_STAGE.none;
+	private double vaccine_dose_received_day = Double.NaN; //needed to calculate the efficacy
+
 	private transient IDU agent; //back reference to the IDU
 	private HCV_state hcv_state = HCV_state.susceptible;
 	//private boolean in_treatment_viral_suppression = false; //true as soon as titers drop, and false when leave treatment (true even if not adherent)
@@ -162,6 +175,17 @@ public class Immunology implements java.io.Serializable {
 		//note: in the future we will have a parameter "treatment_repeatable" to allow multiple courses
 		//TODO: it's not converting in the batch params
 	}
+	
+	public TRIAL_ARM getCurrent_trial_arm() {
+		return vaccine_trial_arm;
+	}
+	//called to set the arm at the start of a trial
+	public void setCurrent_trial_arm(TRIAL_ARM new_trial_arm) {
+		assert vaccine_trial_arm == TRIAL_ARM.none; //only set once.  never changes even if trial is complete
+		vaccine_trial_arm = new_trial_arm;
+	}	
+
+	
 	public HCV_state getHcvState() {
 		return hcv_state;
 	}	
@@ -245,17 +269,40 @@ public class Immunology implements java.io.Serializable {
 		treatment_svr 			  	  = (Double) params.getValue("treatment_svr");		
 		treatment_susceptibility      = (Double) params.getValue("treatment_susceptibility");		
 		//transmissibility 			  = (Double) params.getValue("transmissibility");		
+		vaccine_schedule              = (String) params.getValue("vaccine_schedule");	//wishlist: make enum
+		
+		vaccine_eff = new HashMap<String,double[]> ();	
+
+		//Vaccine Efficacy: at index i, get the VE from dose i.
+		final double[] VE_D1 =  {0, 0.80, 0.80, 0.80};
+		final double[] VE_D2a = {0, 0.20, 0.60, 0.60};
+		final double[] VE_D2b = {0, 0.40, 0.80, 0.80};
+		final double[] VE_D3a = {0, 0.01, 0.20, 0.80};
+		final double[] VE_D3b = {0, 0.05, 0.50, 0.80};
+		vaccine_eff.put("D1", VE_D1);
+		vaccine_eff.put("D2a", VE_D2a);
+		vaccine_eff.put("D2b", VE_D2b);
+		vaccine_eff.put("D3a", VE_D3a);
+		vaccine_eff.put("D3b", VE_D3b);
 	}
 	public Double getTreatmentStartDate() {
 		return treatment_start_date;
 	}
+	
+	public TRIAL_STAGE getVaccine_stage() {
+		return vaccine_stage;
+	}
+	//no setter.  see receiveVaccineDose() instead
+		
+	
 
 	public boolean leave_acute() {
 		//returns true iff self limiting
 		double prob_self_limiting = agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female; 
 		if (((!past_recovered) && prob_self_limiting > RandomHelper.nextDouble()) ||
 			 ((past_recovered) && prob_clearing > RandomHelper.nextDouble()) ||
-				 ((past_cured) && treatment_susceptibility < RandomHelper.nextDouble()))	{
+				 ((past_cured) && treatment_susceptibility < RandomHelper.nextDouble()) ||
+				 vaccinated_successfully())	{
 			hcv_state = HCV_state.recovered;	
 			Statistics.fire_status_change(AgentMessage.recovered, agent, "", null);
 			return true;
@@ -291,6 +338,7 @@ public class Immunology implements java.io.Serializable {
 		//prevent any accidental switch to chronic during treatment
 		ISchedule schedule = RunEnvironment.getInstance().getCurrentSchedule();
 		for(ISchedulableAction act : next_immunology_actions) {
+			//wishlist: bug risk: would this remove actions not only for this agent?
 			schedule.removeAction(act);
 		}
 		next_immunology_actions.clear(); 
@@ -336,6 +384,44 @@ public class Immunology implements java.io.Serializable {
 		
 		return true;
 	}
+	
+	/*
+	 * Received doses
+	 * Note: it's possible for the state to change to chronic before the doses are complete
+	 */
+	public void receiveVaccineDose() {
+		assert this.vaccine_trial_arm != TRIAL_ARM.none; //must be set 
+		switch(vaccine_stage) {
+			case none:
+				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_stage = TRIAL_STAGE.received_dose1;
+				if(hcv_state == HCV_state.susceptible) {
+					hcv_state = HCV_state.vaccinated;
+					//no effect if the state is recovered
+				}
+				break;
+			case received_dose1:
+				if(hcv_state != HCV_state.vaccinated) {
+					System.out.println("Info: IDU received infection before completing 2nd dose. State: " + hcv_state.toString() + agent.getSimID());
+				}
+				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_stage = TRIAL_STAGE.received_dose2;
+				break;
+			case received_dose2:
+				if(hcv_state != HCV_state.vaccinated) {
+					System.out.println("Info: IDU received infection before completing 3nd dose. State: " + hcv_state.toString() + agent.getSimID());
+				}
+				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_stage = TRIAL_STAGE.received_dose3;
+				break;
+			default:
+				System.err.println("Not eligible to receive dose in IDU " + this.agent.getSimID());
+				break;
+		}
+		//wishlist: use fields L1 and L2
+		Statistics.fire_status_change(AgentMessage.vaccinated, agent, "newstage="+vaccine_stage.toString()+";arm="+vaccine_trial_arm, null);
+	}
+	
 	/*
 	 * called to initiate treatment
 	 */
@@ -366,4 +452,40 @@ public class Immunology implements java.io.Serializable {
 		next_immunology_actions.add(schedule.schedule(leave_treatment_time , this, "leave_treatment", treatment_succeeds));
 
 	}
+	
+	/*
+	 * true iff vaccination protects 
+	 * wishlist: parametrize the values
+	 */
+	public boolean vaccinated_successfully() {
+		//TODO: test
+		final double ONSET_OF_IMMUNITY_DAY = 14;
+		final double MAX_INDUCED_IMMUNITY_DAY = 28;
+	
+		if (past_recovered || hcv_state != HCV_state.vaccinated) {
+			return false; 
+		}
+		if (vaccine_trial_arm == Immunology.TRIAL_ARM.placebo) {
+			return false;
+		}
+		double days_since_last_dose = (RepastEssentials.GetTickCount() - this.vaccine_dose_received_day);
+		double immunity_fractional_boost = 0; //since the last dose
+		if (days_since_last_dose > ONSET_OF_IMMUNITY_DAY && days_since_last_dose < MAX_INDUCED_IMMUNITY_DAY)  {
+			immunity_fractional_boost = (days_since_last_dose-ONSET_OF_IMMUNITY_DAY)/(MAX_INDUCED_IMMUNITY_DAY-ONSET_OF_IMMUNITY_DAY);
+		} else {
+			immunity_fractional_boost = 1.0;
+		}
+		
+		int dose_idx = vaccine_stage == TRIAL_STAGE.received_dose1? 1 : (vaccine_stage == TRIAL_STAGE.received_dose2? 2: 3);
+		if(! vaccine_eff.containsKey(vaccine_schedule)) {
+			System.err.println("Unknown vaccine schedule" + vaccine_schedule);
+			return false;
+		}
+		double[] VE = vaccine_eff.get(vaccine_schedule); 
+		double current_ve = VE[dose_idx-1] + (VE[dose_idx]-VE[dose_idx-1])*immunity_fractional_boost;
+		
+		return current_ve > RandomHelper.nextDouble();		
+	}
+	
+	
 }

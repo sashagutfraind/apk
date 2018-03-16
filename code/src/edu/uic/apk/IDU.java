@@ -22,6 +22,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
+import edu.uic.apk.Immunology.TRIAL_ARM;
+import edu.uic.apk.Immunology.TRIAL_STAGE;
 import edu.uic.apkSynth.Activity_profile;
 import edu.uic.apkSynth.Gender;
 import edu.uic.apkSynth.HCV_state;
@@ -90,7 +92,7 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	private double fraction_recept_sharing 		= Double.NaN;
 	private Gender gender							= null;
 	private Immunology imm				     		= new Immunology(this);
-	private double injection_intensity     		= Double.NaN; 
+	private double injection_intensity     		= Double.NaN; //doses per day 
 	private LocalDate last_exposure_date           = new LocalDate(1800, 1, 1);  //bogus value to detect errors
 	private boolean moved; //this field is watched
 	private transient ISchedulableAction my_end = null; 
@@ -266,6 +268,18 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		hm.put(name, val);
 		updateCharacteristics(hm);
 	}
+	
+	public TRIAL_ARM getCurrent_trial_arm() {
+		return imm.getCurrent_trial_arm();
+	}
+	public void setCurrent_trial_arm(TRIAL_ARM current_trial_arm) {
+		imm.setCurrent_trial_arm(current_trial_arm);
+	}	
+	public TRIAL_STAGE getCurrent_trial_stage() {
+		return imm.getVaccine_stage();
+		//todo: test
+	}
+	
 	@Override
 	public void setDatabaseLabel(String label) {
 		this.dblabel = label;
@@ -717,6 +731,28 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	public boolean isTreatable() {
 		return imm.isTreatable();
 	}
+	public boolean isVaccineTrialSuitable() {
+		if (imm.getVaccine_stage() != Immunology.TRIAL_STAGE.none) {
+			return false;
+		}
+		if (! isNaive() || isInTreatment()) {
+			return false;
+		}
+		if (getAge() < 18 || getAge() > 65) {
+			//wishlist: control with parameters
+			return false;
+		}
+		if (injection_intensity < 1/30.0) { //at least once a month
+			//wishlist: control with parameters
+			return false;
+		}
+		return true;
+	}
+	public boolean isInVaccineTrial() {
+		return (imm.getCurrent_trial_arm() != Immunology.TRIAL_ARM.none) && 
+				(imm.getVaccine_stage() != Immunology.TRIAL_STAGE.completed);
+	}
+
 	public boolean isYoung() {
 		return getAgeGroup() == AgeGroup.LEQ30; 
 	}
@@ -749,7 +785,12 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 			donor.imm.give_exposure(imm);			
 		}
 	}
+	
+	public void receiveVaccineDose() {
+		imm.receiveVaccineDose();
+	}
 
+	
 	public void report_status() {
 		Statistics.fire_status_change(AgentMessage.status, this, "", null);
 	}

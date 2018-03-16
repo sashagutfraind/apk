@@ -39,6 +39,7 @@ import repast.simphony.dataLoader.ContextBuilder;
 import repast.simphony.engine.environment.GUIRegistry;
 import repast.simphony.engine.environment.RunEnvironment;
 import repast.simphony.engine.environment.RunState;
+import repast.simphony.engine.schedule.ISchedulableAction;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.essentials.RepastEssentials;
@@ -50,6 +51,8 @@ import repast.simphony.space.graph.Network;
 import repast.simphony.visualization.IDisplay;
 import repast.simphony.visualization.gis3D.DisplayGIS3D;
 import cern.jet.random.Exponential;
+import edu.uic.apk.Immunology.TRIAL_STAGE;
+import edu.uic.apkSynth.HCV_state;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -82,9 +85,14 @@ public class APKBuilder implements ContextBuilder<Object> {
 	 * Southside Field Station 		-87.66458,41.77946
 	 * Southeastside Field Station  -87.55171,41.73325
 	 */ 
-	public enum EnrollmentMethod {
+	public enum EnrollmentMethodTreat { 
 		unbiased, HRP, fullnetwork, inpartner, outpartner;
 	}
+
+	public enum EnrollmentMethodVaccine { 
+		unbiased, positive_innetwork;
+	}
+
 		
 	public static void main(String[] args) {
 		getDistanceTest();
@@ -103,10 +111,23 @@ public class APKBuilder implements ContextBuilder<Object> {
 	private static double interaction_rate_exzone         = Double.NaN; 
 	
 	private long run_start_time = System.currentTimeMillis();
-	private HashMap <EnrollmentMethod, Double> treatment_enrollment_probability = new HashMap <EnrollmentMethod,Double> ();
+	private HashMap <EnrollmentMethodTreat, Double> treatment_enrollment_probability = new HashMap <EnrollmentMethodTreat,Double> ();
+	private HashMap <EnrollmentMethodTreat, Double> treatment_residual_enrollment    = new HashMap <EnrollmentMethodTreat,Double> ();
 	private Double treatment_enrollment_per_PY = 0.0;
 	private double treatment_mean_daily = 0.0; //updated just once when we load the parameters
-	private HashMap <EnrollmentMethod, Double> treatment_residual_enrollment = new HashMap <EnrollmentMethod,Double> ();
+
+	private int vaccine_study_arm_n = 0; //assume identical arm sizes
+	private String vaccine_schedule = "";
+	private int vaccine_total_doses = 0;
+	private double vaccine_start_of_enrollment = Double.NaN;
+	private int vaccine_enrollment_duration_days = -1;//365; //duration of the recruitment phase of the vaccine trial  
+	final private double vaccine_enrollment_delay_days = 10; //delay after burn-in ends
+	private double vaccine_dose2_day = -1;//60;
+	private double vaccine_dose3_day = -1;//180;
+	private double vaccine_followup_days = -1;//545; 
+	private double vaccine_followup2_days = -1;//270; 
+	private HashMap <EnrollmentMethodVaccine, Double> vaccine_enrollment_probability = new HashMap <EnrollmentMethodVaccine, Double> ();
+	private HashMap <EnrollmentMethodVaccine, Double> vaccine_residual_enrollment    = new HashMap <EnrollmentMethodVaccine, Double> ();
 
 	//we generally assume that the simulation is based on 2009 prevalence and starts on 2010-01-01
 	public static LocalDate simulation_start_date = new LocalDate(2010, 1, 1, null);
@@ -176,18 +197,38 @@ public class APKBuilder implements ContextBuilder<Object> {
 
 		treatment_enrollment_per_PY  = (Double)params.getValue("treatment_enrollment_per_PY");
 		
-		treatment_enrollment_probability.put(EnrollmentMethod.unbiased, (Double)params.getValue("treatment_enrollment_probability_unbiased"));
-		treatment_enrollment_probability.put(EnrollmentMethod.HRP, (Double)params.getValue("treatment_enrollment_probability_HRP"));
-		treatment_enrollment_probability.put(EnrollmentMethod.fullnetwork, (Double)params.getValue("treatment_enrollment_probability_fullnetwork"));
-		treatment_enrollment_probability.put(EnrollmentMethod.inpartner, (Double)params.getValue("treatment_enrollment_probability_inpartner"));
-		treatment_enrollment_probability.put(EnrollmentMethod.outpartner, (Double)params.getValue("treatment_enrollment_probability_outpartner")); 
+		treatment_enrollment_probability.put(EnrollmentMethodTreat.unbiased, (Double)params.getValue("treatment_enrollment_probability_unbiased"));
+		treatment_enrollment_probability.put(EnrollmentMethodTreat.HRP, (Double)params.getValue("treatment_enrollment_probability_HRP"));
+		treatment_enrollment_probability.put(EnrollmentMethodTreat.fullnetwork, (Double)params.getValue("treatment_enrollment_probability_fullnetwork"));
+		treatment_enrollment_probability.put(EnrollmentMethodTreat.inpartner, (Double)params.getValue("treatment_enrollment_probability_inpartner"));
+		treatment_enrollment_probability.put(EnrollmentMethodTreat.outpartner, (Double)params.getValue("treatment_enrollment_probability_outpartner")); 
 		//wishlist: check that the probabilities add to 1.0
-		treatment_residual_enrollment.put(EnrollmentMethod.unbiased, 0.0);
-		treatment_residual_enrollment.put(EnrollmentMethod.HRP, 0.0);
-		treatment_residual_enrollment.put(EnrollmentMethod.fullnetwork, 0.0);
-		treatment_residual_enrollment.put(EnrollmentMethod.inpartner, 0.0);
-		treatment_residual_enrollment.put(EnrollmentMethod.outpartner, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethodTreat.unbiased, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethodTreat.HRP, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethodTreat.fullnetwork, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethodTreat.inpartner, 0.0);
+		treatment_residual_enrollment.put(EnrollmentMethodTreat.outpartner, 0.0);
 		
+		vaccine_enrollment_duration_days    = (Integer)params.getValue("vaccine_enrollment_duration_days");		
+		vaccine_study_arm_n = (Integer)params.getValue("vaccine_study_arm_n");
+		vaccine_schedule    = (String)params.getValue("vaccine_schedule");
+		vaccine_total_doses = vaccine_schedule.startsWith("D1")?1 : (vaccine_schedule.startsWith("D2")?2:3);
+
+		vaccine_followup_days    = (Double)params.getValue("vaccine_followup_days");
+		vaccine_followup2_days   = (Double)params.getValue("vaccine_followup2_days");
+		if(vaccine_total_doses > 1) {
+			vaccine_dose2_day    = (Double)params.getValue("vaccine_dose2_day");
+		}
+		if(vaccine_total_doses > 2) {
+			vaccine_dose3_day    = (Double)params.getValue("vaccine_dose3_day");
+		}
+
+		//wishlist: check it adds up to 1.0
+		vaccine_enrollment_probability.put(EnrollmentMethodVaccine.unbiased, (Double)params.getValue("vaccine_enrollment_probability_unbiased"));
+		vaccine_enrollment_probability.put(EnrollmentMethodVaccine.positive_innetwork, (Double)params.getValue("vaccine_enrollment_probability_positiveinnetwork"));
+		//counts carryover from day to next
+		vaccine_residual_enrollment.put(EnrollmentMethodVaccine.unbiased, 0.0);
+		vaccine_residual_enrollment.put(EnrollmentMethodVaccine.positive_innetwork, 0.0);
 
 		Statistics.build(params, context, network, zip_to_zones, zone_zone_distance);
 		Statistics.dump_network_distances(params.getValue("dump_network_distances"));
@@ -199,9 +240,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 		
 		IDUbuilder1 factory1 = new IDUbuilder1(context, population_params, extra_params);
 
-		factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population
-		run_end(-1); 
-		System.exit(1);
+		//factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population
+		//run_end(-1); 
+		//System.exit(1);
 		
 		factory1.generate_initial();
 				
@@ -216,6 +257,12 @@ public class APKBuilder implements ContextBuilder<Object> {
 		if(treatment_enrollment_per_PY > 0) {
 			double start_of_enrollment = (Double)params.getValue("burn_in_days") + (Double)params.getValue("treatment_enrollment_start_delay");
 			main_schedule.schedule(ScheduleParameters.createRepeating(start_of_enrollment, 1, -1), this, "do_treatment");
+		}
+
+		if(! vaccine_schedule.equals("") && vaccine_study_arm_n > 0) {
+			vaccine_start_of_enrollment = (Double)params.getValue("burn_in_days") + vaccine_enrollment_delay_days;
+			main_schedule.schedule(ScheduleParameters.createRepeating(vaccine_start_of_enrollment, 1, -1), this, 
+					"vaccine_trial_enroll");
 		}
 
 			
@@ -346,6 +393,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		//System.out.println("Done. New links:" + num_new_links);
 	}
 
+	
 	/*
 	 * runs daily and recruits PWID for treatment
 	 * 
@@ -353,6 +401,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 	public void do_treatment() {
 		treatment_mean_daily =  total_IDU_population * treatment_enrollment_per_PY / 365.0; //the value changes if the population changes. recall, we assume year is exactly 365 days
 		double todays_total_enrollment = RandomHelper.createPoisson(treatment_mean_daily).nextInt();
+		//TODO: check that any residual individuals are saved
 		
 		if (todays_total_enrollment <= 0) {
 			return; //do nothing.  occurs when we previously over-enrolled
@@ -372,7 +421,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 			System.out.println("Not treating - treatable PWIDs: 0");
 			return;
 		}
-		for(EnrollmentMethod mthd : EnrollmentMethod.values()) {
+		for(EnrollmentMethodTreat mthd : EnrollmentMethodTreat.values()) {
 			double enrollment_target = todays_total_enrollment * treatment_enrollment_probability.get(mthd) + treatment_residual_enrollment.get(mthd);
 			treatment_residual_enrollment.put(mthd, enrollment_target);  //update.  might be fractional increase 	
 			if(enrollment_target < 1) {
@@ -392,30 +441,28 @@ public class APKBuilder implements ContextBuilder<Object> {
 	/*
 	 * attempts to recruit for treatment using method enrMethod
 	 * graceful operation - does not guarantee success in recruiting the desired number
-	 * 
-	 * TODO: recruitment of individuals with no network
 	 */
-	public HashSet<IDU> do_treatment_select(EnrollmentMethod enrMethod, ArrayList <IDU> candidates, double enrollment_target) {
+	public HashSet<IDU> do_treatment_select(EnrollmentMethodTreat enrMethod, ArrayList <IDU> candidates, double enrollment_target) {
 		HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
 		if(candidates.size() == 0) {
 			return enrolled;
 		}
 		int next_candidate_idx = 0;
-		if(enrMethod == EnrollmentMethod.unbiased) {
+		if(enrMethod == EnrollmentMethodTreat.unbiased) {
 			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
 				IDU idu = candidates.get(next_candidate_idx);
 				if(idu.isTreatable()) {
 					enrolled.add(idu);
 				}
 			}
-		} else if(enrMethod == EnrollmentMethod.HRP) {
+		} else if(enrMethod == EnrollmentMethodTreat.HRP) {
 			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
 				IDU idu = candidates.get(next_candidate_idx);
 				if(idu.isTreatable() && idu.isInHarmReduction()) {
 					enrolled.add(idu);
 				}
 			}
-		} else if(enrMethod == EnrollmentMethod.fullnetwork) {
+		} else if(enrMethod == EnrollmentMethodTreat.fullnetwork) {
 			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
 				IDU idu = candidates.get(next_candidate_idx);
 				if(! idu.isTreatable()) {
@@ -429,7 +476,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 					}
 				}
 			}
-		} else if(enrMethod == EnrollmentMethod.inpartner || enrMethod == EnrollmentMethod.outpartner) {
+		} else if(enrMethod == EnrollmentMethodTreat.inpartner || enrMethod == EnrollmentMethodTreat.outpartner) {
 			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
 				IDU idu = candidates.get(RandomHelper.nextIntFromTo(0, candidates.size()-1));
 				if(! idu.isTreatable()) {
@@ -437,7 +484,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 				}
 				enrolled.add(idu);
 				Iterable nbs = null;
-				if(enrMethod == EnrollmentMethod.inpartner) {
+				if(enrMethod == EnrollmentMethodTreat.inpartner) {
 					nbs = network.getPredecessors(idu); 
 				} else {
 					nbs = network.getSuccessors(idu);
@@ -453,6 +500,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		return enrolled;
 	}
 	
+
 	/*
 	 * Determine how many IDUs in each zones are available to form new connections
 	 * - the census is stored in zone_population (all) and effective_zone_population (only those that can form new connections)
@@ -823,4 +871,191 @@ public class APKBuilder implements ContextBuilder<Object> {
 		}
 		context.removeAll(removed_links);
 	}
+	
+	/*
+	 * runs daily and recruits PWID for vaccine_trial
+	 * 
+	 */
+	public void vaccine_trial_enroll() {
+		if (RepastEssentials.GetTickCount() > vaccine_start_of_enrollment + vaccine_enrollment_duration_days) {
+			return; //enrollment has ended
+		}
+
+		double vaccine_trial_daily_both_arms_mean = ((double)vaccine_study_arm_n) * 2 / vaccine_enrollment_duration_days; 
+		//double todays_total_enrollment = RandomHelper.createPoisson(vaccine_trial_daily_both_arms_mean).nextInt();
+		System.out.println("Recruiting: " + vaccine_trial_daily_both_arms_mean);
+
+		boolean enrollment_today = false;
+		for(EnrollmentMethodVaccine mthd : EnrollmentMethodVaccine.values()) {
+			double enrollment_target = vaccine_trial_daily_both_arms_mean * vaccine_enrollment_probability.get(mthd) + vaccine_residual_enrollment.get(mthd);
+			vaccine_residual_enrollment.put(mthd, enrollment_target);  //update.  might be fractional increase 	
+			enrollment_today = enrollment_today | enrollment_target >= 1.0; 
+		}
+		if (! enrollment_today) {
+			return; //do nothing.  save time trying to find people.  
+		}
+		
+		ArrayList <IDU> vaccine_candidates = new ArrayList<IDU>(); //rough vaccine candidates
+		//wishlist: do a global list to speed up the recruitment.  update this list with newly-arriving PWID only.
+		for(ArrayList <IDU> zonePop : zone_population.values()) {
+			for(IDU candidate : zonePop) {
+				if(candidate.isVaccineTrialSuitable()) {
+					vaccine_candidates.add(candidate);
+				}
+			}
+		}
+		if(vaccine_candidates.size() == 0) {
+			System.out.println("Not enrolling - Enrollable PWIDs: 0");
+			return;
+		}
+		for(EnrollmentMethodVaccine mthd : EnrollmentMethodVaccine.values()) {
+			double enrollment_target = vaccine_residual_enrollment.get(mthd);
+			if(enrollment_target < 1) {
+				//System.out.println("Method: " + mthd + ". Enrolled: " + 0 + ". Residual: " + (enrollment_target - 0));
+				continue;
+			}
+			HashSet<IDU> enrolled = vaccine_trial_select(mthd, vaccine_candidates, Math.ceil(enrollment_target)); //set, to avoid accidentally double-recruiting
+			for(IDU idu : enrolled) {
+				vaccine_trial_start(idu);
+			}
+			vaccine_residual_enrollment.put(mthd, enrollment_target - enrolled.size()); 	//carried over from day to the next day.  this can give below 0
+			//System.out.println("Method: " + mthd + ". Enrolled: " + enrolled.size() + ". Residual: " + vaccine_residual_enrollment.get(mthd));
+		}
+	}
+	
+	/*
+	 * attempts to recruit for treatment using method enrMethod
+	 * graceful operation - does not guarantee success in recruiting the desired number
+	 * 
+	 */
+	public HashSet<IDU> vaccine_trial_select(EnrollmentMethodVaccine enrMethod, ArrayList <IDU> candidates, double enrollment_target) {
+		Collections.shuffle(candidates); //shuffle for every method
+		HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
+		if(candidates.size() == 0) {
+			return enrolled;
+		}
+		int next_candidate_idx = 0;
+		if(enrMethod == EnrollmentMethodVaccine.unbiased) {
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
+				IDU idu = candidates.get(next_candidate_idx);
+				if(idu.isVaccineTrialSuitable()) {
+					enrolled.add(idu);
+				} else {
+					candidates.remove(idu);
+				}
+			}
+		} else if(enrMethod == EnrollmentMethodVaccine.positive_innetwork) {
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
+				IDU idu = candidates.get(next_candidate_idx); //no need to do more shuffling RandomHelper.nextIntFromTo(0, candidates.size()-1));
+				//if(! idu.isVaccineTrialSuitable()) {
+				//	continue;
+				//}
+				//enrolled.add(idu);
+				if(idu == null) {
+					System.out.println(candidates.size());
+					int i = 1; //error
+				}
+				Iterable nbs = null;
+				nbs = network.getSuccessors(idu);
+				if (nbs == null) {
+					continue; //idu removed from context
+				}
+				for(Object nb : nbs) {
+					if ((nb != null) && (nb instanceof IDU)) {
+						if (((IDU)nb).isVaccineTrialSuitable()) {
+							enrolled.add((IDU)nb);
+							break; //only ONE to avoid non-independence of samples
+						} else {
+							candidates.remove(idu);
+						}
+					}
+				}
+			}
+		}
+		return enrolled;
+	}
+
+	
+	public void vaccine_trial_start(IDU idu) {
+		Immunology.TRIAL_ARM arm = (RandomHelper.nextDouble() > 0.5)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo;
+		idu.setCurrent_trial_arm(arm);
+		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
+		
+		vaccine_trial_advance(idu, Immunology.TRIAL_STAGE.received_dose1);
+	}
+	
+	/*
+	 * called when the IDU has arrived to the time of new_stage
+	 */
+	public void vaccine_trial_advance(IDU idu, Immunology.TRIAL_STAGE new_stage) {
+		Immunology.TRIAL_STAGE next_stage = Immunology.TRIAL_STAGE.none;
+		switch(new_stage) {
+		case received_dose1:
+			idu.receiveVaccineDose();
+			if(vaccine_total_doses > 1) {
+				next_stage = TRIAL_STAGE.received_dose2;
+			} else {
+				next_stage = TRIAL_STAGE.followup;
+			}
+			break;
+		case received_dose2:
+			idu.receiveVaccineDose();
+			if(vaccine_total_doses > 2) {
+				next_stage = TRIAL_STAGE.received_dose3;
+			} else {
+				next_stage = TRIAL_STAGE.followup;
+			}
+			break;
+		case received_dose3:
+			idu.receiveVaccineDose();
+			next_stage = TRIAL_STAGE.followup;
+			break;
+		case followup:
+			if (! idu.isHcvRNA()) {
+				next_stage = TRIAL_STAGE.completed;
+			} else {
+				next_stage = TRIAL_STAGE.followup2;
+			}
+			Statistics.fire_status_change(AgentMessage.followup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+			break;
+		case followup2:
+			next_stage = TRIAL_STAGE.completed;
+			Statistics.fire_status_change(AgentMessage.followup2, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+			break;
+		case completed:
+			//TODO: do additional statistics
+			next_stage = Immunology.TRIAL_STAGE.none;
+			Statistics.fire_status_change(AgentMessage.trialcompleted, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+			break;
+		default:
+			assert false;
+			next_stage = Immunology.TRIAL_STAGE.none;
+			break;
+	}
+	if (next_stage == Immunology.TRIAL_STAGE.none) {
+		return;
+	}
+
+	double next_event_time = RepastEssentials.GetTickCount();
+	switch(next_stage) {
+		case received_dose2:
+			next_event_time += vaccine_dose2_day;
+			break;
+		case received_dose3:
+			next_event_time += vaccine_dose3_day - vaccine_dose2_day; //because counted from first dose
+			break;
+		case followup:
+			next_event_time += vaccine_followup_days;
+			break;
+		case followup2:
+			next_event_time += vaccine_followup2_days;
+			break;
+		default:
+			break;
+	}
+	ScheduleParameters p = ScheduleParameters.createOneTime(next_event_time, -1);
+	main_schedule.schedule(p, this, "vaccine_trial_advance", idu, next_stage);
+
+	}
+
 }

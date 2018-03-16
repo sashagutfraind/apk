@@ -641,6 +641,15 @@ public class Statistics {
 				Statistics.treatment_recruited_daily += 1;
 				Statistics.aggregate_courses += 1;
 				break;
+			case vaccinated:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				break;
+			case followup:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				break;
+			case followup2:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				break;
 			default:
 				break;
 		}

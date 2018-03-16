@@ -13,7 +13,7 @@
 		converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="dump_network_distances" displayName="dump_network_distances" type="int" defaultValue="-1" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 	<parameter name="homophily_strength" displayName="homophily_strength" type="double" defaultValue="0.7" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
-	<parameter name="initial_pwid_count" displayName="initial_pwid_count" type="int" defaultValue="1000" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
+	<parameter name="initial_pwid_count" displayName="initial_pwid_count" type="int" defaultValue="5000" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 	<parameter name="interaction_home_cutoff" displayName="interaction_home_cutoff" type="double" defaultValue="2.0" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="interaction_rate_constant" displayName="interaction_rate_constant" type="double" defaultValue="0.016" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="interaction_rate_at_drug_sites" displayName="interaction_rate_at_drug_sites" type="double" defaultValue="0.0001" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
@@ -63,11 +63,20 @@
 		defaultValue="0.1d"
 		converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="treatment_enrollment_start_delay" displayName="treatment_nonadherence" type="double" isReadOnly="false" defaultValue="2190" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
-	<parameter name="treatment_enrollment_per_PY" displayName="treatment_enrollment_per_PY" type="double" isReadOnly="false" defaultValue="0.01d" value2="0d" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
+	<parameter name="treatment_enrollment_per_PY" displayName="treatment_enrollment_per_PY" type="double" isReadOnly="false" defaultValue="0.0d" value2="0d" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="treatment_repeatable" displayName="treatment_repeatable" type="boolean" isReadOnly="false" defaultValue="false" converter="repast.simphony.parameter.StringConverterFactory$BooleanConverter"/>
 	<parameter name="treatment_svr" displayName="treatment_svr" type="double" isReadOnly="false" defaultValue="0.9"/>
 	<parameter name="treatment_susceptibility" displayName="treatment_susceptibility" type="double" isReadOnly="false" defaultValue="1.0"/>
 	<parameter name="verbosity" displayName="verbosity" type="string" isReadOnly="false" defaultValue="events+populations+regularStatus+status"/>
+	<parameter name="vaccine_schedule" displayName="vaccine_schedule" type="string" isReadOnly="false" defaultValue="D3a"/>
+	<parameter name="vaccine_enrollment_duration_days" displayName="vaccine_enrollment_duration_days" type="int" isReadOnly="false" defaultValue="365" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
+	<parameter name="vaccine_enrollment_probability_positiveinnetwork" displayName="vaccine_enrollment_probability_positiveinnetwork" type="double" isReadOnly="false" defaultValue="1.0d" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
+	<parameter name="vaccine_enrollment_probability_unbiased" displayName="vaccine_enrollment_probability_unbiased" type="double" isReadOnly="false" defaultValue="0.0d" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
+	<parameter name="vaccine_followup_days" displayName="vaccine_followup_days" type="double" isReadOnly="false" defaultValue="545d"  converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
+	<parameter name="vaccine_followup2_days" displayName="vaccine_followup2_days" type="double" isReadOnly="false" defaultValue="275d"  converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
+	<parameter name="vaccine_study_arm_n" displayName="vaccine_study_arm_n" type="int" isReadOnly="false" defaultValue="100"  converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
+	<parameter name="vaccine_dose2_day" displayName="vaccine_dose2_day" type="double" isReadOnly="false" defaultValue="60d"  converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
+	<parameter name="vaccine_dose3_day" displayName="vaccine_dose3_day" type="double" isReadOnly="false" defaultValue="180d"  converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
 	<parameter name="NEP_data" displayName="NEP_data" type="string" defaultValue="data/NEP_Risk_Base_Merge.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
 	<parameter name="NHBS_data" displayName="NHBS_data" type="string" defaultValue="data/IDU2_HCV_model_012913_cleaned.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
 </parameters>
