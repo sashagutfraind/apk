@@ -51,7 +51,6 @@ import repast.simphony.space.graph.Network;
 import repast.simphony.visualization.IDisplay;
 import repast.simphony.visualization.gis3D.DisplayGIS3D;
 import cern.jet.random.Exponential;
-import edu.uic.apk.Immunology.TRIAL_STAGE;
 import edu.uic.apkSynth.HCV_state;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -121,11 +120,13 @@ public class APKBuilder implements ContextBuilder<Object> {
 	private int vaccine_total_doses = 0;
 	private double vaccine_start_of_enrollment = Double.NaN;
 	private int vaccine_enrollment_duration_days = -1;//365; //duration of the recruitment phase of the vaccine trial  
-	final private double vaccine_enrollment_delay_days = 10; //delay after burn-in ends
+	private double vaccine_enrollment_launch_day = -1; //delay after burn-in ends
 	private double vaccine_dose2_day = -1;//60;
 	private double vaccine_dose3_day = -1;//180;
-	private double vaccine_followup_days = -1;//545; 
-	private double vaccine_followup2_days = -1;//270; 
+	private double vaccine_followup_weeks = -1.0;
+	private int vaccine_followup1_periods = -1;//545; 
+	private int vaccine_followup2_periods = -1;//270; 
+	private double vaccine_annual_loss = -1;
 	private HashMap <EnrollmentMethodVaccine, Double> vaccine_enrollment_probability = new HashMap <EnrollmentMethodVaccine, Double> ();
 	private HashMap <EnrollmentMethodVaccine, Double> vaccine_residual_enrollment    = new HashMap <EnrollmentMethodVaccine, Double> ();
 
@@ -209,18 +210,22 @@ public class APKBuilder implements ContextBuilder<Object> {
 		treatment_residual_enrollment.put(EnrollmentMethodTreat.inpartner, 0.0);
 		treatment_residual_enrollment.put(EnrollmentMethodTreat.outpartner, 0.0);
 		
-		vaccine_enrollment_duration_days    = (Integer)params.getValue("vaccine_enrollment_duration_days");		
+		vaccine_enrollment_duration_days = (Integer)params.getValue("vaccine_enrollment_duration_days");	
+		vaccine_annual_loss = (Double)params.getValue("vaccine_annual_loss");	
 		vaccine_study_arm_n = (Integer)params.getValue("vaccine_study_arm_n");
 		vaccine_schedule    = (String)params.getValue("vaccine_schedule");
+		vaccine_enrollment_launch_day    = (Double)params.getValue("vaccine_enrollment_launch_day");
 		vaccine_total_doses = vaccine_schedule.startsWith("D1")?1 : (vaccine_schedule.startsWith("D2")?2:3);
 
-		vaccine_followup_days    = (Double)params.getValue("vaccine_followup_days");
-		vaccine_followup2_days   = (Double)params.getValue("vaccine_followup2_days");
+		
+		vaccine_followup1_periods = (Integer)params.getValue("vaccine_followup1_periods");
+		vaccine_followup2_periods = (Integer)params.getValue("vaccine_followup2_periods");
+		vaccine_followup_weeks    = (Double)params.getValue("vaccine_followup_weeks");
 		if(vaccine_total_doses > 1) {
-			vaccine_dose2_day    = (Double)params.getValue("vaccine_dose2_day");
+			vaccine_dose2_day = (Double)params.getValue("vaccine_dose2_day");
 		}
 		if(vaccine_total_doses > 2) {
-			vaccine_dose3_day    = (Double)params.getValue("vaccine_dose3_day");
+			vaccine_dose3_day = (Double)params.getValue("vaccine_dose3_day");
 		}
 
 		//wishlist: check it adds up to 1.0
@@ -260,7 +265,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		}
 
 		if(! vaccine_schedule.equals("") && vaccine_study_arm_n > 0) {
-			vaccine_start_of_enrollment = (Double)params.getValue("burn_in_days") + vaccine_enrollment_delay_days;
+			vaccine_start_of_enrollment = (Double)params.getValue("burn_in_days") + vaccine_enrollment_launch_day;
 			main_schedule.schedule(ScheduleParameters.createRepeating(vaccine_start_of_enrollment, 1, -1), this, 
 					"vaccine_trial_enroll");
 		}
@@ -981,81 +986,128 @@ public class APKBuilder implements ContextBuilder<Object> {
 		idu.setCurrent_trial_arm(arm);
 		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
 		
-		vaccine_trial_advance(idu, Immunology.TRIAL_STAGE.received_dose1);
+		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);
+
+		double time_to_abandon = RepastEssentials.GetTickCount() + 365*RandomHelper.createExponential(vaccine_annual_loss).nextDouble();
+		ScheduleParameters p = ScheduleParameters.createOneTime(time_to_abandon, -1);
+		main_schedule.schedule(p, this, "vaccine_trial_advance", idu, VACCINE_STAGE.abandoned, 0);
 	}
 	
 	/*
 	 * called when the IDU has arrived to the time of new_stage
 	 */
-	public void vaccine_trial_advance(IDU idu, Immunology.TRIAL_STAGE new_stage) {
-		Immunology.TRIAL_STAGE next_stage = Immunology.TRIAL_STAGE.none;
+	public void vaccine_trial_advance(IDU idu, VACCINE_STAGE new_stage, Integer remaining_followups) {
+		if(idu.getCurrent_trial_stage() == VACCINE_STAGE.abandoned) {
+			return;
+		}
+		
+		VACCINE_STAGE next_stage = VACCINE_STAGE.notenrolled;	
 		switch(new_stage) {
-		case received_dose1:
-			idu.receiveVaccineDose();
-			if(vaccine_total_doses > 1) {
-				next_stage = TRIAL_STAGE.received_dose2;
-			} else {
-				next_stage = TRIAL_STAGE.followup;
-			}
-			break;
-		case received_dose2:
-			idu.receiveVaccineDose();
-			if(vaccine_total_doses > 2) {
-				next_stage = TRIAL_STAGE.received_dose3;
-			} else {
-				next_stage = TRIAL_STAGE.followup;
-			}
-			break;
-		case received_dose3:
-			idu.receiveVaccineDose();
-			next_stage = TRIAL_STAGE.followup;
-			break;
-		case followup:
-			if (! idu.isHcvRNA()) {
-				next_stage = TRIAL_STAGE.completed;
-			} else {
-				next_stage = TRIAL_STAGE.followup2;
-			}
-			Statistics.fire_status_change(AgentMessage.followup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
-			break;
-		case followup2:
-			next_stage = TRIAL_STAGE.completed;
-			Statistics.fire_status_change(AgentMessage.followup2, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
-			break;
-		case completed:
-			//TODO: do additional statistics
-			next_stage = Immunology.TRIAL_STAGE.none;
-			Statistics.fire_status_change(AgentMessage.trialcompleted, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
-			break;
-		default:
-			assert false;
-			next_stage = Immunology.TRIAL_STAGE.none;
-			break;
+			case received_dose1:
+				idu.receiveVaccineDose(); //updates the stage
+				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage=received_dose1"+";arm="+idu.getCurrent_trial_arm(), null);
+				if(vaccine_total_doses > 1) {
+					next_stage = VACCINE_STAGE.received_dose2;
+				} else {
+					next_stage = VACCINE_STAGE.followup;
+					idu.setVaccine_stage(next_stage);
+					remaining_followups = vaccine_followup1_periods - 1;
+					Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				}
+				break;
+			case received_dose2:
+				idu.receiveVaccineDose(); //updates the stage
+				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage=received_dose2"+";arm="+idu.getCurrent_trial_arm(), null);
+				if(vaccine_total_doses > 2) {
+					next_stage = VACCINE_STAGE.received_dose3;
+				} else {
+					next_stage = VACCINE_STAGE.followup;
+					idu.setVaccine_stage(next_stage);
+					remaining_followups = vaccine_followup1_periods - 1;
+					Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				}
+				break;
+			case received_dose3:
+				idu.receiveVaccineDose(); //updates the stage
+				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage=received_dose3"+";arm="+idu.getCurrent_trial_arm(), null);
+				next_stage = VACCINE_STAGE.followup;
+				remaining_followups = vaccine_followup1_periods - 1;
+				Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				break;
+			case followup:
+				if (idu.isHcvRNA()){
+					next_stage = VACCINE_STAGE.followup2;
+					idu.setVaccine_stage(next_stage);
+					remaining_followups = vaccine_followup2_periods - 1;
+					Statistics.fire_status_change(AgentMessage.infollowup2, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				} else if (remaining_followups > 0 ) {
+					next_stage = VACCINE_STAGE.followup;
+					Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+					remaining_followups -= 1;
+				} else {
+					next_stage = VACCINE_STAGE.completed;
+					idu.setVaccine_stage(next_stage);
+					Statistics.fire_status_change(AgentMessage.trialcompleted, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				}
+				break;
+			case followup2:
+ 				if (remaining_followups > 0) { //still infected
+					remaining_followups -= 1;
+					next_stage = VACCINE_STAGE.followup2;
+					idu.setVaccine_stage(next_stage);
+					Statistics.fire_status_change(AgentMessage.infollowup2, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				} else {
+					next_stage = VACCINE_STAGE.completed;
+					idu.setVaccine_stage(next_stage);
+					Statistics.fire_status_change(AgentMessage.trialcompleted, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				}
+				break;
+			case abandoned:
+				if (idu.getCurrent_trial_stage() != VACCINE_STAGE.completed) {
+					next_stage = VACCINE_STAGE.abandoned;
+					idu.setVaccine_stage(next_stage);
+					Statistics.fire_status_change(AgentMessage.trialabandoned, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				}
+				break;
+			//case completed: end of story.
+			case notenrolled:
+				assert false; //shouldn't cause a call of this method
+				break;
+			default:
+				assert false;
+				break;
+		}
+		if (next_stage == VACCINE_STAGE.notenrolled) {
+			assert false; //shouldn't reach this point
+			return;
+		}
+	
+		double next_event_time = Double.NaN;
+		switch(next_stage) {
+			case notenrolled:
+				break;
+			case received_dose2:
+				next_event_time = RepastEssentials.GetTickCount() + vaccine_dose2_day;
+				break;
+			case received_dose3:
+				next_event_time = RepastEssentials.GetTickCount() + vaccine_dose3_day - vaccine_dose2_day; //because counted from first dose
+				break;
+			case followup:
+				next_event_time = RepastEssentials.GetTickCount() + vaccine_followup_weeks*7;
+				break;
+			case followup2:
+				next_event_time = RepastEssentials.GetTickCount() + vaccine_followup_weeks*7;
+				break;
+			case abandoned:
+				break;
+			case completed:
+				break;
+			default:
+				break;
+		}
+		if (! Double.isNaN(next_event_time)) {
+			ScheduleParameters p = ScheduleParameters.createOneTime(next_event_time, -1);
+			main_schedule.schedule(p, this, "vaccine_trial_advance", idu, next_stage, remaining_followups);
+		}
 	}
-	if (next_stage == Immunology.TRIAL_STAGE.none) {
-		return;
-	}
-
-	double next_event_time = RepastEssentials.GetTickCount();
-	switch(next_stage) {
-		case received_dose2:
-			next_event_time += vaccine_dose2_day;
-			break;
-		case received_dose3:
-			next_event_time += vaccine_dose3_day - vaccine_dose2_day; //because counted from first dose
-			break;
-		case followup:
-			next_event_time += vaccine_followup_days;
-			break;
-		case followup2:
-			next_event_time += vaccine_followup2_days;
-			break;
-		default:
-			break;
-	}
-	ScheduleParameters p = ScheduleParameters.createOneTime(next_event_time, -1);
-	main_schedule.schedule(p, this, "vaccine_trial_advance", idu, next_stage);
-
-	}
-
 }

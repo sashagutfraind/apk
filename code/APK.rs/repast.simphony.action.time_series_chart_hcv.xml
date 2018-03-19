@@ -92,6 +92,18 @@
         </color>
       </SeriesData>
     </entry>
+    <entry>
+      <string>InVaccineTrial</string>
+      <SeriesData>
+        <label>InVaccineTrial</label>
+        <color>
+          <red>100</red>
+          <green>130</green>
+          <blue>200</blue>
+          <alpha>255</alpha>
+        </color>
+      </SeriesData>
+    </entry>
     </seriesIds>
   <dataValueIds/>
   <plotRangeLength>-1</plotRangeLength>

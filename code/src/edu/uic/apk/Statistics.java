@@ -135,11 +135,11 @@ public class Statistics {
 		runtimeStatNames.add("hcvabpos_ALL");
 		runtimeStatNames.add("infected_ALL");
 		runtimeStatNames.add("population_ALL");
-		runtimeStatNames.add("prevalence_ALL");
+		runtimeStatNames.add("prevalence_ALL"); //antibody prevalence
 		runtimeStatNames.add("RNApreval_ALL");
 		runtimeStatNames.add("intreatment_ALL");
-		runtimeStatNames.add("intreatment_ALL");
-
+		runtimeStatNames.add("vaccinetrial_ALL");
+		
 		for (Gender g : Gender.values()) {
 			runtimeStatNames.add("cured_Gender=" + g.toString());			
 			runtimeStatNames.add("hcvabpos_Gender=" + g.toString());			
@@ -149,6 +149,7 @@ public class Statistics {
 			runtimeStatNames.add("prevalence_Gender=" + g.toString());			
 			runtimeStatNames.add("RNApreval_Gender=" + g.toString());			
 			runtimeStatNames.add("intreatment_Gender=" + g.toString());			
+			runtimeStatNames.add("vaccinetrial_Gender=" + g.toString());			
 		}
 		for (HCV_state s : HCV_state.values()) {
 			runtimeStatNames.add("cured_HCV=" + s.toString());			
@@ -156,9 +157,16 @@ public class Statistics {
 			runtimeStatNames.add("fraction_HCV=" + s.toString());			
 			runtimeStatNames.add("infected_HCV=" + s.toString());			
 			runtimeStatNames.add("population_HCV=" + s.toString());
-			runtimeStatNames.add("prevalence_HCV=" + s.toString());			
+			runtimeStatNames.add("prevalence_HCV=" + s.toString());		//i.e. antibody	
 			runtimeStatNames.add("RNApreval_HCV=" + s.toString());			
-			runtimeStatNames.add("intreatment_HCV=" + s.toString());			
+			runtimeStatNames.add("intreatment_HCV=" + s.toString());
+			runtimeStatNames.add("vaccinetrial_HCV=" + s.toString());
+			/*
+			 note: this data is slightly misleading because the infection itself changes the HCV_state
+			 e.g. there are no "infected" people who are cured or vaccinated
+			 //TODO: switch to using binary states for any possible test/condition
+			 // i.e. RNA, ABs, Vaccinated, Cured, etc.
+			 */
 		}
 		for (Race r : Race.values()) {
 			runtimeStatNames.add("cured_Race=" + r.toString());			
@@ -169,6 +177,7 @@ public class Statistics {
 			runtimeStatNames.add("prevalence_Race=" + r.toString());			
 			runtimeStatNames.add("RNApreval_Race=" + r.toString());			
 			runtimeStatNames.add("intreatment_Race=" + r.toString());			
+			runtimeStatNames.add("vaccinetrial_Race=" + r.toString());			
 		}
 		for (HarmReduction syrsrc : HarmReduction.values()) {
 			runtimeStatNames.add("cured_SyringeSource=" + syrsrc.toString());
@@ -179,6 +188,7 @@ public class Statistics {
 			runtimeStatNames.add("prevalence_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("RNApreval_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("intreatment_SyringeSource=" + syrsrc.toString());			
+			runtimeStatNames.add("vaccinetrial_SyringeSource=" + syrsrc.toString());			
 		}
 		for (IDU.AgeDecade age_dec : IDU.AgeDecade.values()) {
 			runtimeStatNames.add("cured_AgeDec=" + age_dec);
@@ -189,6 +199,7 @@ public class Statistics {
 			runtimeStatNames.add("prevalence_AgeDec=" + age_dec);
 			runtimeStatNames.add("RNApreval_AgeDec=" + age_dec);
 			runtimeStatNames.add("intreatment_AgeDec=" + age_dec);
+			runtimeStatNames.add("vaccinetrial_AgeDec=" + age_dec);
 		}
 		for (IDU.AgeGroup age_grp : IDU.AgeGroup.values()) {
 			runtimeStatNames.add("cured_Age=" + age_grp);
@@ -199,6 +210,7 @@ public class Statistics {
 			runtimeStatNames.add("prevalence_Age=" + age_grp);
 			runtimeStatNames.add("RNApreval_Age=" + age_grp);
 			runtimeStatNames.add("intreatment_Age=" + age_grp);
+			runtimeStatNames.add("vaccinetrial_Age=" + age_grp);
 		}
 		for (IDU.AreaType area_cat : IDU.AreaType.values()) {
 			runtimeStatNames.add("cured_Area=" + area_cat);
@@ -209,6 +221,18 @@ public class Statistics {
 			runtimeStatNames.add("prevalence_Area=" + area_cat);
 			runtimeStatNames.add("RNApreval_Area=" + area_cat);
 			runtimeStatNames.add("intreatment_Area=" + area_cat);
+			runtimeStatNames.add("vaccinetrial_Area=" + area_cat);
+		}
+		for (Immunology.TRIAL_ARM arm : Immunology.TRIAL_ARM.values()) {
+			runtimeStatNames.add("cured_VaccineArm=" + arm);
+			runtimeStatNames.add("fraction_VaccineArm=" + arm);
+			runtimeStatNames.add("hcvabpos_VaccineArm=" + arm);
+			runtimeStatNames.add("infected_VaccineArm=" + arm);
+			runtimeStatNames.add("population_VaccineArm=" + arm);
+			runtimeStatNames.add("prevalence_VaccineArm=" + arm);
+			runtimeStatNames.add("RNApreval_VaccineArm=" + arm);
+			runtimeStatNames.add("intreatment_VaccineArm=" + arm);
+			runtimeStatNames.add("vaccinetrial_VaccineArm=" + arm);
 		}
 
 		System.out.printf("Random seed: %d"+lineSep+lineSep, RandomHelper.getSeed());
@@ -344,6 +368,7 @@ public class Statistics {
 			String agegrp  = "Age="+(agent.getAgeGroup());
 			String agedec  = "AgeDec="+(agent.getAgeDecade());
 			String areatype = "Area="+agent.getAreaType();
+			String vaccinearm = "VaccineArm="+agent.getCurrent_trial_arm();
 			
 			currentData.put("mean-age_ALL",     currentData.get("mean-age_ALL")+agent.getAge());  //divided later
 			currentData.put("mean-career_ALL",  currentData.get("mean-career_ALL")+agent.getAge()-agent.getAgeStarted());  //divided later
@@ -352,9 +377,6 @@ public class Statistics {
 			currentData.put("mean-outdeg_ALL",  currentData.get("mean-outdeg_ALL")+agent.getDrugGivingDegree());  //divided later
 			currentData.put("mean-sharing_ALL", currentData.get("mean-sharing_ALL")+agent.getFractionReceptSharing());  //divided later
 
-			agent.isInTreatment();
-			currentData.put("intreatment_ALL", currentData.get("intreatment_ALL")+(agent.isInTreatment()?1:0));
-			
 			currentData.put("population_ALL",     currentData.get("population_ALL")+1);
 			currentData.put("population_"+gender, currentData.get("population_"+gender)+1);
 			currentData.put("population_"+hcvstate, currentData.get("population_"+hcvstate)+1);
@@ -363,6 +385,7 @@ public class Statistics {
 			currentData.put("population_"+agedec,  currentData.get("population_"+agedec)+1);
 			currentData.put("population_"+agegrp,  currentData.get("population_"+agegrp)+1);
 			currentData.put("population_"+areatype,   currentData.get("population_"+areatype)+1);
+			currentData.put("population_"+vaccinearm,   currentData.get("population_"+vaccinearm)+1);
 			if(agent.isHcvRNA()) {
 				currentData.put("infected_ALL",     currentData.get("infected_ALL") + 1);
 				currentData.put("infected_"+gender, currentData.get("infected_"+gender)+1);
@@ -372,6 +395,7 @@ public class Statistics {
 				currentData.put("infected_"+agedec,  currentData.get("infected_"+agedec)+1);
 				currentData.put("infected_"+agegrp,  currentData.get("infected_"+agegrp)+1);
 				currentData.put("infected_"+areatype,   currentData.get("infected_"+areatype)+1);
+				currentData.put("infected_"+vaccinearm,   currentData.get("infected_"+vaccinearm)+1);
 			}
 			if(agent.isHcvABpos()) {
 				currentData.put("hcvabpos_ALL",     currentData.get("hcvabpos_ALL") + 1);
@@ -382,9 +406,10 @@ public class Statistics {
 				currentData.put("hcvabpos_"+agedec,  currentData.get("hcvabpos_"+agedec)+1);
 				currentData.put("hcvabpos_"+agegrp,  currentData.get("hcvabpos_"+agegrp)+1);
 				currentData.put("hcvabpos_"+areatype,   currentData.get("hcvabpos_"+areatype)+1);
+				currentData.put("hcvabpos_"+vaccinearm,   currentData.get("hcvabpos_"+vaccinearm)+1);
 			}
 			if(agent.isInTreatment()) {
-				currentData.put("intreatment_",       currentData.get("intreatment_ALL") + 1);
+				currentData.put("intreatment_ALL",       currentData.get("intreatment_ALL") + 1);
 				currentData.put("intreatment_"+gender,   currentData.get("intreatment_"+gender)+1);
 				currentData.put("intreatment_"+hcvstate, currentData.get("intreatment_"+hcvstate)+1);
 				currentData.put("intreatment_"+race, 	 currentData.get("intreatment_"+race)+1);
@@ -392,6 +417,18 @@ public class Statistics {
 				currentData.put("intreatment_"+agedec,   currentData.get("intreatment_"+agedec)+1);
 				currentData.put("intreatment_"+agegrp,   currentData.get("intreatment_"+agegrp)+1);
 				currentData.put("intreatment_"+areatype, currentData.get("intreatment_"+areatype)+1);
+				currentData.put("intreatment_"+vaccinearm,   currentData.get("intreatment_"+vaccinearm)+1);
+			}
+			if(agent.isInVaccineTrial()) {
+				currentData.put("vaccinetrial_ALL",       currentData.get("vaccinetrial_ALL") + 1);
+				currentData.put("vaccinetrial_"+gender,   currentData.get("vaccinetrial_"+gender)+1);
+				currentData.put("vaccinetrial_"+hcvstate, currentData.get("vaccinetrial_"+hcvstate)+1);
+				currentData.put("vaccinetrial_"+race, 	 currentData.get("vaccinetrial_"+race)+1);
+				currentData.put("vaccinetrial_"+syrsrc,   currentData.get("vaccinetrial_"+syrsrc)+1);
+				currentData.put("vaccinetrial_"+agedec,   currentData.get("vaccinetrial_"+agedec)+1);
+				currentData.put("vaccinetrial_"+agegrp,   currentData.get("vaccinetrial_"+agegrp)+1);
+				currentData.put("vaccinetrial_"+areatype, currentData.get("vaccinetrial_"+areatype)+1);
+				currentData.put("vaccinetrial_"+vaccinearm,   currentData.get("vaccinetrial_"+vaccinearm)+1);
 			}
 			if(agent.isCured()) {
 				currentData.put("cured_ALL",       currentData.get("cured_ALL") + 1);
@@ -402,7 +439,9 @@ public class Statistics {
 				currentData.put("cured_"+agedec,   currentData.get("cured_"+agedec)+1);
 				currentData.put("cured_"+agegrp,   currentData.get("cured_"+agegrp)+1);
 				currentData.put("cured_"+areatype, currentData.get("cured_"+areatype)+1);
+				currentData.put("cured_"+vaccinearm,   currentData.get("cured_"+vaccinearm)+1);
 			}
+			//wishlist: look at the balance of the vaccine trial arms
 		}
 		Double total_population = Math.max(1.0, currentData.get("population_ALL"));
 		currentData.put("mean-age_ALL",     currentData.get("mean-age_ALL")/total_population);
@@ -642,15 +681,13 @@ public class Statistics {
 				Statistics.aggregate_courses += 1;
 				break;
 			case vaccinated:
+			case infollowup:
+			case infollowup2:
+			case trialabandoned:
+			case trialcompleted:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
-			case followup:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			case followup2:
-				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				break;
-			default:
+			default: //wishlist: consider doing a default
 				break;
 		}
 	}
@@ -722,6 +759,12 @@ public class Statistics {
 	}
 	public Double prevalence_NonHR() {
 		return getCurrentStat("prevalence_SyringeSource=nonHR");
+	}
+	public Double prevalence_VaccineStudy() {
+		return getCurrentStat("prevalence_VaccineArm=study");
+	}
+	public Double prevalence_VaccinePlacebo() {
+		return getCurrentStat("prevalence_VaccineArm=placebo");
 	}
 	public Double prevalence_AgeLEQ30() {
 		return getCurrentStat("prevalence_Age="+AgeGroup.LEQ30);

@@ -70,6 +70,15 @@
         <aggType>SUM</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
+    <entry>
+      <string>InVaccineTrial</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>InVaccineTrial</id>
+        <className>edu.uic.apk.IDU</className>
+        <methodName>isInVaccineTrial</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
     </methodDataSources>
   <countSources class="linked-hash-map"/>
   <customNADataSources class="linked-hash-map"/>

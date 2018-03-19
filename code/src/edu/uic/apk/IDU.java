@@ -23,7 +23,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import edu.uic.apk.Immunology.TRIAL_ARM;
-import edu.uic.apk.Immunology.TRIAL_STAGE;
 import edu.uic.apkSynth.Activity_profile;
 import edu.uic.apkSynth.Gender;
 import edu.uic.apkSynth.HCV_state;
@@ -275,9 +274,11 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	public void setCurrent_trial_arm(TRIAL_ARM current_trial_arm) {
 		imm.setCurrent_trial_arm(current_trial_arm);
 	}	
-	public TRIAL_STAGE getCurrent_trial_stage() {
+	public VACCINE_STAGE getCurrent_trial_stage() {
 		return imm.getVaccine_stage();
-		//todo: test
+	}
+	public void setVaccine_stage(VACCINE_STAGE vaccine_stage) {
+		imm.setVaccine_stage(vaccine_stage);		
 	}
 	
 	@Override
@@ -732,7 +733,7 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		return imm.isTreatable();
 	}
 	public boolean isVaccineTrialSuitable() {
-		if (imm.getVaccine_stage() != Immunology.TRIAL_STAGE.none) {
+		if (imm.getVaccine_stage() != VACCINE_STAGE.notenrolled) {
 			return false;
 		}
 		if (! isNaive() || isInTreatment()) {
@@ -749,8 +750,8 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		return true;
 	}
 	public boolean isInVaccineTrial() {
-		return (imm.getCurrent_trial_arm() != Immunology.TRIAL_ARM.none) && 
-				(imm.getVaccine_stage() != Immunology.TRIAL_STAGE.completed);
+		return (imm.getCurrent_trial_arm() != TRIAL_ARM.noarm) && 
+				(imm.getVaccine_stage() != VACCINE_STAGE.completed);
 	}
 
 	public boolean isYoung() {
