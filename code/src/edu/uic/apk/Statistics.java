@@ -23,6 +23,7 @@ import java.util.Vector;
 import edu.uic.apk.IDU.AgeDecade;
 import edu.uic.apk.IDU.AgeGroup;
 import edu.uic.apk.IDU.AreaType;
+import edu.uic.apk.Immunology.TRIAL_ARM;
 import edu.uic.apkSynth.Gender;
 import edu.uic.apkSynth.HCV_state;
 import edu.uic.apkSynth.Race;
@@ -459,12 +460,15 @@ public class Statistics {
 			Double population  = currentData.get(metric);
 			Double hcvabpos    = currentData.get("hcvabpos_"+group_name);
 			Double infected    = currentData.get("infected_"+group_name); //specifically, RNA+
+			//System.out.println(group_name);
 			if (population != null && population > 0) {
 				currentData.put("prevalence_"+group_name, hcvabpos/population);
 				currentData.put("RNApreval_"+group_name, infected/population);
+				//System.out.println(currentData.get("RNApreval_"+group_name));
 			} else {
 				currentData.put("prevalence_"+group_name, Double.NaN);
 				currentData.put("RNApreval_"+group_name, Double.NaN);
+				//System.out.println(currentData.get("RNApreval_"+group_name));
 			}
 			currentData.put("fraction_"+group_name, population/total_population);
 		}

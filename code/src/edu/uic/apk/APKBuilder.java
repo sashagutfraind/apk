@@ -116,6 +116,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 	private double treatment_mean_daily = 0.0; //updated just once when we load the parameters
 
 	private int vaccine_study_arm_n = 0; //assume identical arm sizes
+	private int vaccine_study_enrolled = 0;
 	private String vaccine_schedule = "";
 	private int vaccine_total_doses = 0;
 	private double vaccine_start_of_enrollment = Double.NaN;
@@ -982,9 +983,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 
 	
 	public void vaccine_trial_start(IDU idu) {
-		Immunology.TRIAL_ARM arm = (RandomHelper.nextDouble() > 0.5)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo;
+		Immunology.TRIAL_ARM arm = (vaccine_study_enrolled % 2 == 0)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo;
 		idu.setCurrent_trial_arm(arm);
 		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
+		vaccine_study_enrolled++;  //deterministic to maximize balance
 		
 		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);
 

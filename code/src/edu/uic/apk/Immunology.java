@@ -160,6 +160,7 @@ public class Immunology implements java.io.Serializable {
 	public boolean isInTreatment() {
 		return in_treatment;
 	}
+	//true is the RNA is not detectable due to treatment
 	private boolean isIn_treatment_viral_suppression() {
 		if(! in_treatment) {
 			return false;
@@ -403,6 +404,9 @@ public class Immunology implements java.io.Serializable {
 			case notenrolled:
 				vaccine_dose_received_day = RepastEssentials.GetTickCount();
 				vaccine_stage = VACCINE_STAGE.received_dose1;
+				if(hcv_state == HCV_state.susceptible) {
+					hcv_state = HCV_state.vaccinated;
+				}
 				past_vaccinated = true;
 				break;
 			case received_dose1:
