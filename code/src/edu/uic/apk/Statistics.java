@@ -136,7 +136,7 @@ public class Statistics {
 		runtimeStatNames.add("hcvabpos_ALL");
 		runtimeStatNames.add("infected_ALL");
 		runtimeStatNames.add("population_ALL");
-		runtimeStatNames.add("prevalence_ALL"); //antibody prevalence
+		runtimeStatNames.add("ABpreval_ALL"); //antibody prevalence
 		runtimeStatNames.add("RNApreval_ALL");
 		runtimeStatNames.add("intreatment_ALL");
 		runtimeStatNames.add("vaccinetrial_ALL");
@@ -147,7 +147,7 @@ public class Statistics {
 			runtimeStatNames.add("fraction_Gender=" + g.toString());			
 			runtimeStatNames.add("infected_Gender=" + g.toString());			
 			runtimeStatNames.add("population_Gender=" + g.toString());
-			runtimeStatNames.add("prevalence_Gender=" + g.toString());			
+			runtimeStatNames.add("ABpreval_Gender=" + g.toString());			
 			runtimeStatNames.add("RNApreval_Gender=" + g.toString());			
 			runtimeStatNames.add("intreatment_Gender=" + g.toString());			
 			runtimeStatNames.add("vaccinetrial_Gender=" + g.toString());			
@@ -158,7 +158,7 @@ public class Statistics {
 			runtimeStatNames.add("fraction_HCV=" + s.toString());			
 			runtimeStatNames.add("infected_HCV=" + s.toString());			
 			runtimeStatNames.add("population_HCV=" + s.toString());
-			runtimeStatNames.add("prevalence_HCV=" + s.toString());		//i.e. antibody	
+			runtimeStatNames.add("ABpreval_HCV=" + s.toString());		//i.e. antibody	
 			runtimeStatNames.add("RNApreval_HCV=" + s.toString());			
 			runtimeStatNames.add("intreatment_HCV=" + s.toString());
 			runtimeStatNames.add("vaccinetrial_HCV=" + s.toString());
@@ -175,7 +175,7 @@ public class Statistics {
 			runtimeStatNames.add("hcvabpos_Race=" + r.toString());
 			runtimeStatNames.add("infected_Race=" + r.toString());
 			runtimeStatNames.add("population_Race=" + r.toString());
-			runtimeStatNames.add("prevalence_Race=" + r.toString());			
+			runtimeStatNames.add("ABpreval_Race=" + r.toString());			
 			runtimeStatNames.add("RNApreval_Race=" + r.toString());			
 			runtimeStatNames.add("intreatment_Race=" + r.toString());			
 			runtimeStatNames.add("vaccinetrial_Race=" + r.toString());			
@@ -186,7 +186,7 @@ public class Statistics {
 			runtimeStatNames.add("hcvabpos_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("infected_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("population_SyringeSource=" + syrsrc.toString());
-			runtimeStatNames.add("prevalence_SyringeSource=" + syrsrc.toString());
+			runtimeStatNames.add("ABpreval_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("RNApreval_SyringeSource=" + syrsrc.toString());
 			runtimeStatNames.add("intreatment_SyringeSource=" + syrsrc.toString());			
 			runtimeStatNames.add("vaccinetrial_SyringeSource=" + syrsrc.toString());			
@@ -197,7 +197,7 @@ public class Statistics {
 			runtimeStatNames.add("hcvabpos_AgeDec=" + age_dec);
 			runtimeStatNames.add("infected_AgeDec=" + age_dec);
 			runtimeStatNames.add("population_AgeDec=" + age_dec);
-			runtimeStatNames.add("prevalence_AgeDec=" + age_dec);
+			runtimeStatNames.add("ABpreval_AgeDec=" + age_dec);
 			runtimeStatNames.add("RNApreval_AgeDec=" + age_dec);
 			runtimeStatNames.add("intreatment_AgeDec=" + age_dec);
 			runtimeStatNames.add("vaccinetrial_AgeDec=" + age_dec);
@@ -208,7 +208,7 @@ public class Statistics {
 			runtimeStatNames.add("hcvabpos_Age=" + age_grp);
 			runtimeStatNames.add("infected_Age=" + age_grp);
 			runtimeStatNames.add("population_Age=" + age_grp);
-			runtimeStatNames.add("prevalence_Age=" + age_grp);
+			runtimeStatNames.add("ABpreval_Age=" + age_grp);
 			runtimeStatNames.add("RNApreval_Age=" + age_grp);
 			runtimeStatNames.add("intreatment_Age=" + age_grp);
 			runtimeStatNames.add("vaccinetrial_Age=" + age_grp);
@@ -219,7 +219,7 @@ public class Statistics {
 			runtimeStatNames.add("hcvabpos_Area=" + area_cat);
 			runtimeStatNames.add("infected_Area=" + area_cat);
 			runtimeStatNames.add("population_Area=" + area_cat);
-			runtimeStatNames.add("prevalence_Area=" + area_cat);
+			runtimeStatNames.add("ABpreval_Area=" + area_cat);
 			runtimeStatNames.add("RNApreval_Area=" + area_cat);
 			runtimeStatNames.add("intreatment_Area=" + area_cat);
 			runtimeStatNames.add("vaccinetrial_Area=" + area_cat);
@@ -230,7 +230,7 @@ public class Statistics {
 			runtimeStatNames.add("hcvabpos_VaccineArm=" + arm);
 			runtimeStatNames.add("infected_VaccineArm=" + arm);
 			runtimeStatNames.add("population_VaccineArm=" + arm);
-			runtimeStatNames.add("prevalence_VaccineArm=" + arm);
+			runtimeStatNames.add("ABpreval_VaccineArm=" + arm);
 			runtimeStatNames.add("RNApreval_VaccineArm=" + arm);
 			runtimeStatNames.add("intreatment_VaccineArm=" + arm);
 			runtimeStatNames.add("vaccinetrial_VaccineArm=" + arm);
@@ -462,11 +462,11 @@ public class Statistics {
 			Double infected    = currentData.get("infected_"+group_name); //specifically, RNA+
 			//System.out.println(group_name);
 			if (population != null && population > 0) {
-				currentData.put("prevalence_"+group_name, hcvabpos/population);
+				currentData.put("ABpreval_"+group_name, hcvabpos/population);
 				currentData.put("RNApreval_"+group_name, infected/population);
 				//System.out.println(currentData.get("RNApreval_"+group_name));
 			} else {
-				currentData.put("prevalence_"+group_name, Double.NaN);
+				currentData.put("ABpreval_"+group_name, Double.NaN);
 				currentData.put("RNApreval_"+group_name, Double.NaN);
 				//System.out.println(currentData.get("RNApreval_"+group_name));
 			}
@@ -599,21 +599,20 @@ public class Statistics {
 
 	public static void fire_status_change(AgentMessage message, IDU agent, String message_info, HashMap details) {
 		//Note: make sure that HCV state is updated before calling this message
-		//EventClass is currently just D=disease.  potentially could help presort events based on EventClass - one parser per class
 		assert singleton != null;
-		String eventClass = "D"; //for now
+		String eventClass = ""; //not used
 		//return; 
 		if(agent==null) {
 			eventsStream.printf("NOTE: we don't record failed exposure events or successful exposures during acute or chronic HCV (for space reasons)" + lineSep);
-			eventsStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
+			eventsStream.printf("Time,EC,Agent,Event,Info,L1,N1,L2,N2,C,");
 			eventsStream.printf(IDU.toString_header());
 			eventsStream.printf(lineSep);
 
-			statusStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
+			statusStream.printf("Time,EC,Agent,Event,Info,L1,N1,L2,N2,C,");
 			statusStream.printf(IDU.toString_header());
 			statusStream.printf(lineSep);
 
-			regularStatusStream.printf("Time,EventClass,Agent,Event,Info,L1,N1,L2,N2,,");
+			regularStatusStream.printf("Time,EC,Agent,Event,Info,L1,N1,L2,N2,C,");
 			regularStatusStream.printf(IDU.toString_header());
 			regularStatusStream.printf(lineSep);
 			return;
@@ -735,47 +734,47 @@ public class Statistics {
 	 * reports the prevalence for various cross-sections (HCV RNA)
 	 */
 	public Double prevalence_ALL() {
-		return getCurrentStat("prevalence_ALL");
+		return getCurrentStat("ABpreval_ALL");
 	}
 	public Double prevalence_Female() {
-		return getCurrentStat("prevalence_Gender=Female");
+		return getCurrentStat("ABpreval_Gender=Female");
 	}
 	public Double prevalence_Male() {
-		return getCurrentStat("prevalence_Gender=Male");
+		return getCurrentStat("ABpreval_Gender=Male");
 	}
 	public Double prevalence_Black() {
-		return getCurrentStat("prevalence_Race=Black");
+		return getCurrentStat("ABpreval_Race=Black");
 	}
 	public Double prevalence_Hispanic() {
-		return getCurrentStat("prevalence_Race=Hispanic");
+		return getCurrentStat("ABpreval_Race=Hispanic");
 	}
 	public Double prevalence_NHWhite() {
-		return getCurrentStat("prevalence_Race=NHWhite");
+		return getCurrentStat("ABpreval_Race=NHWhite");
 	}
 	public Double prevalence_City() {
-		return getCurrentStat("prevalence_Area="+AreaType.City);
+		return getCurrentStat("ABpreval_Area="+AreaType.City);
 	}
 	public Double prevalence_Suburban() {
-		return getCurrentStat("prevalence_Area="+AreaType.Suburban);
+		return getCurrentStat("ABpreval_Area="+AreaType.Suburban);
 	}
 	public Double prevalence_HR() {
-		return getCurrentStat("prevalence_SyringeSource=HR");
+		return getCurrentStat("ABpreval_SyringeSource=HR");
 	}
 	public Double prevalence_NonHR() {
-		return getCurrentStat("prevalence_SyringeSource=nonHR");
+		return getCurrentStat("ABpreval_SyringeSource=nonHR");
 	}
 	public Double prevalence_VaccineStudy() {
-		return getCurrentStat("prevalence_VaccineArm=study");
+		return getCurrentStat("ABpreval_VaccineArm=study");
 	}
 	public Double prevalence_VaccinePlacebo() {
-		return getCurrentStat("prevalence_VaccineArm=placebo");
+		return getCurrentStat("ABpreval_VaccineArm=placebo");
 	}
 	public Double prevalence_AgeLEQ30() {
-		return getCurrentStat("prevalence_Age="+AgeGroup.LEQ30);
+		return getCurrentStat("ABpreval_Age="+AgeGroup.LEQ30);
 	}
 //wishlist: consider implementing
 //	public Double prevalence_treated() {
-//		return getCurrentStat("prevalence_treated");
+//		return getCurrentStat("ABpreval_treated");
 //	}
 	//wishlist: speedup: HCV states and Populations should also use this access (via Statistics), rather than their own sinks.
 
@@ -954,8 +953,8 @@ public class Statistics {
 				runningStats.get(statName).add(val);
 				//System.out.printf(statName + "=" + val + "\n"); 
 			}
-			if (! Double.isNaN(currentData.get("prevalence_ALL"))) {
-//				System.out.printf(lineSep+"Day: %.3f. Prevalence_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("prevalence_ALL"));
+			if (! Double.isNaN(currentData.get("ABpreval_ALL"))) {
+//				System.out.printf(lineSep+"Day: %.3f. Prevalence_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("ABpreval_ALL"));
 //				System.out.printf("Day: %.3f. Prevalence_ALL(RNA+): %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("infected_ALL")/currentData.get("population_ALL"));
 				//System.out.printf("Day: %.3f. InTreatment_ALL: %.4f"+lineSep, RepastEssentials.GetTickCount(), currentData.get("intreatment_ALL"));
 			}

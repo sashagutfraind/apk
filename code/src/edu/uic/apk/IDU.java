@@ -751,7 +751,8 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	}
 	public boolean isInVaccineTrial() {
 		return (imm.getCurrent_trial_arm() != TRIAL_ARM.noarm) && 
-				(imm.getVaccine_stage() != VACCINE_STAGE.completed);
+				(imm.getVaccine_stage() != VACCINE_STAGE.completed) && 
+				(imm.getVaccine_stage() != VACCINE_STAGE.abandoned);
 	}
 
 	public boolean isYoung() {

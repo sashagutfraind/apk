@@ -64,7 +64,7 @@
 		converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="treatment_enrollment_start_delay" displayName="treatment_nonadherence" type="double" isReadOnly="false" defaultValue="2190" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
 	<parameter name="treatment_enrollment_per_PY" displayName="treatment_enrollment_per_PY" type="double" isReadOnly="false" defaultValue="0.0d" value2="0d" converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>
-	<parameter name="treatment_repeatable" displayName="treatment_repeatable" type="boolean" isReadOnly="false" defaultValue="false" converter="repast.simphony.parameter.StringConverterFactory$BooleanConverter"/>
+	<parameter name="treatment_repeatable" displayName="treatment_repeatable" type="int" isReadOnly="false" defaultValue="0" converter="repast.simphony.parameter.StringConverterFactory$IntConverter"/>
 	<parameter name="treatment_svr" displayName="treatment_svr" type="double" isReadOnly="false" defaultValue="0.9"/>
 	<parameter name="treatment_susceptibility" displayName="treatment_susceptibility" type="double" isReadOnly="false" defaultValue="1.0"/>
 	<parameter name="verbosity" displayName="verbosity" type="string" isReadOnly="false" defaultValue="events+populations+regularStatus+status"/>

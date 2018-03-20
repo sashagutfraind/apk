@@ -143,7 +143,11 @@ public class Immunology implements java.io.Serializable {
 		return hcv_state == HCV_state.exposed;
 	}
 	public boolean isHcvABpos() { //presence of antigens
-		return (hcv_state != HCV_state.susceptible) || (hcv_state == HCV_state.ABPOS)  
+		return (hcv_state != HCV_state.susceptible) 
+				//wishlist: make a little less crude! 
+				//for vaccinees, antibodies don't emerge until a little bit later
+				//for natural infection, it also takes about a month
+				|| (hcv_state == HCV_state.ABPOS)  
 				|| past_cured || past_vaccinated || past_recovered;
 	}
 	public boolean isHcvRNA() {
@@ -271,7 +275,8 @@ public class Immunology implements java.io.Serializable {
 		prob_clearing 				  = (Double) params.getValue("prob_clearing");
 		transmissibility 			  = (Double) params.getValue("transmissibility");		
 		treatment_duration 			  = (Double) params.getValue("treatment_duration");		
-		treatment_repeatable          = (Boolean) params.getValue("treatment_repeatable");		
+		treatment_repeatable          = ((Integer) params.getValue("treatment_repeatable")) == 0? false: true; //repast doesn't handle boolean params well
+		//test this
 		treatment_svr 			  	  = (Double) params.getValue("treatment_svr");		
 		treatment_susceptibility      = (Double) params.getValue("treatment_susceptibility");		
 		//transmissibility 			  = (Double) params.getValue("transmissibility");		

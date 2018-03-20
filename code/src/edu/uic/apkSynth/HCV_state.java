@@ -8,12 +8,12 @@ public enum HCV_state {
 	//active agents would only have the other states
 	cured, 
 	/*
-	 * completed a course of treatment and not currently infected
+	 * = completed a course of treatment and not currently infected
 	 * during treatment other state would apply
 	 */
 	vaccinated 
 	/*
-	 * received at least one dose of the vaccine and not currently infected
+	 * = received at least one dose of the vaccine and not currently infected
 	 * 
 	 * only for people with no prior exposure: recovered individuals will not shift to vaccinated
 	 * any stage of the vaccine; the actual stage is tracked by a separate variable
