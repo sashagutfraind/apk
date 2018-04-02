@@ -285,16 +285,21 @@ public class Immunology implements java.io.Serializable {
 		vaccine_eff = new HashMap<String,double[]> ();	
 
 		//Vaccine Efficacy: at index i, get the VE from dose i.
+		//MAKE SURE: values are monotonically increasing even if 2nd or 3rd dose are not in the protocol
 		final double[] VE_D1 =  {0, 0.80, 0.80, 0.80};
 		final double[] VE_D2a = {0, 0.20, 0.60, 0.60};
 		final double[] VE_D2b = {0, 0.40, 0.80, 0.80};
 		final double[] VE_D3a = {0, 0.01, 0.20, 0.80};
 		final double[] VE_D3b = {0, 0.05, 0.50, 0.80};
+		final double[] VE_X1a = {0, 1.00, 1.00, 1.00}; //testing
+		final double[] VE_X3a = {0, 0.30, 0.60, 1.00}; //testing
 		vaccine_eff.put("D1", VE_D1);
 		vaccine_eff.put("D2a", VE_D2a);
 		vaccine_eff.put("D2b", VE_D2b);
 		vaccine_eff.put("D3a", VE_D3a);
 		vaccine_eff.put("D3b", VE_D3b);
+		vaccine_eff.put("X1a", VE_X1a);
+		vaccine_eff.put("X3a", VE_X3a);
 	}
 	public Double getTreatmentStartDate() {
 		return treatment_start_date;
@@ -391,8 +396,9 @@ public class Immunology implements java.io.Serializable {
 			acute_end_time = time_now + RandomHelper.createExponential(1./mean_days_acute_naive).nextDouble();	
 		} else {
 			acute_end_time = time_now + RandomHelper.createExponential(1./mean_days_acute_rechallenged).nextDouble();
-		}					   		  	
-		//wishlist: modify with vaccine
+		}					
+		acute_end_time = Math.max(acute_end_time, exposed_end_time + 0.1); //ensure correct sequencing
+		//wishlist: possibly modify duration with vaccine
 		ScheduleParameters acute_end_params = ScheduleParameters.createOneTime(acute_end_time);
 		next_immunology_actions.add(schedule.schedule(acute_end_params, this, "leave_acute"));
 		
@@ -464,17 +470,19 @@ public class Immunology implements java.io.Serializable {
 	 */
 	public boolean successful_acute_response() {
 		assert hcv_state == HCV_state.infectiousacute;
+		//case 1: modified immune system, from strongest to weakest immune responses
 		if (past_recovered) {
 			//strongest response
 			return prob_clearing > RandomHelper.nextDouble();
 		} 
+		if (vaccine_stage != VACCINE_STAGE.notenrolled) {
+			return vaccine_successful();
+		}
 		if (past_cured) {
 			//previous experience is defining of the immune response - cannot be modified by vaccine 
 			return (treatment_susceptibility < RandomHelper.nextDouble());
 		}
-		if (vaccine_stage != VACCINE_STAGE.notenrolled) {
-			return vaccine_successful();
-		}
+		//case 2: unmodified immune system
 		
 		//infection might self-limit
 		double prob_self_limiting = agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female; 
@@ -495,7 +503,9 @@ public class Immunology implements java.io.Serializable {
 			immunity_fractional_boost = 1.0;
 		}
 		
-		int dose_idx = vaccine_stage == VACCINE_STAGE.received_dose1? 1 : (vaccine_stage == VACCINE_STAGE.received_dose2? 2: 3);
+		int dose_idx = vaccine_stage == VACCINE_STAGE.received_dose1? 1 : (vaccine_stage == VACCINE_STAGE.received_dose2? 2: 3); 
+		//this is a little hack: immunity at 3 or follow-up stage is given by the last value.  this is a little unsafe since the user might give 0, 0.8, -1, -1.  
+		//TODO: make safer;  correctly calculate the dose
 		if(! vaccine_eff.containsKey(vaccine_schedule)) {
 			System.err.println("Unknown vaccine schedule" + vaccine_schedule);
 			return false;

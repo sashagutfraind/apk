@@ -229,6 +229,7 @@ public class Statistics {
 			runtimeStatNames.add("fraction_VaccineArm=" + arm);
 			runtimeStatNames.add("hcvabpos_VaccineArm=" + arm);
 			runtimeStatNames.add("infected_VaccineArm=" + arm);
+			runtimeStatNames.add("chronic_VaccineArm=" + arm);
 			runtimeStatNames.add("population_VaccineArm=" + arm);
 			runtimeStatNames.add("ABpreval_VaccineArm=" + arm);
 			runtimeStatNames.add("RNApreval_VaccineArm=" + arm);
@@ -397,6 +398,9 @@ public class Statistics {
 				currentData.put("infected_"+agegrp,  currentData.get("infected_"+agegrp)+1);
 				currentData.put("infected_"+areatype,   currentData.get("infected_"+areatype)+1);
 				currentData.put("infected_"+vaccinearm,   currentData.get("infected_"+vaccinearm)+1);
+			}
+			if(agent.isChronic()) {
+				currentData.put("chronic_"+vaccinearm,   currentData.get("chronic_"+vaccinearm)+1);
 			}
 			if(agent.isHcvABpos()) {
 				currentData.put("hcvabpos_ALL",     currentData.get("hcvabpos_ALL") + 1);
@@ -940,7 +944,7 @@ public class Statistics {
 			Double tick = RepastEssentials.GetTickCount();
 			Double simYear = APKBuilder.simulation_start_date.getYear() + (tick - (double)params.getValue("burn_in_days"))/365; //we model year as exactly 365 days
 			popStatsStream.printf("%d,%.4f,",(burn_in_mode?1:0),tick.doubleValue()); 
-			popStatsStream.printf("%s,",(tick%365<0.1)?simYear.toString():"-1");
+			popStatsStream.printf("%s,",simYear.toString());
 			for (String statName : runtimeStatNames) {
 				double val;
 				if(currentData.containsKey(statName)) {

@@ -216,8 +216,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		vaccine_study_arm_n = (Integer)params.getValue("vaccine_study_arm_n");
 		vaccine_schedule    = (String)params.getValue("vaccine_schedule");
 		vaccine_enrollment_launch_day    = (Double)params.getValue("vaccine_enrollment_launch_day");
-		vaccine_total_doses = vaccine_schedule.startsWith("D1")?1 : (vaccine_schedule.startsWith("D2")?2:3);
-
+		vaccine_total_doses = vaccine_schedule.contains("1")?1 : (vaccine_schedule.contains("2")?2:3);
 		
 		vaccine_followup1_periods = (Integer)params.getValue("vaccine_followup1_periods");
 		vaccine_followup2_periods = (Integer)params.getValue("vaccine_followup2_periods");
