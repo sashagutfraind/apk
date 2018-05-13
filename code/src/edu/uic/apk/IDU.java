@@ -736,10 +736,11 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		if (imm.getVaccine_stage() != VACCINE_STAGE.notenrolled) {
 			return false;
 		}
-		if (! isNaive() || isInTreatment()) {
+		if (! isHcvRNA() || isInTreatment()) {
+			//TODO: test.  this was isNaive() previously
 			return false;
 		}
-		if (getAge() < 18 || getAge() > 65) {
+		if (getAge() < 18 || getAge() > 60) {
 			//wishlist: control with parameters
 			return false;
 		}
