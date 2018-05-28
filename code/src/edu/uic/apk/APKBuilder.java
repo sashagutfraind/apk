@@ -986,7 +986,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 		idu.setCurrent_trial_arm(arm);
 		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
 		vaccine_study_enrolled++;  //deterministic to maximize balance
+
 		//we observe gentle stochastic drift that ultimately washes out
+		//TODO: somehow, some individuals fail to recruit, e.g. 773 and 768 vs. 797 target
 
 		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);
 
@@ -1014,7 +1016,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 					next_stage = VACCINE_STAGE.followup;
 					idu.setVaccine_stage(next_stage);
 					remaining_followups = vaccine_followup1_periods - 1;
-					Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+					Statistics.fire_status_change(AgentMessage.enteredfollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
 				}
 				break;
 			case received_dose2:
@@ -1026,7 +1028,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 					next_stage = VACCINE_STAGE.followup;
 					idu.setVaccine_stage(next_stage);
 					remaining_followups = vaccine_followup1_periods - 1;
-					Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+					Statistics.fire_status_change(AgentMessage.enteredfollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
 				}
 				break;
 			case received_dose3:
@@ -1034,7 +1036,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage=received_dose3"+";arm="+idu.getCurrent_trial_arm(), null);
 				next_stage = VACCINE_STAGE.followup;
 				remaining_followups = vaccine_followup1_periods - 1;
-				Statistics.fire_status_change(AgentMessage.infollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				Statistics.fire_status_change(AgentMessage.enteredfollowup, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
 				break;
 			case followup:
 				if (idu.isHcvRNA()){

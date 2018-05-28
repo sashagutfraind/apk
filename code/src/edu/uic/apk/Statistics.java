@@ -678,7 +678,7 @@ public class Statistics {
 				break;
 			case vaccinated:
 				break;
-			case infollowup:
+			case enteredfollowup:
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
 					eventSummaryData.put("recr_study_aggregate_vaccine", eventSummaryData.get("recr_study_aggregate_vaccine") + 1.0);
 				} else {
@@ -686,8 +686,11 @@ public class Statistics {
 				}
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
+			case infollowup:
+				break;
 			case infollowup2:
 			case trialabandoned:
+				//wishlist: create a counter
 				break;
 			case trialcompleted:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
