@@ -83,16 +83,10 @@ public class Statistics {
 	
 	private static final double daily_stats_timing = 1.001;  //should be near 1.  
 	private static Parameters params;
-	private static int aggregate_courses = 0; //of treatment since start
-	private static int aggregate_posttreat = 0; //IDUs treated since start 
 	//probably unnecessary: private static TreeSet<Integer> treated_hashes = new TreeSet <Integer>();
 
 	//these are updated during fire_status_change:
-	private static int activations_daily = 0;    
-	private static int cured_daily = 0;   
-	private static int incidence_daily = 0; 
-	private static int losses_daily = 0;    
-	private static int treatment_recruited_daily = 0;
+	private static HashMap <String, Double> eventSummaryData = null; 
 	private static ArrayList <String> runtimeStatNames;
 	private static boolean burn_in_mode = false;
 
@@ -117,14 +111,11 @@ public class Statistics {
 		zip_to_zones = _zip_to_zones;
 		zone_zone_distance = _zone_zone_distance;
 		
+		eventSummaryData = eventSummaryDataInitialize(); 
+
 		runtimeStatNames = new ArrayList<String>();
-		runtimeStatNames.add("activations_daily");
-		runtimeStatNames.add("aggregate_courses");
-		runtimeStatNames.add("aggregate_posttreat");
-		runtimeStatNames.add("cured_daily");
-		runtimeStatNames.add("incidence_daily");
-		runtimeStatNames.add("losses_daily");
-		runtimeStatNames.add("treatment_recruited_daily");
+		runtimeStatNames.addAll(eventSummaryData.keySet());
+
 		runtimeStatNames.add("mean-age_ALL");
 		runtimeStatNames.add("mean-career_ALL");
 		runtimeStatNames.add("mean-dailyinj_ALL");
@@ -387,7 +378,7 @@ public class Statistics {
 			currentData.put("population_"+agedec,  currentData.get("population_"+agedec)+1);
 			currentData.put("population_"+agegrp,  currentData.get("population_"+agegrp)+1);
 			currentData.put("population_"+areatype,   currentData.get("population_"+areatype)+1);
-			currentData.put("population_"+vaccinearm,   currentData.get("population_"+vaccinearm)+1);
+			currentData.put("population_"+vaccinearm,   currentData.get("population_"+vaccinearm)+1); //includes completed and abandoned
 			if(agent.isHcvRNA()) {
 				currentData.put("infected_ALL",     currentData.get("infected_ALL") + 1);
 				currentData.put("infected_"+gender, currentData.get("infected_"+gender)+1);
@@ -433,7 +424,9 @@ public class Statistics {
 				currentData.put("vaccinetrial_"+agedec,   currentData.get("vaccinetrial_"+agedec)+1);
 				currentData.put("vaccinetrial_"+agegrp,   currentData.get("vaccinetrial_"+agegrp)+1);
 				currentData.put("vaccinetrial_"+areatype, currentData.get("vaccinetrial_"+areatype)+1);
+
 				currentData.put("vaccinetrial_"+vaccinearm,   currentData.get("vaccinetrial_"+vaccinearm)+1);
+				//this is NOT the same as population_vaccineArm=study/placebo: here we only count those still enrolled
 			}
 			if(agent.isCured()) {
 				currentData.put("cured_ALL",       currentData.get("cured_ALL") + 1);
@@ -478,13 +471,9 @@ public class Statistics {
 		}
 
 		//we collect these separately when the events arrive
-		currentData.put("activations_daily", new Double(Statistics.activations_daily));
-		currentData.put("aggregate_courses", new Double(aggregate_courses));
-		currentData.put("aggregate_posttreat", new Double(aggregate_posttreat));
-		currentData.put("cured_daily",       new Double(Statistics.cured_daily));
-		currentData.put("incidence_daily",   new Double(Statistics.incidence_daily));
-		currentData.put("losses_daily",      new Double(Statistics.losses_daily));
-		currentData.put("treatment_recruited_daily",new Double(Statistics.treatment_recruited_daily));		
+		for (String metric : eventSummaryData.keySet()) {
+			currentData.put(metric, eventSummaryData.get(metric));
+		}
 
 		return currentData;
 	}
@@ -509,7 +498,7 @@ public class Statistics {
 	 */
 	public static int daily_losses() {
 		assert singleton != null;
-		return Statistics.losses_daily;
+		return (int)(double)(Statistics.eventSummaryData.get("losses_daily"));
 	}
 
 	/*
@@ -634,28 +623,28 @@ public class Statistics {
 		switch(message) {
 			case activated:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.activations_daily += 1;
+				eventSummaryData.put("activations_daily", eventSummaryData.get("activations_daily") + 1.0);
 				break;
 			case cured:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.cured_daily += 1;
-				Statistics.aggregate_posttreat += 1;
+				eventSummaryData.put("cured_daily", eventSummaryData.get("cured_daily") + 1.0);
+				eventSummaryData.put("aggregate_posttreat", eventSummaryData.get("aggregate_posttreat") + 1.0);
 				break;
 			case chronic:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case deactivated:
-				Statistics.losses_daily += 1;
+				eventSummaryData.put("losses_daily", eventSummaryData.get("losses_daily") + 1.0);
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case exposed:
 				break; //not recorded - too many events
 			case failed_treatment:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.aggregate_posttreat += 1;
+				eventSummaryData.put("aggregate_posttreat", eventSummaryData.get("aggregate_posttreat") + 1.0);
 				break;
 			case infected:
-				Statistics.incidence_daily += 1;
+				eventSummaryData.put("incidence_daily", eventSummaryData.get("incidence_daily") + 1.0);
 				boolean is_agents_first_exposure = (agent.getLastExposureDate().getYear() < 1900);
 				if (is_agents_first_exposure || agent.isPostTreatment()) {
 					//warning: this does not consider the burn-in time
@@ -684,15 +673,37 @@ public class Statistics {
 				break;
 			case started_treatment:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				Statistics.treatment_recruited_daily += 1;
-				Statistics.aggregate_courses += 1;
+				eventSummaryData.put("treatment_recruited_daily", eventSummaryData.get("treatment_recruited_daily") + 1.0);
+				eventSummaryData.put("aggregate_courses", eventSummaryData.get("aggregate_courses") + 1.0);
 				break;
 			case vaccinated:
+				break;
 			case infollowup:
+				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
+					eventSummaryData.put("recr_study_aggregate_vaccine", eventSummaryData.get("recr_study_aggregate_vaccine") + 1.0);
+				} else {
+					eventSummaryData.put("recr_placebo_aggregate_vaccine", eventSummaryData.get("recr_placebo_aggregate_vaccine") + 1.0);
+				}
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				break;
 			case infollowup2:
 			case trialabandoned:
+				break;
 			case trialcompleted:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
+					if(agent.isChronic()) {
+						eventSummaryData.put("cmpl_study_chronic_aggregate_vaccine", eventSummaryData.get("cmpl_study_chronic_aggregate_vaccine") + 1.0);
+					} else {
+						eventSummaryData.put("cmpl_study_notchronic_aggregate_vaccine", eventSummaryData.get("cmpl_study_notchronic_aggregate_vaccine") + 1.0);
+					}
+				} else {
+					if(agent.isChronic()) {
+						eventSummaryData.put("cmpl_placebo_chronic_aggregate_vaccine", eventSummaryData.get("cmpl_placebo_chronic_aggregate_vaccine") + 1.0);
+					} else {
+						eventSummaryData.put("cmpl_placebo_notchronic_aggregate_vaccine", eventSummaryData.get("cmpl_placebo_notchronic_aggregate_vaccine") + 1.0);
+					}
+				}
 				break;
 			default: //wishlist: consider doing a default
 				break;
@@ -965,17 +976,40 @@ public class Statistics {
 			popStatsStream.printf(lineSep);
 
 			//System.out.println("T" + RepastEssentials.GetTickCount() + ". Lost: " + losses_now);
-			//initialize accumulators for current tick
-			activations_daily = 0;  
-			cured_daily       = 0;
-			incidence_daily   = 0;
-			losses_daily      = 0;
-			treatment_recruited_daily= 0;
+			
+			eventSummaryDataDailyReset(eventSummaryData);
 		} catch (Exception ex) {
 			System.out.println("Error while computing statistics:");
 			ex.printStackTrace();
 		}
 	}
+	
+	public static void eventSummaryDataDailyReset(HashMap <String, Double> eventStats) {
+		eventStats.put("activations_daily", 0.0);
+		eventStats.put("cured_daily", 0.0);
+		eventStats.put("incidence_daily", 0.0);
+		eventStats.put("losses_daily", 0.0);
+		eventStats.put("treatment_recruited_daily", 0.0);		
+	}
+	
+	public static HashMap <String, Double> eventSummaryDataInitialize() {
+		HashMap <String, Double> eventStats = new HashMap <String, Double>();
+		
+		eventSummaryDataDailyReset(eventStats);
+		
+		//aggregate = since the start of the simulation
+		eventStats.put("aggregate_courses", 0.0);   //of treatment since start
+		eventStats.put("aggregate_posttreat", 0.0); //IDUs treated since start
+		eventStats.put("recr_placebo_aggregate_vaccine", 0.0);
+		eventStats.put("recr_study_aggregate_vaccine", 0.0);
+		eventStats.put("cmpl_placebo_notchronic_aggregate_vaccine", 0.0);
+		eventStats.put("cmpl_placebo_chronic_aggregate_vaccine", 0.0);
+		eventStats.put("cmpl_study_notchronic_aggregate_vaccine", 0.0);
+		eventStats.put("cmpl_study_chronic_aggregate_vaccine", 0.0);
+		
+		return eventStats;
+	}
+
 
 	/*
 	 * the exact time of the day when the statistics counter resets

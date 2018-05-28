@@ -982,11 +982,12 @@ public class APKBuilder implements ContextBuilder<Object> {
 
 	
 	public void vaccine_trial_start(IDU idu) {
-		Immunology.TRIAL_ARM arm = (vaccine_study_enrolled % 2 == 0)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo;
+		Immunology.TRIAL_ARM arm = (vaccine_study_enrolled % 2 == 0)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo; //ensure strict balance
 		idu.setCurrent_trial_arm(arm);
 		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
 		vaccine_study_enrolled++;  //deterministic to maximize balance
-		
+		//we observe gentle stochastic drift that ultimately washes out
+
 		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);
 
 		double time_to_abandon = RepastEssentials.GetTickCount() + 365*RandomHelper.createExponential(vaccine_annual_loss).nextDouble();

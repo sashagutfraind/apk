@@ -411,9 +411,18 @@ public class Immunology implements java.io.Serializable {
 	 */
 	public void receiveVaccineDose() {
 		assert this.vaccine_trial_arm != TRIAL_ARM.noarm; //must be set 
+		if(hcv_state == HCV_state.recovered) {
+			System.out.println("Note: recruited a recovered individual");
+		}
+		//note: the person might be HCV-RNA+ due to infection after the initial dose
+
 		switch(vaccine_stage) {
 			case notenrolled:
 				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				if(isHcvRNA()) { 
+					System.err.println("Infected individuals shouldn't be enrolled in vaccine trials");  
+					System.exit(1);
+				}
 				vaccine_stage = VACCINE_STAGE.received_dose1;
 				if(hcv_state == HCV_state.susceptible) {
 					hcv_state = HCV_state.vaccinated;
