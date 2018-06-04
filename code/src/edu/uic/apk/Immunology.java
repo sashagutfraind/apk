@@ -68,7 +68,8 @@ public class Immunology implements java.io.Serializable {
 	//vaccine
 	private TRIAL_ARM   vaccine_trial_arm 	= TRIAL_ARM.noarm; 
 	private VACCINE_STAGE vaccine_stage 	= VACCINE_STAGE.notenrolled;
-	private double vaccine_dose_received_day = Double.NaN; //needed to calculate the efficacy
+	private double vaccine_first_dose_received_day = Double.NaN; //when the first dose was received
+	private double vaccine_latest_dose_received_day = Double.NaN; //needed to calculate the efficacy
 
 	//register all changes in state here
 	//-- helps cancel pre-scheduled disease progression
@@ -143,12 +144,14 @@ public class Immunology implements java.io.Serializable {
 		return hcv_state == HCV_state.exposed;
 	}
 	public boolean isHcvABpos() { //presence of antigens
-		return (hcv_state != HCV_state.susceptible) 
-				//wishlist: make a little less crude! 
-				//for vaccinees, antibodies don't emerge until a little bit later
-				//for natural infection, it also takes about a month
-				|| (hcv_state == HCV_state.ABPOS)  
-				|| past_cured || past_vaccinated || past_recovered;
+		boolean induced_antibodies = (past_vaccinated && (RepastEssentials.GetTickCount() - vaccine_first_dose_received_day > VACCINE_ONSET_OF_IMMUNITY_DAY));
+		return hcv_state == HCV_state.infectiousacute //wishlist: perhaps too early
+				|| hcv_state == HCV_state.recovered
+				|| hcv_state == HCV_state.chronic 
+				|| past_recovered
+				|| hcv_state == HCV_state.cured
+				|| treatment_start_date != null
+				|| induced_antibodies;
 	}
 	public boolean isHcvRNA() {
 		return (hcv_state == HCV_state.exposed 
@@ -406,7 +409,8 @@ public class Immunology implements java.io.Serializable {
 	}
 	
 	/*
-	 * Received doses
+	 * Update the immune state after receiving the dose
+	 * Immunity increases, not necesarily immediately, after the doses
 	 * Note: it's possible for the state to change to chronic before the doses are complete
 	 */
 	public void receiveVaccineDose() {
@@ -414,14 +418,15 @@ public class Immunology implements java.io.Serializable {
 		if(hcv_state == HCV_state.recovered) {
 			System.out.println("Note: recruited a recovered individual");
 		}
-		//note: the person might be HCV-RNA+ due to infection after the initial dose
-
+		
 		switch(vaccine_stage) {
 			case notenrolled:
-				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_first_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_latest_dose_received_day = vaccine_first_dose_received_day;
 				if(isHcvRNA()) { 
 					System.err.println("Infected individuals shouldn't be enrolled in vaccine trials");  
-					System.exit(1);
+					//note: this is an error on initial dose;  
+					//however, for 2nd and 3rd, the receiving PWID might be HCV-RNA+ due to infection after the initial dose
 				}
 				vaccine_stage = VACCINE_STAGE.received_dose1;
 				if(hcv_state == HCV_state.susceptible) {
@@ -430,11 +435,11 @@ public class Immunology implements java.io.Serializable {
 				past_vaccinated = true;
 				break;
 			case received_dose1:
-				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_latest_dose_received_day = RepastEssentials.GetTickCount();
 				vaccine_stage = VACCINE_STAGE.received_dose2;
 				break;
 			case received_dose2:
-				vaccine_dose_received_day = RepastEssentials.GetTickCount();
+				vaccine_latest_dose_received_day = RepastEssentials.GetTickCount();
 				vaccine_stage = VACCINE_STAGE.received_dose3;
 				break;
 			default:
@@ -504,7 +509,7 @@ public class Immunology implements java.io.Serializable {
 		if (vaccine_trial_arm == Immunology.TRIAL_ARM.placebo) {
 			return false;
 		}
-		double days_since_last_dose = (RepastEssentials.GetTickCount() - this.vaccine_dose_received_day);
+		double days_since_last_dose = (RepastEssentials.GetTickCount() - vaccine_latest_dose_received_day);
 		double immunity_fractional_boost = 0; //since the last dose
 		if (days_since_last_dose > VACCINE_ONSET_OF_IMMUNITY_DAY && days_since_last_dose < VACCINE_MAX_INDUCED_IMMUNITY_DAY)  {
 			immunity_fractional_boost = (days_since_last_dose-VACCINE_ONSET_OF_IMMUNITY_DAY)/(VACCINE_MAX_INDUCED_IMMUNITY_DAY-VACCINE_ONSET_OF_IMMUNITY_DAY);
@@ -513,8 +518,6 @@ public class Immunology implements java.io.Serializable {
 		}
 		
 		int dose_idx = vaccine_stage == VACCINE_STAGE.received_dose1? 1 : (vaccine_stage == VACCINE_STAGE.received_dose2? 2: 3); 
-		//this is a little hack: immunity at 3 or follow-up stage is given by the last value.  this is a little unsafe since the user might give 0, 0.8, -1, -1.  
-		//TODO: make safer;  correctly calculate the dose
 		if(! vaccine_eff.containsKey(vaccine_schedule)) {
 			System.err.println("Unknown vaccine schedule" + vaccine_schedule);
 			return false;
