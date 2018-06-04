@@ -987,9 +987,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
 		vaccine_study_enrolled++;  //deterministic to maximize balance
 
-		//we observe gentle stochastic drift that ultimately washes out
-		//TODO: somehow, some individuals fail to recruit, e.g. 773 and 768 vs. 797 target
-
 		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);
 
 		double time_to_abandon = RepastEssentials.GetTickCount() + 365*RandomHelper.createExponential(vaccine_annual_loss).nextDouble();
@@ -1089,7 +1086,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		double next_event_time = Double.NaN;
 		switch(next_stage) {
 			case notenrolled:
-				break;
+				System.err.println("Error in programming - shouldn't switch to notenrolled stage!");;
 			case received_dose2:
 				next_event_time = RepastEssentials.GetTickCount() + vaccine_dose2_day;
 				break;

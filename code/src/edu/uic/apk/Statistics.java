@@ -687,13 +687,29 @@ public class Statistics {
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case infollowup:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case infollowup2:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				break;
 			case trialabandoned:
-				//wishlist: create a counter
+				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
+					eventSummaryData.put("quit_study_aggregate_vaccine", eventSummaryData.get("quit_study_aggregate_vaccine") + 1.0);
+					//System.out.println(eventSummaryData.get("quit_study_aggregate_vaccine"));
+				} else {
+					eventSummaryData.put("quit_placebo_aggregate_vaccine", eventSummaryData.get("quit_placebo_aggregate_vaccine") + 1.0);
+					//System.out.println(eventSummaryData.get("quit_placebo_aggregate_vaccine"));
+				}
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+		        //System.out.printf("%.3f,%s,%d,%s,%s,\n",	time_now, eventClass, agent.hashCode(), message.toString(), message_info.toString());
 				break;
 			case trialcompleted:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				//TODO: consider adding immediate loss at recruitment of 20%
+				//TODO: understand the significance for n=1500.  
+				//TODO: understand if the results are the same for when we do unbiased recruitment (currently running)
+				//TODO: do more data collection
+				//TODO: not in the paper that we observe stochastic drift, e.g. unbalanced abandonment, which is comparable to the chronic group size
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
 					if(agent.isChronic()) {
 						eventSummaryData.put("cmpl_study_chronic_aggregate_vaccine", eventSummaryData.get("cmpl_study_chronic_aggregate_vaccine") + 1.0);
@@ -1005,6 +1021,8 @@ public class Statistics {
 		eventStats.put("aggregate_posttreat", 0.0); //IDUs treated since start
 		eventStats.put("recr_placebo_aggregate_vaccine", 0.0);
 		eventStats.put("recr_study_aggregate_vaccine", 0.0);
+		eventStats.put("quit_placebo_aggregate_vaccine", 0.0);
+		eventStats.put("quit_study_aggregate_vaccine", 0.0);
 		eventStats.put("cmpl_placebo_notchronic_aggregate_vaccine", 0.0);
 		eventStats.put("cmpl_placebo_chronic_aggregate_vaccine", 0.0);
 		eventStats.put("cmpl_study_notchronic_aggregate_vaccine", 0.0);
