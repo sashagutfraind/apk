@@ -144,6 +144,7 @@ public class Immunology implements java.io.Serializable {
 		return hcv_state == HCV_state.exposed;
 	}
 	public boolean isHcvABpos() { //presence of antigens
+		//vaccine_first_dose_received_day might be NaN
 		boolean induced_antibodies = (past_vaccinated && (RepastEssentials.GetTickCount() - vaccine_first_dose_received_day > VACCINE_ONSET_OF_IMMUNITY_DAY));
 		return hcv_state == HCV_state.infectiousacute //wishlist: perhaps too early
 				|| hcv_state == HCV_state.recovered

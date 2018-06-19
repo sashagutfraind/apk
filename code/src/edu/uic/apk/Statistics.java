@@ -678,6 +678,13 @@ public class Statistics {
 				break;
 			case vaccinated:
 				break;
+			case trialstarted: 
+				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
+					eventSummaryData.put("started_study_aggregate_vaccine", eventSummaryData.get("started_study_aggregate_vaccine") + 1.0);
+				} else {
+					eventSummaryData.put("started_placebo_aggregate_vaccine", eventSummaryData.get("started_placebo_aggregate_vaccine") + 1.0);
+				}
+				break;
 			case enteredfollowup:
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
 					eventSummaryData.put("recr_study_aggregate_vaccine", eventSummaryData.get("recr_study_aggregate_vaccine") + 1.0);
@@ -691,6 +698,13 @@ public class Statistics {
 				break;
 			case infollowup2:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
+				break;
+			case trialpurged:
+				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
+					eventSummaryData.put("purged_study_aggregate_vaccine", eventSummaryData.get("purged_study_aggregate_vaccine") + 1.0);
+				} else {
+					eventSummaryData.put("purged_placebo_aggregate_vaccine", eventSummaryData.get("purged_placebo_aggregate_vaccine") + 1.0);
+				}
 				break;
 			case trialabandoned:
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
@@ -707,8 +721,8 @@ public class Statistics {
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				//TODO: consider adding immediate loss at recruitment of 20%
 				//TODO: understand the significance for n=1500.  
+				//TODO: test purged compartment for, e.g. those that reach final dose HCV+ and purge them
 				//TODO: understand if the results are the same for when we do unbiased recruitment (currently running)
-				//TODO: do more data collection
 				//TODO: not in the paper that we observe stochastic drift, e.g. unbalanced abandonment, which is comparable to the chronic group size
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
 					if(agent.isChronic()) {
@@ -1019,10 +1033,14 @@ public class Statistics {
 		//aggregate = since the start of the simulation
 		eventStats.put("aggregate_courses", 0.0);   //of treatment since start
 		eventStats.put("aggregate_posttreat", 0.0); //IDUs treated since start
-		eventStats.put("recr_placebo_aggregate_vaccine", 0.0);
-		eventStats.put("recr_study_aggregate_vaccine", 0.0);
-		eventStats.put("quit_placebo_aggregate_vaccine", 0.0);
+		eventStats.put("started_study_aggregate_vaccine", 0.0); //ie. first dose
+		eventStats.put("started_placebo_aggregate_vaccine", 0.0); //ie. first dose
+		eventStats.put("recr_study_aggregate_vaccine", 0.0);  //ie. completed doses and entered follow-up
+		eventStats.put("recr_placebo_aggregate_vaccine", 0.0);  //ie. completed doses and entered follow-up
 		eventStats.put("quit_study_aggregate_vaccine", 0.0);
+		eventStats.put("quit_placebo_aggregate_vaccine", 0.0);
+		eventStats.put("purged_study_aggregate_vaccine", 0.0);
+		eventStats.put("purged_placebo_aggregate_vaccine", 0.0);
 		eventStats.put("cmpl_placebo_notchronic_aggregate_vaccine", 0.0);
 		eventStats.put("cmpl_placebo_chronic_aggregate_vaccine", 0.0);
 		eventStats.put("cmpl_study_notchronic_aggregate_vaccine", 0.0);
