@@ -1007,7 +1007,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 		}
 		
 		VACCINE_STAGE next_stage = VACCINE_STAGE.notenrolled;	
-		System.out.println(new_stage); //FIXME
 		boolean completed_doses = false;
 		switch(new_stage) {
 			case received_dose1:
@@ -1101,8 +1100,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 			}
 	
 		}
-		System.out.println(next_stage); //FIXME
-		System.out.println();
 		double next_event_time = Double.NaN;
 		switch(next_stage) {
 			case notenrolled:
