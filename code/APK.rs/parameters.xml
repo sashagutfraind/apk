@@ -7,7 +7,7 @@
 		name="burn_in_days"
 		displayName="burn_in_days"
 		type="double"
-		defaultValue="-1"
+		defaultValue="1"
 		isReadOnly="false"
 		NOTE="burn_in_days is set to 0, otherwise the visualization of prevalence shows 0"
 		converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"/>

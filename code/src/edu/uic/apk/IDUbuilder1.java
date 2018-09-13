@@ -108,8 +108,12 @@ public class IDUbuilder1 implements AgentFactory {
         initial_pwid_count  = Integer.parseInt(sim_params.get("initial_pwid_count").toString());
                 
         ISchedule schedule = repast.simphony.engine.environment.RunEnvironment.getInstance().getCurrentSchedule();
-        schedule.schedule(ScheduleParameters.createRepeating(burn_in_days + Statistics.getCounterResetTiming()-0.001, 1.0), this, "generate_arriving"); 
-        //remove -0.001 to make sure that the call is made just before the stats counter is reset
+
+        //newly-arriving IDUs
+        schedule.schedule(ScheduleParameters.createRepeating(burn_in_days + Statistics.getCounterResetTiming()-0.001, 1.0), this, 
+        		"generate_arriving"); 
+        //remove -0.001 to make sure that the call is made just before the daily loss counter is reset
+        //(the loss counter is used to determine how many new IDUs to create)
 	}
 	public static double getAb_prob_acute() {
 		return ab_prob_acute;
@@ -124,6 +128,9 @@ public class IDUbuilder1 implements AgentFactory {
 		assert ab_prob_acute + ab_prob_chronic <= 1.0;
 	}
 
+	/*
+	 * TODO: refactor to be called just when the burn-in ends
+	 */
 	public static void setBurn_in_period(boolean burn_in_mode, double burn_in_period) {
 		IDUbuilder1.burn_in_mode = burn_in_mode;
 		IDUbuilder1.burn_in_days = burn_in_period;
@@ -199,13 +206,18 @@ public class IDUbuilder1 implements AgentFactory {
 		return my_IDUs;
 	}
 	
-    //immigration + replacement of mortality
+    /*
+     * creation of new IDUs during the simulation
+     *    the rate is designed to give: replacement of attrition + net inflow
+     */
 	public ArrayList <IDU> generate_arriving() {
 		int total_lost = Statistics.daily_losses();
-		idu_arrivals   = RandomHelper.createPoisson(total_lost + (net_inflow/365.0));
-		int new_count  = idu_arrivals.nextInt();
+		int new_count  = 0;
+		if(total_lost + (net_inflow/365.0) > 0) {
+			idu_arrivals   = RandomHelper.createPoisson(total_lost + (net_inflow/365.0));
+			new_count = idu_arrivals.nextInt();
+		}
 		ArrayList<IDU> pop = add_new_IDUs(new_count, true);
-		//System.out.println("T" + RepastEssentials.GetTickCount() + ": Added: " + new_count);
 	
         return pop;
 

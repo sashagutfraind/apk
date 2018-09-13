@@ -143,6 +143,7 @@ public class Statistics {
 			runtimeStatNames.add("intreatment_Gender=" + g.toString());			
 			runtimeStatNames.add("vaccinetrial_Gender=" + g.toString());			
 		}
+		
 		for (HCV_state s : HCV_state.values()) {
 			runtimeStatNames.add("cured_HCV=" + s.toString());			
 			runtimeStatNames.add("hcvabpos_HCV=" + s.toString());			
@@ -226,6 +227,11 @@ public class Statistics {
 			runtimeStatNames.add("RNApreval_VaccineArm=" + arm);
 			runtimeStatNames.add("intreatment_VaccineArm=" + arm);
 			runtimeStatNames.add("vaccinetrial_VaccineArm=" + arm);
+		}
+
+		for (VACCINE_STAGE stage : VACCINE_STAGE.values()) {
+			runtimeStatNames.add("populat_VaccineStage=" + stage);
+			//populat_ rather than population_ to change handling below
 		}
 
 		System.out.printf("Random seed: %d"+lineSep+lineSep, RandomHelper.getSeed());
@@ -362,6 +368,7 @@ public class Statistics {
 			String agedec  = "AgeDec="+(agent.getAgeDecade());
 			String areatype = "Area="+agent.getAreaType();
 			String vaccinearm = "VaccineArm="+agent.getCurrent_trial_arm();
+			String vaccinestage = "VaccineStage="+agent.getCurrent_trial_stage();
 			
 			currentData.put("mean-age_ALL",     currentData.get("mean-age_ALL")+agent.getAge());  //divided later
 			currentData.put("mean-career_ALL",  currentData.get("mean-career_ALL")+agent.getAge()-agent.getAgeStarted());  //divided later
@@ -379,6 +386,7 @@ public class Statistics {
 			currentData.put("population_"+agegrp,  currentData.get("population_"+agegrp)+1);
 			currentData.put("population_"+areatype,   currentData.get("population_"+areatype)+1);
 			currentData.put("population_"+vaccinearm,   currentData.get("population_"+vaccinearm)+1); //includes completed and abandoned
+
 			if(agent.isHcvRNA()) {
 				currentData.put("infected_ALL",     currentData.get("infected_ALL") + 1);
 				currentData.put("infected_"+gender, currentData.get("infected_"+gender)+1);
@@ -427,6 +435,9 @@ public class Statistics {
 
 				currentData.put("vaccinetrial_"+vaccinearm,   currentData.get("vaccinetrial_"+vaccinearm)+1);
 				//this is NOT the same as population_vaccineArm=study/placebo: here we only count those still enrolled
+
+				currentData.put("populat_"+vaccinestage,   currentData.get("populat_"+vaccinestage)+1);  
+				//TODO: test
 			}
 			if(agent.isCured()) {
 				currentData.put("cured_ALL",       currentData.get("cured_ALL") + 1);
@@ -654,6 +665,18 @@ public class Statistics {
 					//time_to_exposure = time_now - agent.getLastExposureDate();
 					//NOTE: we don't record this event for space reasons
 					//fire_helper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "", "", agent.toString());
+				}
+				if(agent.getCurrent_trial_stage() == VACCINE_STAGE.received_dose1 | 
+					agent.getCurrent_trial_stage() == VACCINE_STAGE.received_dose2) { //assumes at most 3 doses; implicitly excludes IDUs not in the trial, i.e. stage == notenrolled
+					
+					if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
+						eventSummaryData.put("incompl_infected_study_aggregate_vaccine", eventSummaryData.get("incompl_infected_study_aggregate_vaccine") + 1.0);
+						//System.out.println(eventSummaryData.get("incompl_infected_study_aggregate_vaccine"));
+					} else {
+						eventSummaryData.put("incompl_infected_placebo_aggregate_vaccine", eventSummaryData.get("incompl_infected_placebo_aggregate_vaccine") + 1.0);
+						//System.out.println(eventSummaryData.get("incompl_infected_placebo_aggregate_vaccine"));
+					}
+
 				}
 				break;
 			case infectious:
@@ -1036,7 +1059,9 @@ public class Statistics {
 		eventStats.put("started_study_aggregate_vaccine", 0.0); //ie. first dose
 		eventStats.put("started_placebo_aggregate_vaccine", 0.0); //ie. first dose
 		eventStats.put("recr_study_aggregate_vaccine", 0.0);  //ie. completed doses and entered follow-up
-		eventStats.put("recr_placebo_aggregate_vaccine", 0.0);  //ie. completed doses and entered follow-up
+		eventStats.put("recr_placebo_aggregate_vaccine", 0.0);  
+		eventStats.put("incompl_infected_study_aggregate_vaccine", 0.0);  //ie. infected before the doses were complete
+		eventStats.put("incompl_infected_placebo_aggregate_vaccine", 0.0);  
 		eventStats.put("quit_study_aggregate_vaccine", 0.0);
 		eventStats.put("quit_placebo_aggregate_vaccine", 0.0);
 		eventStats.put("purged_study_aggregate_vaccine", 0.0);

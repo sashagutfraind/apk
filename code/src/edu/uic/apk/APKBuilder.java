@@ -300,17 +300,26 @@ public class APKBuilder implements ContextBuilder<Object> {
 	/*
 	 * activate the burn-in mode
 	 * - should be called before the agents are created
+	 * 
+	 * TODO: the logic and naming of the functions is very bad.  negative burn-in values are not handled right.
+	 *  current workaround: require a small amount of burn-in
+	 *  TODO: refactor to ensure all initiation actions occur regardless if there is a burn-in mode
+	 *  TODO: IDUbuilder should test that its burn-in flag and burn-in days has been set in the constructor
 	 */
 	public void burn_in_control(Double burn_in_days) {
-		if(burn_in_days <= 0) {
-			burn_in_mode = false;
-			return;
+		if(burn_in_days.isNaN() | burn_in_days <= 0) {
+			System.err.println("Burnin days is NA or nonpositive - setting to 0.1");
+			burn_in_days = 0.1;
 		}
 		Statistics.setBurnInMode(true);
 		IDUbuilder1.setBurn_in_period(true, burn_in_days);
 		
 		main_schedule.schedule(ScheduleParameters.createOneTime(RepastEssentials.GetTickCount() + burn_in_days), this, "burn_in_end", burn_in_days);
 	}
+	/*
+	 * activate the agents after the burn-in
+	 * 
+	 */
 	public void burn_in_end(Double burn_in_days) {
 		burn_in_mode = false;
 		Statistics.setBurnInMode(false);

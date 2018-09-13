@@ -295,7 +295,7 @@ public class Immunology implements java.io.Serializable {
 		final double[] VE_D2b = {0, 0.40, 0.80, 0.80};
 		final double[] VE_D3a = {0, 0.01, 0.20, 0.80};
 		final double[] VE_D3b = {0, 0.05, 0.50, 0.80};
-		final double[] VE_X1a = {0, 1.00, 1.00, 1.00}; //testing
+		final double[] VE_X1a = {0, 1.00, 1.00, 1.00}; //testing; note that this vaccine is not really 100% proof: after the primary infection, they become "recovered" which have a ~25% probability of infection
 		final double[] VE_X3a = {0, 0.30, 0.60, 1.00}; //testing
 		vaccine_eff.put("D1", VE_D1);
 		vaccine_eff.put("D2a", VE_D2a);
