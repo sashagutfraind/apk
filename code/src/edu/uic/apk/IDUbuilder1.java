@@ -6,34 +6,28 @@
 
 package edu.uic.apk;
 
-import edu.uic.apkSynth.DrugUser;
-import edu.uic.apkSynth.Gender;
-import edu.uic.apkSynth.HCV_state;
-import edu.uic.apkSynth.PersonGenerator;
-
 import java.lang.reflect.Method;
 //incompatible with 1.6
 //import java.nio.charset.Charset;
 //import java.nio.file.Files;
 //import java.nio.file.Paths;
 import java.util.ArrayList;
-
-
-
+import java.util.HashMap;
 
 //import java.util.Calendar;
-import org.joda.time.*;
-
-import java.util.HashMap;
+import org.joda.time.LocalDate;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import cern.jet.random.Poisson;
+import edu.uic.apkSynth.DrugUser;
+import edu.uic.apkSynth.Gender;
+import edu.uic.apkSynth.HCV_state;
+import edu.uic.apkSynth.InMemoryPersonGenerator;
+import edu.uic.apkSynth.PersonGenerator;
 import repast.simphony.context.Context;
-import repast.simphony.engine.environment.RunEnvironment;
-import repast.simphony.engine.schedule.IAction;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.essentials.RepastEssentials;
@@ -92,7 +86,7 @@ public class IDUbuilder1 implements AgentFactory {
 		IDU.setProb_cessation((Double) sim_params.get("prob_cessation"));
 
         try {
-        	pg             = PersonGenerator.make_NEP_generator(sim_params, pwid_maturity_threshold, RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
+        	pg             = InMemoryPersonGenerator.make_NEP_generator(sim_params, pwid_maturity_threshold, RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
         	idu_generator  = IDUbuilder1.class.getDeclaredMethod("generate_SynthNEP", HashMap.class);
 
         } catch (Exception e) {

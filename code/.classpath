@@ -15,5 +15,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/RepastInstallerAdditional"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/RepastSimphony-2.4/eclipse/plugins/repast.simphony.bin_and_src_2.4.0/repast.simphony.bin_and_src.jar"/>
+	<classpathentry kind="lib" path="lib/univocity-parsers-2.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
