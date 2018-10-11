@@ -22,10 +22,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import cern.jet.random.Poisson;
+import edu.uic.apk.load.FilePersonGenerator;
 import edu.uic.apkSynth.DrugUser;
 import edu.uic.apkSynth.Gender;
 import edu.uic.apkSynth.HCV_state;
-import edu.uic.apkSynth.InMemoryPersonGenerator;
 import edu.uic.apkSynth.PersonGenerator;
 import repast.simphony.context.Context;
 import repast.simphony.engine.schedule.ISchedule;
@@ -63,7 +63,7 @@ public class IDUbuilder1 implements AgentFactory {
 	private static double status_report_frequency = -1;
 
 	private Method idu_generator;
-	PersonGenerator pg = null;
+	IPersonGenerator pg = null;
 	
 	public IDUbuilder1 (Context context,
 						HashMap <String,Object> sim_params,
@@ -85,8 +85,18 @@ public class IDUbuilder1 implements AgentFactory {
 		IDU.setMean_career_duration((Double) sim_params.get("mean_career_duration"));
 		IDU.setProb_cessation((Double) sim_params.get("prob_cessation"));
 
+		
+		// TODO select person generator instance from model.props
+		// TODO select cnep+ file from model.props
+		// TODO pass seed to generators instead of random seeds
         try {
-        	pg             = InMemoryPersonGenerator.make_NEP_generator(sim_params, pwid_maturity_threshold, RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
+//        	pg = PersonGenerator.make_NEP_generator(sim_params, 
+//        			pwid_maturity_threshold, RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
+        	
+        	String cnepFileName  = "E:\\ANL\\Projects\\HepCEP\\hepcep_model\\data\\cnep_plus_all_2018.02.13.csv";
+        	pg = new FilePersonGenerator(cnepFileName,pwid_maturity_threshold, 
+        			RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
+        	
         	idu_generator  = IDUbuilder1.class.getDeclaredMethod("generate_SynthNEP", HashMap.class);
 
         } catch (Exception e) {

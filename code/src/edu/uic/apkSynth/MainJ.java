@@ -206,7 +206,7 @@ public class MainJ {
 		//System.out.println(hcv_learning_data.toString());
 		//System.exit(1);
 		//HashMap <String, Classifier> classifiers   = train_classifiers(hcv_learning_data);
-		InMemoryPersonGenerator pg = InMemoryPersonGenerator.make_NEP_generator(population_params, (Double)population_params.get("idu_maturity_threshold"), rng_seed);
+		PersonGenerator pg = PersonGenerator.make_NEP_generator(population_params, (Double)population_params.get("idu_maturity_threshold"), rng_seed);
 	
 		HashMap <String, Object> generator_params = new HashMap<String, Object> ();
 		generator_params.put("early_idus_only", (Boolean)false);

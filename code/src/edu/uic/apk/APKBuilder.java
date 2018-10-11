@@ -171,9 +171,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 		System.out.println("Building simulation...\n  seed=" +RandomHelper.getSeed() + ". In batch mode, the seed is carried over to subsequent runs, but the RNG state is new.");
 
 		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/illinois_zips/zt17_d00.shp");
-		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/michigan_zips/zt26_d00.shp");
-		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/indiana_zips/zt18_d00.shp");
-		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/wisconsin_zips/zt55_d00.shp");
+//		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/michigan_zips/zt26_d00.shp");
+//		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/indiana_zips/zt18_d00.shp");
+//		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/wisconsin_zips/zt55_d00.shp");
 
 		Parameters params = RunEnvironment.getInstance().getParameters();		
 		burn_in_control((Double)params.getValue("burn_in_days"));
@@ -254,10 +254,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 		
 		factory1.generate_initial();
 				
-		main_schedule.schedule(ScheduleParameters.createOneTime(-0.2),        				   this, "rotate_globe");
+//		main_schedule.schedule(ScheduleParameters.createOneTime(-0.2),        				   this, "rotate_globe");
 		main_schedule.schedule(ScheduleParameters.createRepeating(1, 1, 0), 				   this, "do_zone_census");
 		main_schedule.schedule(ScheduleParameters.createRepeating(1, linking_time_window, -1), this, "do_linking", 0.0); 		//"-1" to ensure after the census
-		main_schedule.schedule(ScheduleParameters.createRepeating(0, 1, -2), 				   this, "update_link_geometries");
+//		main_schedule.schedule(ScheduleParameters.createRepeating(0, 1, -2), 				   this, "update_link_geometries");
 
 		do_initial_linking();
 		//schedule.schedule(ScheduleParameters.createRepeating(1, 1), this, "update_display");
@@ -614,7 +614,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		return dt.getYear() + (dt.getDayOfYear() / 365.0);  //year is 365 ticks throughout
 	}
 	
-	protected static LocalDate getSimulationDate() {
+	public static LocalDate getSimulationDate() {
 		//the current year (in decimals)
 		LocalDate now = simulation_start_date;
 		double shift = Math.ceil(RepastEssentials.GetTickCount()); //note: the tick starts at -1
