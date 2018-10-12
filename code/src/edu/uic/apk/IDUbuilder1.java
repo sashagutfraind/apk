@@ -7,10 +7,7 @@
 package edu.uic.apk;
 
 import java.lang.reflect.Method;
-//incompatible with 1.6
-//import java.nio.charset.Charset;
-//import java.nio.file.Files;
-//import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,7 +23,6 @@ import edu.uic.apk.load.FilePersonGenerator;
 import edu.uic.apkSynth.DrugUser;
 import edu.uic.apkSynth.Gender;
 import edu.uic.apkSynth.HCV_state;
-import edu.uic.apkSynth.PersonGenerator;
 import repast.simphony.context.Context;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
@@ -288,6 +284,9 @@ public class IDUbuilder1 implements AgentFactory {
 		idu.setDrugReceptDegree(modelDU.getDrugReceptDegree());
 		idu.setFractionReceptSharing(modelDU.getFractionReceptSharing());
 		idu.setGender(modelDU.getGender());
+		
+		// TODO check if this preserves original APK behavior
+		// If loading from NEP/NHBS
 		if(modelDU.getHcvState() == HCV_state.ABPOS) {
 			double roll = RandomHelper.nextDouble() - ab_prob_chronic;
 			if (roll < 0 ){
@@ -297,8 +296,13 @@ public class IDUbuilder1 implements AgentFactory {
 			} else {
 				idu.setHcvInitialState(HCV_state.recovered);
 			}			
-		} else {
+		} 
+		else if (modelDU.getHcvState() == HCV_state.unknown) {
 			idu.setHcvInitialState(HCV_state.susceptible);
+		}
+		// If loading from CNEP+ the states are provided
+		else {
+			idu.setHcvInitialState(modelDU.getHcvState());
 		}
 		idu.setInjectionIntensity(modelDU.getInjectionIntensity());
 		if (idu.getName() == null) {
