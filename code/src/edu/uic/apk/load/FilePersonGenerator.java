@@ -69,6 +69,7 @@ public class FilePersonGenerator implements IPersonGenerator {
 	  e.printStackTrace();
 	}
 	
+	int count = 0;
 	List<String[]> allRows = parser.parseAll(reader);
 	for (String[] line : allRows) {
 	  DrugUserData data = new DrugUserData();
@@ -86,6 +87,9 @@ public class FilePersonGenerator implements IPersonGenerator {
 	  data.fractionReceptSharing = Double.valueOf(line[FRAC_REC_SHAR_IDX]);
 
 	  data.early_career = (data.age - data.ageStarted) < pwid_maturity_threshold;
+	  
+	  // The DB label is just the line number from the file
+	  data.dbLabel = String.valueOf(count++);
 
 	  personList.add(data);
 	}
@@ -157,6 +161,8 @@ public class FilePersonGenerator implements IPersonGenerator {
   	du.setPreliminaryZip(data.zipCode);
   	du.setRace(data.race);
   	du.setSyringe_source(data.syringeSource);
+  	
+  	du.setDatabaseLabel(data.dbLabel);
   	
   	return du;
   }

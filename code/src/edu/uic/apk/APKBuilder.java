@@ -241,6 +241,11 @@ public class APKBuilder implements ContextBuilder<Object> {
 		HashMap <String,Object> extra_params    	= new HashMap <String,Object> ();
 		extra_params.put("zip_to_zones", zip_to_zones);
 		
+		String cnepPlusSource = params.getValueAsString("CNEP_data_source");
+		String cnepPlusFile = params.getValueAsString("CNEP_plus_file");
+		extra_params.put("CNEP_plus_source", cnepPlusSource);
+		extra_params.put("CNEP_plus_file", cnepPlusFile);
+		
 		IDUbuilder1 factory1 = new IDUbuilder1(context, population_params, extra_params);
 
 		//factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population

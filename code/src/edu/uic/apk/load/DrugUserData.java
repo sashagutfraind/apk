@@ -25,5 +25,6 @@ public class DrugUserData {
   public double injectionIntensity;
   public double fractionReceptSharing;
   public boolean early_career;
+  public String dbLabel;
 
 }

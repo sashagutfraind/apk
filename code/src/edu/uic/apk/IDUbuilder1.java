@@ -6,8 +6,6 @@
 
 package edu.uic.apk;
 
-import java.lang.reflect.Method;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -23,6 +21,7 @@ import edu.uic.apk.load.FilePersonGenerator;
 import edu.uic.apkSynth.DrugUser;
 import edu.uic.apkSynth.Gender;
 import edu.uic.apkSynth.HCV_state;
+import edu.uic.apkSynth.PersonGenerator;
 import repast.simphony.context.Context;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
@@ -58,11 +57,9 @@ public class IDUbuilder1 implements AgentFactory {
 	private static double prob_infected_when_arrive = Double.NaN;
 	private static double status_report_frequency = -1;
 
-	private Method idu_generator;
-	IPersonGenerator pg = null;
+	IPersonGenerator personGen = null;
 	
-	public IDUbuilder1 (Context context,
-						HashMap <String,Object> sim_params,
+	public IDUbuilder1 (Context context,	HashMap <String,Object> sim_params,
 					    HashMap <String,Object> extra_params) {
 		this.extra_params 		= extra_params;
 		this.sim_params 	    = sim_params;
@@ -80,41 +77,43 @@ public class IDUbuilder1 implements AgentFactory {
 		IDU.setAttrition_rate((Double) sim_params.get("attrition_rate"));// 
 		IDU.setMean_career_duration((Double) sim_params.get("mean_career_duration"));
 		IDU.setProb_cessation((Double) sim_params.get("prob_cessation"));
-
 		
-		// TODO select person generator instance from model.props
-		// TODO select cnep+ file from model.props
+		String cnepPlusSource = (String)extra_params.get("CNEP_plus_source");
+		String cnepPlusFile = (String)extra_params.get("CNEP_plus_file");
+		
 		// TODO pass seed to generators instead of random seeds
-        try {
-//        	pg = PersonGenerator.make_NEP_generator(sim_params, 
-//        			pwid_maturity_threshold, RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
-        	
-        	String cnepFileName  = "E:\\ANL\\Projects\\HepCEP\\hepcep_model\\data\\cnep_plus_all_2018.02.13.csv";
-        	pg = new FilePersonGenerator(cnepFileName,pwid_maturity_threshold, 
-        			RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
-        	
-        	idu_generator  = IDUbuilder1.class.getDeclaredMethod("generate_SynthNEP", HashMap.class);
+		try {
 
-        } catch (Exception e) {
-        	e.printStackTrace();
-        	System.exit(1);
-        }
-    	
-        prob_infected_when_arrive = (Double) sim_params.get("prob_infected_when_arrive");
-        status_report_frequency   = (Double) sim_params.get("status_report_frequency");
-        
-        net_inflow          = (Double) sim_params.get("net_inflow");
-        assert net_inflow >= 0;  //the other case needs to be modeled as attrition or cessation
-        initial_pwid_count  = Integer.parseInt(sim_params.get("initial_pwid_count").toString());
-                
-        ISchedule schedule = repast.simphony.engine.environment.RunEnvironment.getInstance().getCurrentSchedule();
+			if (cnepPlusSource != null && cnepPlusFile != null && cnepPlusSource.equals("File") ) {
+				personGen = new FilePersonGenerator(cnepPlusFile, pwid_maturity_threshold, 
+						RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));	
+			}
+			else {
+				personGen = PersonGenerator.make_NEP_generator(sim_params, 
+						pwid_maturity_threshold, RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));
+			}	
 
-        //newly-arriving IDUs
-        schedule.schedule(ScheduleParameters.createRepeating(burn_in_days + Statistics.getCounterResetTiming()-0.001, 1.0), this, 
-        		"generate_arriving"); 
-        //remove -0.001 to make sure that the call is made just before the daily loss counter is reset
-        //(the loss counter is used to determine how many new IDUs to create)
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		prob_infected_when_arrive = (Double) sim_params.get("prob_infected_when_arrive");
+		status_report_frequency   = (Double) sim_params.get("status_report_frequency");
+
+		net_inflow          = (Double) sim_params.get("net_inflow");
+		assert net_inflow >= 0;  //the other case needs to be modeled as attrition or cessation
+		initial_pwid_count  = Integer.parseInt(sim_params.get("initial_pwid_count").toString());
+
+		ISchedule schedule = repast.simphony.engine.environment.RunEnvironment.getInstance().getCurrentSchedule();
+
+		//newly-arriving IDUs
+		schedule.schedule(ScheduleParameters.createRepeating(burn_in_days + Statistics.getCounterResetTiming()-0.001, 1.0), this, 
+				"generate_arriving"); 
+		//remove -0.001 to make sure that the call is made just before the daily loss counter is reset
+		//(the loss counter is used to determine how many new IDUs to create)
 	}
+	
 	public static double getAb_prob_acute() {
 		return ab_prob_acute;
 	}
@@ -153,7 +152,7 @@ public class IDUbuilder1 implements AgentFactory {
 		while(my_IDUs.size() < num_requested_idus) {
 			IDU idu = null;
 			try {
-				idu = (IDU) idu_generator.invoke(this, generator_params);
+				idu = generate_SynthNEP(generator_params);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -174,8 +173,7 @@ public class IDUbuilder1 implements AgentFactory {
 				continue; //must be off the map? e.g. 60662
 			}
 			idu.setZone(my_zone);
-			if (! idu.self_test_ok(0) ) {
-                System.out.println("f");
+			if (! idu.self_test_ok(1) ) {
 				idu.deactivate();
 				continue;
 			}
@@ -193,7 +191,6 @@ public class IDUbuilder1 implements AgentFactory {
 			my_IDUs.add(idu);
 			context.add(idu);
 			Statistics.fire_status_change(AgentMessage.activated, idu, "", null);
-			System.out.print(".");
 			
 			Coordinate possible_agent_coord = new Coordinate(my_zone.getCentroid().getX() + 0.01 * Math.random(), my_zone.getCentroid().getY() + 0.01 * Math.random());
 			Point coord = fac.createPoint(possible_agent_coord);
@@ -254,7 +251,7 @@ public class IDUbuilder1 implements AgentFactory {
 		}
 		for(int trial = 0; trial < max_trials; trial++) {
 			try{
-				modelDU = pg.generate(generator_params);
+				modelDU = personGen.generate(generator_params);
 				assert modelDU != null;
 				break;
 			} catch (Exception e){
@@ -341,7 +338,7 @@ public class IDUbuilder1 implements AgentFactory {
 		GeometryFactory fac = new GeometryFactory();
 		HashMap <String, Object> generator_params = new HashMap<String, Object> ();
 		generator_params.put("max_trials", 1);
-		for(Integer iduID = 0; iduID < pg.catalogueSize(); iduID ++) {
+		for(Integer iduID = 0; iduID < personGen.catalogueSize(); iduID ++) {
 			IDU idu = null;
 			try {
 				generator_params.put("db_reference_number", iduID);
@@ -375,7 +372,6 @@ public class IDUbuilder1 implements AgentFactory {
         	idu_list.add(idu);
 			context.add(idu);
 			Statistics.fire_status_change(AgentMessage.activated, idu, "", null);
-			System.out.print(".");
 			
 			Coordinate possible_agent_coord = new Coordinate(my_zone.getCentroid().getX() + 0.01 * Math.random(), my_zone.getCentroid().getY() + 0.01 * Math.random());
 			Point coord = fac.createPoint(possible_agent_coord);

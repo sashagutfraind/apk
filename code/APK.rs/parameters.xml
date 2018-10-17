@@ -76,4 +76,6 @@
 	<parameter name="vaccine_dose3_day" displayName="vaccine_dose3_day" type="double" isReadOnly="false" defaultValue="180d"  converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter" />
 	<parameter name="NEP_data" displayName="NEP_data" type="string" defaultValue="data/NEP_Risk_Base_Merge.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
 	<parameter name="NHBS_data" displayName="NHBS_data" type="string" defaultValue="data/IDU2_HCV_model_012913_cleaned.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
+	<parameter name="CNEP_data_source" displayName="CNEP+ Data source" type="java.lang.String" isReadOnly="false" defaultValue="File" values="File Generated"/>
+	<parameter name="CNEP_plus_file" displayName="CNEP+ file" type="string" defaultValue="E:\\ANL\\Projects\\HepCEP\\hepcep_model\\data\\cnep_plus_all_2018.02.13.csv" isReadOnly="false" converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"/>
 </parameters>

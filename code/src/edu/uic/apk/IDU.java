@@ -937,6 +937,8 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		try{
 			//movement
 			if ((! RunEnvironment.getInstance().isBatch()) & (profile != Activity_profile.incarcerated)) {
+				
+				// TODO scatter the agent location within the zip one time at init since the agents don't really move.
 //				geography.move(this, getLocation());
 			}
 			//infection (NOTE: ActivityProfile is now always in_community)
