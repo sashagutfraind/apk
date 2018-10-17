@@ -1,0 +1,22 @@
+<repast.simphony.data2.engine.FileSinkDescriptor simphonyVersion="2.5.0">
+  <name>Prevalence</name>
+  <dataSet>PrevalenceData</dataSet>
+  <delimiter>,</delimiter>
+  <format>TABULAR</format>
+  <sourceIds class="linked-hash-set">
+    <string>tick</string>
+    <string>prevalence_ALL</string>
+    <string>prevalence_Female</string>
+    <string>prevalence_Male</string>
+    <string>prevalence_Black</string>
+    <string>prevalence_Hispanic</string>
+    <string>prevalence_NHWhite</string>
+    <string>prevalence_Suburban</string>
+    <string>prevalence_City</string>
+    <string>prevalence_HR</string>
+    <string>prevalence_NonHR</string>
+    <string>prevalence_AgeLEQ30</string>
+  </sourceIds>
+  <fileName>output/prevalence.txt</fileName>
+  <addTimeStamp>true</addTimeStamp>
+</repast.simphony.data2.engine.FileSinkDescriptor>

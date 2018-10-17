@@ -22,33 +22,36 @@ public class ZoneStyle implements SurfaceShapeStyle<ZoneAgent>{
 	}
 
 	@Override
-	public Color getFillColor(ZoneAgent obj) {
-		//return Color.GREEN;
-		return Color.white;
+	public Color getFillColor(ZoneAgent zone) {
+		if (zone.getNumIDU() > 0)
+			return Color.white;
+		
+		else return null;
 	}
 
 	@Override
-	public double getFillOpacity(ZoneAgent obj) {
-		//return 0.1;
-		return 0.7;
+	public double getFillOpacity(ZoneAgent zone) {
+			return 0.7;
+		
 	}
 
 	@Override
 	public Color getLineColor(ZoneAgent zone) {
-		//return Color.blue;
-		return Color.black;
+			return Color.black;
 	}
 
 	@Override
-	public double getLineOpacity(ZoneAgent obj) {
-		//return 0.3;
-		return 0.7;
+	public double getLineOpacity(ZoneAgent zone) {
+		if (zone.getNumIDU() > 0)
+			return 0.7;
+		else return 0;
 	}
 
 	@Override
-	public double getLineWidth(ZoneAgent obj) {
-		//return 1;
-		return 2;
+	public double getLineWidth(ZoneAgent zone) {
+		if (zone.getNumIDU() > 0)
+			return 2;
+		else return 0;
 	}
 }
 

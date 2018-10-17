@@ -6,10 +6,6 @@
 
 package edu.uic.apk;
 
-import gov.nasa.worldwind.WorldWindow;
-import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -32,6 +28,15 @@ import org.joda.time.LocalDate;
 import org.jscience.physics.amount.Amount;
 import org.opengis.feature.simple.SimpleFeature;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+
+import cern.jet.random.Exponential;
+import gov.nasa.worldwind.WorldWindow;
+import gov.nasa.worldwind.geom.LatLon;
+import gov.nasa.worldwind.geom.Position;
 import repast.simphony.context.Context;
 import repast.simphony.context.space.gis.GeographyFactoryFinder;
 import repast.simphony.context.space.graph.NetworkBuilder;
@@ -39,7 +44,6 @@ import repast.simphony.dataLoader.ContextBuilder;
 import repast.simphony.engine.environment.GUIRegistry;
 import repast.simphony.engine.environment.RunEnvironment;
 import repast.simphony.engine.environment.RunState;
-import repast.simphony.engine.schedule.ISchedulableAction;
 import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.essentials.RepastEssentials;
@@ -50,13 +54,6 @@ import repast.simphony.space.gis.GeographyParameters;
 import repast.simphony.space.graph.Network;
 import repast.simphony.visualization.IDisplay;
 import repast.simphony.visualization.gis3D.DisplayGIS3D;
-import cern.jet.random.Exponential;
-import edu.uic.apkSynth.HCV_state;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 
 
 /*
@@ -143,8 +140,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 	 */
 	@Override
 	public Context build(Context<Object> context) {
-		reportClassPath();
-		
+	
 		context.setId("edu.uic.apk");
 		APKBuilder.context = context;
 		GeographyParameters geoParams = new GeographyParameters();
@@ -154,7 +150,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 		network = netBuilder.buildNetwork();
 		assert network.isDirected();
 
-		LinkAgent.setStatics(context, geography);
 		ZoneAgent.setBuilder(this);
 
 		if (! RunEnvironment.getInstance().isBatch()) {
@@ -254,13 +249,11 @@ public class APKBuilder implements ContextBuilder<Object> {
 		
 		factory1.generate_initial();
 				
-//		main_schedule.schedule(ScheduleParameters.createOneTime(-0.2),        				   this, "rotate_globe");
-		main_schedule.schedule(ScheduleParameters.createRepeating(1, 1, 0), 				   this, "do_zone_census");
+		main_schedule.schedule(ScheduleParameters.createOneTime(-0.2), this, "rotate_globe");
+		main_schedule.schedule(ScheduleParameters.createRepeating(1, 1, 0), this, "do_zone_census");
 		main_schedule.schedule(ScheduleParameters.createRepeating(1, linking_time_window, -1), this, "do_linking", 0.0); 		//"-1" to ensure after the census
-//		main_schedule.schedule(ScheduleParameters.createRepeating(0, 1, -2), 				   this, "update_link_geometries");
 
 		do_initial_linking();
-		//schedule.schedule(ScheduleParameters.createRepeating(1, 1), this, "update_display");
 		
 		if(treatment_enrollment_per_PY > 0) {
 			double start_of_enrollment = (Double)params.getValue("burn_in_days") + (Double)params.getValue("treatment_enrollment_start_delay");
@@ -273,7 +266,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 					"vaccine_trial_enroll");
 		}
 
-			
 		return context;
 	}
 	
@@ -703,11 +695,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 		}
 		if(a1.try_connect(a2)) {
 			new_link = true;
-			if (! RunEnvironment.getInstance().isBatch()) { 
-				//link agents are used for visualization only.  agents actually decide on deleting connections.
-				LinkAgent newLink = new LinkAgent(a1, a2);
-				context.add(newLink);
-			}
 		} else {
 			new_link = false;
 		}
@@ -729,73 +716,56 @@ public class APKBuilder implements ContextBuilder<Object> {
 		if(mapping == null) {
 			mapping = new HashMap <String, ZoneAgent>();
 		}
+		
 		URL url = null;
 		SimpleFeatureIterator fiter = null;
 		ShapefileDataStore store = null;
+		
 		try {
 			url = new File(filename).toURI().toURL();
 			store = new ShapefileDataStore(url);
 			fiter = store.getFeatureSource().getFeatures().features();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return mapping;
-		}
-	
-		while(fiter.hasNext()){
-			SimpleFeature feature = fiter.next();
-			Geometry geom = (Geometry)feature.getDefaultGeometry();
-			Object agent = null;
 			
-			assert geom instanceof MultiPolygon;
-			
-			MultiPolygon mp = (MultiPolygon)feature.getDefaultGeometry();
-			geom = (Polygon)mp.getGeometryN(0);
+			while(fiter.hasNext()){
+				SimpleFeature feature = fiter.next();
+				Geometry geom = (Geometry)feature.getDefaultGeometry();
+				Object agent = null;
+				
+				assert geom instanceof MultiPolygon;
+				
+				MultiPolygon mp = (MultiPolygon)feature.getDefaultGeometry();
+				geom = (Polygon)mp.getGeometryN(0);
 
-			String zip_str = (String)feature.getAttribute("ZCTA");
-			if(zip_str.length() != 5) {
-				System.out.println("Error in format at zip:" + zip_str);
-				continue;
-			} else {
-				//System.out.println(zip_str);
+				String zip_str = (String)feature.getAttribute("ZCTA");
+				if(zip_str.length() != 5) {
+					System.out.println("Error in format at zip:" + zip_str);
+					continue;
+				} else {
+					//System.out.println(zip_str);
+				}
+				Polygon polygon = (Polygon)mp.getGeometryN(0);
+				assert polygon != null;
+				
+				ZoneAgent zone = new ZoneAgent(polygon.getCentroid(), polygon, zip_str);
+				assert zone != null;
+				assign_drug_market(zone);
+				
+				context.add(zone);
+				geography.move(zone, polygon);
+		
+				mapping.put(zip_str, zone);
 			}
-			Polygon polygon = (Polygon)mp.getGeometryN(0);
-			assert polygon != null;
-			
-			ZoneAgent zone = new ZoneAgent(polygon.getCentroid(), polygon, zip_str);
-			assert zone != null;
-			assign_drug_market(zone);
-			
-			context.add(zone);
-			geography.move(zone, polygon);
-	
-			mapping.put(zip_str, zone);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		finally{
+			fiter.close();
+			store.dispose();
 		}
 		return mapping;
 	}
 	
-	/*
-	 * Outputs the locations where classes are found
-	 */
-	private void reportClassPath() {
-		System.out.println("Class path:");
-		for(String cname: System.getProperty("java.class.path").split(":")) {			
-			System.out.println(cname);
-		}
-		System.out.println();
-		ClassLoader cl = ClassLoader.getSystemClassLoader();
-		Enumeration<URL> en_url;
-		try {
-			en_url = cl.getSystemResources("jar");
-			for (URL url; en_url.hasMoreElements(); ) {
-				url=en_url.nextElement();
-				//for (url : cl.geten_url.hasMoreElements(); url=en_url.nextElement()) {
-				System.out.println(url.toString());
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-	}
 	/*
 	 * For easier visualization: rotates the GUI globe to be above Chicago
 	 */
@@ -860,35 +830,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 			main_schedule.schedule(sparams, this, "run_end", new Integer(-1));
 		}
 	}
-	
-	/*
-	 * For GUI only, 
-	 * 	1. remove LinkAgents which were deleted from the network
-	 *  2. other links are reoriented based on the current positions on the agents
-	 *  - the LinkAgents are created by do_linking, and not here
-	 *  - repast does not automatically delete links from the visualization when they change in the network, so we do it here.
-	 *  - this method is public - for scheduling
-	 */
-	public void update_link_geometries() {
-		if (RunEnvironment.getInstance().isBatch()) {
-			return;
-		}
-		ArrayList <LinkAgent> removed_links = new ArrayList <LinkAgent>(); //del
-		for(Object obj : context) {
-			if (! (obj instanceof LinkAgent)) {
-				continue;
-			}
-			IDU a1 = ((LinkAgent)obj).a1;
-			IDU a2 = ((LinkAgent)obj).a2;
-			if (! context.contains(a1) || ! context.contains(a2) || ! network.isAdjacent(a1, a2)) {
-				removed_links.add((LinkAgent) obj);
-			} else {
-				((LinkAgent)obj).sync_location();
-			}
-		}
-		context.removeAll(removed_links);
-	}
-	
+		
 	/*
 	 * runs daily and recruits PWID for vaccine_trial
 	 * 
