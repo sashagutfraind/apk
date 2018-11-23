@@ -14,5 +14,5 @@ public interface IPersonGenerator {
 
   public DrugUser generate(HashMap<String, Object> params) throws Exception;
   
-  public int catalogueSize();
+  public int catalogueSize(); //the size of the catalog (e.g. ~5000 for CNEP, ~12000 for CNEP+ normally)
 }

@@ -243,12 +243,17 @@ public class APKBuilder implements ContextBuilder<Object> {
 		
 		String cnepPlusSource = params.getValueAsString("CNEP_data_source");
 		String cnepPlusFile = params.getValueAsString("CNEP_plus_file");
-		extra_params.put("CNEP_plus_source", cnepPlusSource);
-		extra_params.put("CNEP_plus_file", cnepPlusFile);
+		extra_params.put("CNEP_plus_source", cnepPlusSource); //value of "file" would load CNEP+; other values will generate the pop from surveys
+		extra_params.put("CNEP_plus_file", cnepPlusFile);     
 		
 		IDUbuilder1 factory1 = new IDUbuilder1(context, population_params, extra_params);
 
-		//factory1.systematic_CNEPplus_synthetic(); //special code to output the entire population
+		//special code to output the 5000-sized CNEP population; 
+		/* FIXME: 
+		 * better support loading from CNEP+ file: it is suspected that this function would only work correctly if we generate from surveys.
+		 * the problem is that the function iterates overs keys from 1 to N, but it may not work when we do CNEP+
+		 */
+		//factory1.systematic_CNEPplus_synthetic(); 
 		//run_end(-1); 
 		//System.exit(1);
 		

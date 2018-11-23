@@ -34,7 +34,9 @@ import repast.simphony.space.graph.Network;
 
 /*
  * An agent factory for generating a population of injecting-drug users (IDUs), also called "persons who inject drugs" (PWID)
- * - created as a singleton
+ * - created as a singleton by APKBuilder
+ * - connects with underlying generators: PersonGenerator (from raw survey data) or FilePersonGenerator (from a catalog of CNEP+ profiles)
+ * - TODO: refactor as IDUbuilder (remove 1 at the end)
  */
 public class IDUbuilder1 implements AgentFactory {
 	HashMap <String,Object> extra_params;
@@ -83,8 +85,7 @@ public class IDUbuilder1 implements AgentFactory {
 		
 		// TODO pass seed to generators instead of random seeds
 		try {
-
-			if (cnepPlusSource != null && cnepPlusFile != null && cnepPlusSource.equals("File") ) {
+			if (cnepPlusSource != null && cnepPlusFile != null && cnepPlusSource.toLowerCase().equals("file") ) {
 				personGen = new FilePersonGenerator(cnepPlusFile, pwid_maturity_threshold, 
 						RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE));	
 			}
@@ -152,7 +153,7 @@ public class IDUbuilder1 implements AgentFactory {
 		while(my_IDUs.size() < num_requested_idus) {
 			IDU idu = null;
 			try {
-				idu = generate_SynthNEP(generator_params);
+				idu = construct_idu_object(generator_params);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -241,9 +242,13 @@ public class IDUbuilder1 implements AgentFactory {
 	}
 
 	/*
-	 * calls the NEP generator, converts DrugUser to full IDU object (specific HCV state, name)
+	 * calls the generator, selects a DrugUser from a catalog and creates an IDU object (specific HCV state, name)
+	 * @param generator_params with parameters:
+	 * -- early_idu_only
+	 * -- db_reference_number
+	 * @return IDU (not yet inserted into the simulation)
 	 */
-	public IDU generate_SynthNEP(HashMap <String, Object> generator_params) throws Exception {
+	public IDU construct_idu_object(HashMap <String, Object> generator_params) throws Exception {
 		DrugUser modelDU = null;
 		Integer max_trials = 50;
 		if(generator_params.containsKey("max_trials")) {
@@ -330,6 +335,8 @@ public class IDUbuilder1 implements AgentFactory {
 	
 	/*
      * used for debugging: constructs IDUs based on each of the CNEP+ synthetic persons
+     * normally, we would exit the simulation after this step
+     * output: stored in the running log under "activated"
 	 */
 	public void systematic_CNEPplus_synthetic() {
 		//assert Math.abs((Double)sim_params.get("mean_enrichment_suburbs") - 0.0) < 0.00001;
@@ -339,12 +346,13 @@ public class IDUbuilder1 implements AgentFactory {
 		HashMap <String, Object> generator_params = new HashMap<String, Object> ();
 		generator_params.put("max_trials", 1);
 		for(Integer iduID = 0; iduID < personGen.catalogueSize(); iduID ++) {
+			//FIXME: depending on the generator, the ID would refer to the CNEP or the CNEP+ population; the var name is confusing
 			IDU idu = null;
 			try {
 				generator_params.put("db_reference_number", iduID);
 				//LOAD the characteristics of the agents
 				System.out.print("\n CNEPplus#"+generator_params.get("db_reference_number"));
-				idu = (IDU) generate_SynthNEP(generator_params);
+				idu = (IDU) construct_idu_object(generator_params);
 				if(idu == null) {
 					continue;
 				}
