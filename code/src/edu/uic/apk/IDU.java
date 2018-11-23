@@ -850,6 +850,7 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 			}
 			//System.out.println("Career maturity: " + (getAge() - age_started));
 			if(age_started < 0 || Double.isNaN(age_started) || age_started > getAge()) {  //no margin of tolerance here b/c need integrity
+				//this errors happens mostly frequently because of crude randomization of the two ages.  If an IDU has age==20 and age_started==20, randomization might cause age_started < age.
 				throw new Exception("age started");
 				//return false;
 			}

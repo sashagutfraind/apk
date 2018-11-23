@@ -86,6 +86,8 @@ public class PersonGenerator implements IPersonGenerator{
 	 * Creates a single DrugUser from the dataset;  internally calls the classifier(s) to impute missing data
 	 *  the class is not aware of the simulation time
 	 *  the generator may need to be called multiple times, until the process is successful without Exception
+	 *  
+	 *  TODO: there is somewhat deficient randomization of the attributes.  Ideally, this function should further randomize the attributes of the agents, rather than directly copy from a fairly small catalog.
 	 * @param params
 	 * -- early_idus_only     = only agents within the first few years of their drug career (not their biological age)
 	 * -- db_reference_number = the number in the CNEP database 
