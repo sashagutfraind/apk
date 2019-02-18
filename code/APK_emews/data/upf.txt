@@ -1,0 +1,8 @@
+1	randomSeed	1,vaccine_schedule	D1,vaccine_study_arm_n	797
+2	randomSeed	2,vaccine_schedule	D2a,vaccine_study_arm_n	1599
+3	randomSeed	3,vaccine_schedule	D2b,vaccine_study_arm_n	797
+4	randomSeed	4,vaccine_schedule	D3a,vaccine_study_arm_n	797
+5	randomSeed	5,vaccine_schedule	D3b,vaccine_study_arm_n	797
+6	randomSeed	6,vaccine_schedule	D3b,vaccine_study_arm_n	797
+7	randomSeed	7,vaccine_schedule	D3b,vaccine_study_arm_n	797
+8	randomSeed	8,vaccine_schedule	D3b,vaccine_study_arm_n	797
