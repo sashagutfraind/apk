@@ -8,8 +8,9 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-PATH=/lcrc/project/MRSA/bebop/sfw/swift-t-38569e3/stc/bin:$PATH
-export PATH
+# Note - use swift-t loaded with spack
+#PATH=/lcrc/project/MRSA/bebop/sfw/swift-t-38569e3/stc/bin:$PATH
+#export PATH
 
 # uncomment to turn on swift/t logging. Can also set TURBINE_LOG,
 # TURBINE_DEBUG, and ADLB_DEBUG to 0 to turn off logging
@@ -23,14 +24,17 @@ export TURBINE_OUTPUT=$EMEWS_PROJECT_ROOT/experiments/$EXPID
 check_directory_exists
 
 # TODO edit the number of processes as required.
-export PROCS=504
+#export PROCS=576
+export PROCS=2016
+#export PROCS=36
 
 # TODO edit QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME
 # as required. Note that QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME will
 # be ignored if the MACHINE variable (see below) is not set.
 export QUEUE=bdwall
-export WALLTIME=01:00:00
-export PPN=36
+export WALLTIME=02:00:00
+#export WALLTIME=00:30:00
+export PPN=18
 export TURBINE_JOBNAME="${EXPID}_job"
 
 # if R cannot be found, then these will need to be
@@ -64,4 +68,4 @@ log_script
 set -x
 
 swift-t -n $PROCS $MACHINE -p $EMEWS_PROJECT_ROOT/swift/swift_run_sweep.swift \
-   -f="$EMEWS_PROJECT_ROOT/data/upf_vaccine_sweep.txt" $CMD_LINE_ARGS
+   -f="$EMEWS_PROJECT_ROOT/data/upf_vaccine_sweep_3.txt" $CMD_LINE_ARGS
