@@ -253,8 +253,13 @@ public class Statistics {
 		}
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd--hh.mm.ss");
 		Date currentTime = new Date();
-		outputDirectory = outputDirectory + fileSep + formatter.format(currentTime) + "-" + RandomHelper.nextIntFromTo(0, Integer.MAX_VALUE);
-        setOutputDirectory(outputDirectory);
+		String timeStamp = formatter.format(currentTime);
+		
+		Boolean timestamp_output = params.getBoolean("timestamp_output");
+		if (!timestamp_output) timeStamp = "";
+		
+		outputDirectory = outputDirectory + fileSep + timeStamp;
+		setOutputDirectory(outputDirectory);
 		
 		File outDir = new File(outputDirectory);
 		System.out.println("Initializing output.  Path for output files: " + outDir.getAbsolutePath());
@@ -267,19 +272,19 @@ public class Statistics {
 			if (! file.exists()) {
 				file.mkdirs();
 			}
-			rawStatsFileName = rawStatsFileDir+formatter.format(currentTime)+".populations.csv";
+			rawStatsFileName = rawStatsFileDir+timeStamp+"populations.csv";
 			popStatsStream = new PrintStream(rawStatsFileName); 
 			System.out.println((new File(rawStatsFileName)).getAbsolutePath());
 
-			String eventsFileName = rawStatsFileDir+formatter.format(currentTime)+".events.csv";
+			String eventsFileName = rawStatsFileDir+timeStamp+"events.csv";
 			eventsStream = new PrintStream(eventsFileName); 
 			System.out.println((new File(eventsFileName)).getAbsolutePath());
 			
-			String statusFileName = rawStatsFileDir+formatter.format(currentTime)+".status.csv";
+			String statusFileName = rawStatsFileDir+timeStamp+"status.csv";
 			statusStream = new PrintStream(statusFileName); 
 			System.out.println((new File(statusFileName)).getAbsolutePath());
 
-			String regularStatusFileName = rawStatsFileDir+formatter.format(currentTime)+".statusRegular.csv";
+			String regularStatusFileName = rawStatsFileDir+timeStamp+"statusRegular.csv";
 			regularStatusStream = new PrintStream(regularStatusFileName); 
 			System.out.println((new File(regularStatusFileName)).getAbsolutePath());
 			
@@ -997,10 +1002,10 @@ public class Statistics {
 	@ScheduledMethod(start = daily_stats_timing, interval = 1, priority=1000)
 	public void statsDailyAction(){
 		if(burn_in_mode) {
-			System.out.printf(lineSep+"Day (incl. burnin): %.3f. Doing burn-in. ", RepastEssentials.GetTickCount());
+//			System.out.printf(lineSep+"Day (incl. burnin): %.3f. Doing burn-in. ", RepastEssentials.GetTickCount());
 			return; //optionally, we could record the events, but discard the row with "burn_in_mode=1"
 		} else {
-			System.out.printf(lineSep+"Day (incl. burnin): %.3f.\n ", RepastEssentials.GetTickCount());
+//			System.out.printf(lineSep+"Day (incl. burnin): %.3f.\n ", RepastEssentials.GetTickCount());
 		}
 		assert this == singleton;
 		if(! singleton.verbose_populations) {

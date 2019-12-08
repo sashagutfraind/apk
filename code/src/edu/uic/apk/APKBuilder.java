@@ -48,6 +48,7 @@ import repast.simphony.engine.schedule.ISchedule;
 import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.essentials.RepastEssentials;
 import repast.simphony.parameter.Parameters;
+import repast.simphony.parameter.ParametersWriter;
 import repast.simphony.random.RandomHelper;
 import repast.simphony.space.gis.Geography;
 import repast.simphony.space.gis.GeographyParameters;
@@ -170,7 +171,18 @@ public class APKBuilder implements ContextBuilder<Object> {
 //		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/indiana_zips/zt18_d00.shp");
 //		zip_to_zones    = load_zone_agents(zip_to_zones, "data/gisdata/wisconsin_zips/zt55_d00.shp");
 
-		Parameters params = RunEnvironment.getInstance().getParameters();		
+		Parameters params = RunEnvironment.getInstance().getParameters();	
+		
+		// Create a copy of the input parameters in the output folder
+		String outputDirectory = params.getValueAsString("output_directory");
+		ParametersWriter writer = new ParametersWriter();
+		File paramOutFile = new File(outputDirectory + File.separator + "paramters.xml");
+		try {
+			writer.writeValuesToFile(params, paramOutFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		burn_in_control((Double)params.getValue("burn_in_days"));
 		run_end((Integer)params.getValue("run_length"));
 		
@@ -949,7 +961,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 	public void vaccine_trial_start(IDU idu) {
 		Immunology.TRIAL_ARM arm = (vaccine_study_enrolled % 2 == 0)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo; //ensure strict balance
 		idu.setCurrent_trial_arm(arm);
-		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
+//		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
 		vaccine_study_enrolled++;  //deterministic to maximize balance
 
 		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);
