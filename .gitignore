@@ -16,3 +16,7 @@ code/output/
 *.pyc
 code/repast-licenses/
 OLD/
+analysis/2018-*
+analysis/buggy_or_old/*
+analysis/.ipynb_checkpoints/
+code/scripts/.ipynb_checkpoints/
