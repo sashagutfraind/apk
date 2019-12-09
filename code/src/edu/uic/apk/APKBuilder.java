@@ -864,7 +864,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 
 		double vaccine_trial_daily_both_arms_mean = ((double)vaccine_study_arm_n) * 2 / vaccine_enrollment_duration_days; 
 		//double todays_total_enrollment = RandomHelper.createPoisson(vaccine_trial_daily_both_arms_mean).nextInt();
-		System.out.println("Recruiting: " + vaccine_trial_daily_both_arms_mean);
+		System.out.println("Vaccine trial recruiting today (total): " + vaccine_trial_daily_both_arms_mean);
 
 		boolean enrollment_today = false;
 		for(EnrollmentMethodVaccine mthd : EnrollmentMethodVaccine.values()) {

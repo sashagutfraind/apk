@@ -297,6 +297,22 @@ public class Immunology implements java.io.Serializable {
 		final double[] VE_D3b = {0, 0.05, 0.50, 0.80};
 		final double[] VE_X1a = {0, 1.00, 1.00, 1.00}; //testing; note that this vaccine is not really 100% proof: after the primary infection, they become "recovered" which have a ~25% probability of infection
 		final double[] VE_X3a = {0, 0.30, 0.60, 1.00}; //testing
+		//new VE40
+		final double[] VE40D1 = {0, 0.40,  0.40,  0.40};
+		final double[] VE40D2 = {0, 0.20,  0.40,  0.40};
+		final double[] VE40D3 = {0, 0.133, 0.267, 0.40};
+		
+		//new VE60
+		final double[] VE60D1 = {0, 0.60,  0.60,  0.60};
+		final double[] VE60D2 = {0, 0.30,  0.60,  0.60};
+		final double[] VE60D3 = {0, 0.20,  0.40,  0.60};
+		
+		//new VE80
+		final double[] VE80D1 = {0, 0.80,  0.80,   0.80};
+		final double[] VE80D2 = {0, 0.40,  0.80,   0.80};
+		final double[] VE80D3 = {0, 0.267, 0.533,  0.80};
+		
+		
 		vaccine_eff.put("D1", VE_D1);
 		vaccine_eff.put("D2a", VE_D2a);
 		vaccine_eff.put("D2b", VE_D2b);
@@ -304,6 +320,18 @@ public class Immunology implements java.io.Serializable {
 		vaccine_eff.put("D3b", VE_D3b);
 		vaccine_eff.put("X1a", VE_X1a);
 		vaccine_eff.put("X3a", VE_X3a);
+		
+		vaccine_eff.put("VE40D1", VE40D1);
+		vaccine_eff.put("VE40D2", VE40D2);
+		vaccine_eff.put("VE40D3", VE40D3);
+
+		vaccine_eff.put("VE60D1", VE60D1);
+		vaccine_eff.put("VE60D2", VE60D2);
+		vaccine_eff.put("VE60D3", VE60D3);
+
+		vaccine_eff.put("VE80D1", VE80D1);
+		vaccine_eff.put("VE80D2", VE80D2);
+		vaccine_eff.put("VE80D3", VE80D3);		
 	}
 	public Double getTreatmentStartDate() {
 		return treatment_start_date;
@@ -485,33 +513,29 @@ public class Immunology implements java.io.Serializable {
 	 */
 	public boolean successful_acute_response() {
 		assert hcv_state == HCV_state.infectiousacute;
-		//case 1: modified immune system, from strongest to weakest immune responses
-		if (past_recovered) {
-			//strongest response
-			return prob_clearing > RandomHelper.nextDouble();
-		} 
-		if (vaccine_stage != VACCINE_STAGE.notenrolled) {
-			return vaccine_successful();
+
+		if (vaccine_stage == VACCINE_STAGE.notenrolled) {
+			if (past_cured) {
+				//because infection disrupts the immune system and wipes out any previously learned response
+				return (treatment_susceptibility < RandomHelper.nextDouble());
+			}
+			//infection might self-limit due to either naive response, or with history of recovery
+			double prob_self_limiting = probability_self_limiting(); 
+			
+			return prob_self_limiting > RandomHelper.nextDouble();
+		} else {
+			return vaccinee_recovers();
 		}
-		if (past_cured) {
-			//previous experience is defining of the immune response - cannot be modified by vaccine 
-			return (treatment_susceptibility < RandomHelper.nextDouble());
-		}
-		//case 2: unmodified immune system
-		
-		//infection might self-limit
-		double prob_self_limiting = agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female; 
-		
-		return prob_self_limiting > RandomHelper.nextDouble();
 	}
 		
-	public boolean vaccine_successful() {		
+	public boolean vaccinee_recovers() {
+		//returns 1 if overcomes the infection due to vaccine action OR any previously learned response and naive response
 		assert hcv_state == HCV_state.infectiousacute;
 		if (vaccine_trial_arm == Immunology.TRIAL_ARM.placebo) {
-			return false;
+			return probability_self_limiting() > RandomHelper.nextDouble();
 		}
 		double days_since_last_dose = (RepastEssentials.GetTickCount() - vaccine_latest_dose_received_day);
-		double immunity_fractional_boost = 0; //since the last dose
+		double immunity_fractional_boost = 0; //fraction of the most recent dose contributing to the immunity
 		if (days_since_last_dose > VACCINE_ONSET_OF_IMMUNITY_DAY && days_since_last_dose < VACCINE_MAX_INDUCED_IMMUNITY_DAY)  {
 			immunity_fractional_boost = (days_since_last_dose-VACCINE_ONSET_OF_IMMUNITY_DAY)/(VACCINE_MAX_INDUCED_IMMUNITY_DAY-VACCINE_ONSET_OF_IMMUNITY_DAY);
 		} else {
@@ -526,9 +550,16 @@ public class Immunology implements java.io.Serializable {
 		double[] VE = vaccine_eff.get(vaccine_schedule); 
 		double current_ve = VE[dose_idx-1] + (VE[dose_idx]-VE[dose_idx-1])*immunity_fractional_boost;
 		
-		boolean vaccine_success = current_ve > RandomHelper.nextDouble();		
+		boolean vaccine_success = Math.max(probability_self_limiting(), current_ve) > RandomHelper.nextDouble();
 		return vaccine_success;
 	}
 	
+	public double probability_self_limiting() {
+		if (past_recovered) {
+			return prob_clearing; 
+		} else {
+			return (agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female);
+		}
+	}
 	
 }

@@ -736,6 +736,7 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		if (imm.getVaccine_stage() != VACCINE_STAGE.notenrolled) {
 			return false;
 		}
+		//self for RNA rather than AB+.  the trial would not exclude all AB+, b/c many of them were cured rather than self-limiting
 		if (isHcvRNA() || isInTreatment()) {
 			//we assume a trial might recruit AB+ individuals because they are assumed to be easily re-infectable
 			//alternative: instead of isHcvRNA() do !isNaive?
