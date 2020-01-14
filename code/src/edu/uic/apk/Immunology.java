@@ -9,6 +9,7 @@ package edu.uic.apk;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cern.jet.random.Normal;
@@ -49,9 +50,11 @@ public class Immunology implements java.io.Serializable {
 	private static double treatment_svr   				= Double.NaN; //
 	private static double treatment_susceptibility       = Double.NaN; //
 
-	private static String vaccine_schedule = ""; //wishlist: make enum.  this should indicate the efficacy
-	private static Map<String,double[]> vaccine_eff;	
-	
+	private static enum VACCINE_SCHEDULE_ENUM {D1E50, D1E60, D1E70, D1E80,
+											  D2E50, D2E60, D2E70, D2E80,
+											  D3E50, D3E60, D3E70, D3E80, NONE}; //always upper case
+	private static VACCINE_SCHEDULE_ENUM vaccine_schedule = null;
+											  
 	//private fields
 	private boolean past_cured     = false;
 	private boolean past_recovered = false;
@@ -284,55 +287,113 @@ public class Immunology implements java.io.Serializable {
 		treatment_svr 			  	  = (Double) params.getValue("treatment_svr");		
 		treatment_susceptibility      = (Double) params.getValue("treatment_susceptibility");		
 		//transmissibility 			  = (Double) params.getValue("transmissibility");		
-		vaccine_schedule              = (String) params.getValue("vaccine_schedule");	//wishlist: make enum
 		
-		vaccine_eff = new HashMap<String,double[]> ();	
-
-		//Vaccine Efficacy: at index i, get the VE from dose i.
-		//MAKE SURE: values are monotonically increasing even if 2nd or 3rd dose are not in the protocol
-		final double[] VE_D1 =  {0, 0.80, 0.80, 0.80};
-		final double[] VE_D2a = {0, 0.20, 0.60, 0.60};
-		final double[] VE_D2b = {0, 0.40, 0.80, 0.80};
-		final double[] VE_D3a = {0, 0.01, 0.20, 0.80};
-		final double[] VE_D3b = {0, 0.05, 0.50, 0.80};
-		final double[] VE_X1a = {0, 1.00, 1.00, 1.00}; //testing; note that this vaccine is not really 100% proof: after the primary infection, they become "recovered" which have a ~25% probability of infection
-		final double[] VE_X3a = {0, 0.30, 0.60, 1.00}; //testing
-		//new VE40
-		final double[] VE40D1 = {0, 0.40,  0.40,  0.40};
-		final double[] VE40D2 = {0, 0.20,  0.40,  0.40};
-		final double[] VE40D3 = {0, 0.133, 0.267, 0.40};
+		String vaccine_schedule_string = (String) params.getValue("vaccine_schedule");
+		try{
+			//this should trigger an an Exception if the protocol is unknown
+			vaccine_schedule = vaccine_schedule.valueOf(vaccine_schedule_string.toUpperCase(Locale.ENGLISH));		
+		} catch (Exception e) {
+			System.err.println("Invalid vaccine schedule.  If you intended no vaccine trial, use NONE");
+		}
 		
-		//new VE60
-		final double[] VE60D1 = {0, 0.60,  0.60,  0.60};
-		final double[] VE60D2 = {0, 0.30,  0.60,  0.60};
-		final double[] VE60D3 = {0, 0.20,  0.40,  0.60};
-		
-		//new VE80
-		final double[] VE80D1 = {0, 0.80,  0.80,   0.80};
-		final double[] VE80D2 = {0, 0.40,  0.80,   0.80};
-		final double[] VE80D3 = {0, 0.267, 0.533,  0.80};
-		
-		
-		vaccine_eff.put("D1", VE_D1);
-		vaccine_eff.put("D2a", VE_D2a);
-		vaccine_eff.put("D2b", VE_D2b);
-		vaccine_eff.put("D3a", VE_D3a);
-		vaccine_eff.put("D3b", VE_D3b);
-		vaccine_eff.put("X1a", VE_X1a);
-		vaccine_eff.put("X3a", VE_X3a);
-		
-		vaccine_eff.put("VE40D1", VE40D1);
-		vaccine_eff.put("VE40D2", VE40D2);
-		vaccine_eff.put("VE40D3", VE40D3);
-
-		vaccine_eff.put("VE60D1", VE60D1);
-		vaccine_eff.put("VE60D2", VE60D2);
-		vaccine_eff.put("VE60D3", VE60D3);
-
-		vaccine_eff.put("VE80D1", VE80D1);
-		vaccine_eff.put("VE80D2", VE80D2);
-		vaccine_eff.put("VE80D3", VE80D3);		
 	}
+	
+	/*
+	 * return a double array indicating the efficacy after 0,1,2,3 doses (always return 3, even if the vaccine is only given as 1 or 2 doses)
+	 * wishlist: cache the results, if it gets too slow
+	 */
+	double[] getVaccineEffDoses() {
+		double vaccine_max_ve = Double.NaN;
+		int vaccine_doses     = 0;
+		
+		assert(! past_recovered);
+		
+		switch (vaccine_schedule) {
+			case D1E50:
+			case D1E60:
+			case D1E70:
+			case D1E80:
+				vaccine_doses = 1;
+				break;
+			case D2E50:
+			case D2E60:
+			case D2E70:
+			case D2E80:
+				vaccine_doses = 2;
+				break;
+			case D3E50:
+			case D3E60:
+			case D3E70:
+			case D3E80:
+				vaccine_doses = 3;
+				break;
+		case NONE:
+			return null;
+		default:
+			break;
+		}
+		switch (vaccine_schedule) {
+			case D1E50:
+			case D2E50:
+			case D3E50:
+				vaccine_max_ve = 0.5;
+				break;
+			case D1E60:
+			case D2E60:
+			case D3E60:
+				vaccine_max_ve = 0.6;
+				break;
+			case D1E70:
+			case D2E70:
+			case D3E70:
+				vaccine_max_ve = 0.7;
+				break;
+			case D1E80:
+			case D2E80:
+			case D3E80:
+				vaccine_max_ve = 0.8;
+				break;
+			default:
+				System.err.println("Vaccine schedule " + vaccine_schedule + " not implemented.  Exiting");
+				System.exit(-1);
+			
+		}
+		double baseline_eff = (agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female);
+		if(vaccine_max_ve < baseline_eff) {
+			System.err.println("Vaccine schedule " + vaccine_schedule + " has lower efficiacy than baseline");
+			System.exit(-1);
+		}
+		double rise_per_dose = (vaccine_max_ve - baseline_eff) / vaccine_doses;
+		
+		double[] vaccine_eff = new double[4];
+		switch(vaccine_doses) {
+		case 1:
+			vaccine_eff[0] = baseline_eff;
+			vaccine_eff[1] = baseline_eff + rise_per_dose;
+			vaccine_eff[2] = vaccine_eff[1];
+			vaccine_eff[3] = vaccine_eff[1];
+			break;
+		case 2:
+			vaccine_eff[0] = baseline_eff;
+			vaccine_eff[1] = baseline_eff + rise_per_dose;
+			vaccine_eff[2] = baseline_eff + rise_per_dose + rise_per_dose;
+			vaccine_eff[3] = vaccine_eff[2];
+			break;
+		case 3:
+			vaccine_eff[0] = baseline_eff;
+			vaccine_eff[1] = baseline_eff + rise_per_dose;
+			vaccine_eff[2] = baseline_eff + rise_per_dose + rise_per_dose;
+			vaccine_eff[3] = baseline_eff + rise_per_dose + rise_per_dose + rise_per_dose;
+			break;
+		default:
+			System.err.println("Vaccine schedule " + vaccine_schedule + " cannot have more than 3 doses");
+			System.exit(-1);
+		}
+
+		return vaccine_eff;
+	}
+	
+
 	public Double getTreatmentStartDate() {
 		return treatment_start_date;
 	}
@@ -537,17 +598,15 @@ public class Immunology implements java.io.Serializable {
 		double days_since_last_dose = (RepastEssentials.GetTickCount() - vaccine_latest_dose_received_day);
 		double immunity_fractional_boost = 0; //fraction of the most recent dose contributing to the immunity
 		if (days_since_last_dose > VACCINE_ONSET_OF_IMMUNITY_DAY && days_since_last_dose < VACCINE_MAX_INDUCED_IMMUNITY_DAY)  {
+			//between doses
 			immunity_fractional_boost = (days_since_last_dose-VACCINE_ONSET_OF_IMMUNITY_DAY)/(VACCINE_MAX_INDUCED_IMMUNITY_DAY-VACCINE_ONSET_OF_IMMUNITY_DAY);
 		} else {
+			//waiting for the next one, or finished the dose series
 			immunity_fractional_boost = 1.0;
 		}
 		
 		int dose_idx = vaccine_stage == VACCINE_STAGE.received_dose1? 1 : (vaccine_stage == VACCINE_STAGE.received_dose2? 2: 3); 
-		if(! vaccine_eff.containsKey(vaccine_schedule)) {
-			System.err.println("Unknown vaccine schedule" + vaccine_schedule);
-			return false;
-		}
-		double[] VE = vaccine_eff.get(vaccine_schedule); 
+		double[] VE = getVaccineEffDoses(); 
 		double current_ve = VE[dose_idx-1] + (VE[dose_idx]-VE[dose_idx-1])*immunity_fractional_boost;
 		
 		boolean vaccine_success = Math.max(probability_self_limiting(), current_ve) > RandomHelper.nextDouble();
