@@ -53,7 +53,7 @@ public class Immunology implements java.io.Serializable {
 	private static enum VACCINE_SCHEDULE_ENUM {D1E50, D1E60, D1E70, D1E80,
 											  D2E50, D2E60, D2E70, D2E80,
 											  D3E50, D3E60, D3E70, D3E80, NONE}; //always upper case
-	private static VACCINE_SCHEDULE_ENUM vaccine_schedule = null;
+	private static VACCINE_SCHEDULE_ENUM vaccine_schedule = VACCINE_SCHEDULE_ENUM.NONE;
 											  
 	//private fields
 	private boolean past_cured     = false;
@@ -294,6 +294,7 @@ public class Immunology implements java.io.Serializable {
 			vaccine_schedule = vaccine_schedule.valueOf(vaccine_schedule_string.toUpperCase(Locale.ENGLISH));		
 		} catch (Exception e) {
 			System.err.println("Invalid vaccine schedule.  If you intended no vaccine trial, use NONE");
+			vaccine_schedule = vaccine_schedule.NONE;
 		}
 		
 	}
@@ -306,7 +307,7 @@ public class Immunology implements java.io.Serializable {
 		double vaccine_max_ve = Double.NaN;
 		int vaccine_doses     = 0;
 		
-		assert(! past_recovered);
+		assert(! past_recovered);  //this is possible in some trials, but we have no formula to calculate prob of clearance for this case
 		
 		switch (vaccine_schedule) {
 			case D1E50:
@@ -413,7 +414,7 @@ public class Immunology implements java.io.Serializable {
 	}
 	public boolean leave_acute() {
 		//returns true iff self limiting
-		if (successful_acute_response()) {
+		if (is_acute_resolved_successfully()) {
 			hcv_state = HCV_state.recovered;	
 			Statistics.fire_status_change(AgentMessage.recovered, agent, "", null);
 			return true;
@@ -572,7 +573,7 @@ public class Immunology implements java.io.Serializable {
 	/*
 	 * Test if the immune system successfully overcomes an acute infection
 	 */
-	public boolean successful_acute_response() {
+	public boolean is_acute_resolved_successfully() {
 		assert hcv_state == HCV_state.infectiousacute;
 
 		if (vaccine_stage == VACCINE_STAGE.notenrolled) {
@@ -585,12 +586,14 @@ public class Immunology implements java.io.Serializable {
 			
 			return prob_self_limiting > RandomHelper.nextDouble();
 		} else {
-			return vaccinee_recovers();
+			return does_vaccinee_recover();
 		}
 	}
-		
-	public boolean vaccinee_recovers() {
-		//returns 1 if overcomes the infection due to vaccine action OR any previously learned response and naive response
+	
+	/*
+	 * returns true if overcomes the infection due to vaccine action OR any previously learned response and naive response
+	 */
+	public boolean does_vaccinee_recover() {
 		assert hcv_state == HCV_state.infectiousacute;
 		if (vaccine_trial_arm == Immunology.TRIAL_ARM.placebo) {
 			return probability_self_limiting() > RandomHelper.nextDouble();
