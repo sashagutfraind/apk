@@ -50,7 +50,8 @@ public class Immunology implements java.io.Serializable {
 	private static double treatment_svr   				= Double.NaN; //
 	private static double treatment_susceptibility       = Double.NaN; //
 
-	private static enum VACCINE_SCHEDULE_ENUM {D1E50, D1E60, D1E70, D1E80,
+	private static enum VACCINE_SCHEDULE_ENUM {D1E00,
+											  D1E50, D1E60, D1E70, D1E80,
 											  D2E50, D2E60, D2E70, D2E80,
 											  D3E50, D3E60, D3E70, D3E80, NONE}; //always upper case
 	private static VACCINE_SCHEDULE_ENUM vaccine_schedule = VACCINE_SCHEDULE_ENUM.NONE;
@@ -310,6 +311,7 @@ public class Immunology implements java.io.Serializable {
 		assert(! past_recovered);  //this is possible in some trials, but we have no formula to calculate prob of clearance for this case
 		
 		switch (vaccine_schedule) {
+			case D1E00:
 			case D1E50:
 			case D1E60:
 			case D1E70:
@@ -333,7 +335,12 @@ public class Immunology implements java.io.Serializable {
 		default:
 			break;
 		}
+		
+		double baseline_eff = (agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female);
 		switch (vaccine_schedule) {
+			case D1E00:
+				vaccine_max_ve = baseline_eff;
+				break;
 			case D1E50:
 			case D2E50:
 			case D3E50:
@@ -359,7 +366,6 @@ public class Immunology implements java.io.Serializable {
 				System.exit(-1);
 			
 		}
-		double baseline_eff = (agent.getGender() == Gender.Male? prob_self_limiting_male : prob_self_limiting_female);
 		if(vaccine_max_ve < baseline_eff) {
 			System.err.println("Vaccine schedule " + vaccine_schedule + " has lower efficiacy than baseline");
 			System.exit(-1);
