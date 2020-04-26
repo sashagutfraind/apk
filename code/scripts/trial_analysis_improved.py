@@ -19,7 +19,8 @@ def trial_analysis(experiment_dir):
 	
 	run_output_dir = experiment_dir + '/output'
 	
-	trial_end_date = int(365*3.5)-200 #the last normal recruit completes on day 958 
+	trial_end_date = 1400
+#	trial_end_date = int(365*3.5)-200 #the last normal recruit completes on day 958 
 	pops_file = [s for s in os.listdir(run_output_dir) if s.find(file_signature)>-1][0]
 	
 	# ### Study details
