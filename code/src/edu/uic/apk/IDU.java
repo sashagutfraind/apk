@@ -6,9 +6,11 @@
 
 package edu.uic.apk;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -339,8 +341,101 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 		assert ! Double.isNaN(val);
 		fraction_recept_sharing = val;
 	}
+		
+	public static final Set<Integer> SouthSide = new HashSet<Integer>(Arrays.asList(60608,60609,60615,60616,60617,60619,60620,60621,60628,60629,60632,60633,60636,60637,60638,60643,60649,60652,60653,60655,60827));
+	public static final Set<Integer> WestSide = new HashSet<Integer>(Arrays.asList(60606,60607,60612,60622,60623,60624,60639,60642,60644,60647,60651,60661,60601));  //  60707 captures part of Chicago, although it is mostly in the Suburbs
+	public static final Set<Integer> NorthSide = new HashSet<Integer>(Arrays.asList(60602,60603,60604,60605,60610,60611,60613,60614,60618,60625,60626,60630,60631,60634,60640,60641,60645,60646,60654,60656,60657,60659,60660,60666));
+	
+	public String getChicagoCommunityName() {	
+		try {
+			if (SouthSide.contains(Integer.parseInt(getZip()))) {
+				return "SouthSide";
+			} else if(WestSide.contains(Integer.parseInt(getZip()))) {
+				return "WestSide";
+			} else if(NorthSide.contains(Integer.parseInt(getZip()))) {
+				return "NorthSide";
+			} else {
+				return "OutsideChicago";
+			}
+		} catch (Exception e) {
+			System.err.println("Error parsing ZIP code as integer: " + getZip());
+			System.err.println(e.toString());
+			return "OutsideChicago";
+		}
+	}
+
+	/**
+	 * TEST
+	 * @return
+	 */
+	public double getFractionTotalNetworkFemale() {
+		if(! context.contains(this)) {
+			return Double.NaN;
+		}
+		int num_nbs      = network.getDegree(this);
+		int num_in_class = 0;
+		if(num_nbs == 0) {
+			return Double.NaN;
+		}
+		for(IDU nb : network.getAdjacent(this)) {
+			if(nb.getGender() == Gender.Female) {
+				num_in_class+= 1;
+			}
+		}
+		return ((double)num_in_class)/num_nbs;
+	}
+
+	public double getFractionTotalNetworkNHWhite() {
+		if(! context.contains(this)) {
+			return Double.NaN;
+		}
+		int num_nbs      = network.getDegree(this);
+		int num_in_class = 0;
+		if(num_nbs == 0) {
+			return Double.NaN;
+		}
+		for(IDU nb : network.getAdjacent(this)) {
+			if(nb.getRace() == Race.NHWhite) {
+				num_in_class+= 1;
+			}
+		}
+		return ((double)num_in_class)/num_nbs;
+	}
+
+	public double getFractionTotalNetworkUnder30() {
+		if(! context.contains(this)) {
+			return Double.NaN;
+		}
+		int num_nbs      = network.getDegree(this);
+		int num_in_class = 0;
+		if(num_nbs == 0) {
+			return Double.NaN;
+		}
+		for(IDU nb : network.getAdjacent(this)) {
+			if(nb.getAgeGroup() == AgeGroup.LEQ30) {
+				num_in_class+= 1;
+			}
+		}
+		return ((double)num_in_class)/num_nbs;
+	}
+	public double getMeanAgeTotalNetwork() {
+		if(! context.contains(this)) {
+			return Double.NaN;
+		}
+		int num_nbs      = network.getDegree(this);
+		double total_age_in_class = 0;
+		if(num_nbs == 0) {
+			return Double.NaN;
+		}
+		for(IDU nb : network.getAdjacent(this)) {
+			total_age_in_class += nb.getAge();
+		}
+		return ((double)total_age_in_class)/num_nbs;
+	}
+	
 	/*
 	 * number of unique persons connected to this IDU (either in the in-network or in out-network, not double counting)
+	 * this is == network.getAdjacent(this).size()
 	 */
 	public int getNumBuddies() {
 		HashSet <IDU> buddies = new HashSet <IDU>();
@@ -418,14 +513,18 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 			System.out.println("Failed to set HCV state. Cannot recognize state: " + state);
 		}
 	}
-	public double getHcvNeighborPrevalence() {
+	
+	/*
+	 * Average RNA prevalence for the total egocentric network
+	 */
+	public double getHcvRNANeighborPrevalence() {
 		if(! context.contains(this)) {
-			return 0.0;
+			return Double.NaN;
 		}
 		int num_nbs      = network.getDegree(this);
 		int num_infected = 0;
 		if(num_nbs == 0) {
-			return 0.0;
+			return Double.NaN;
 		}
 		for(IDU nb : network.getAdjacent(this)) {
 			if(nb.isHcvRNA()) {
@@ -983,14 +1082,26 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	}
 
 	public static String toString_header() {
-		return "Age,Gender,Race,Zip,Syringe_source,HCV,HCV_friend_preval,Age_Started,Drug_in_degree,Drug_out_degree,Num Buddies,Daily_injection_intensity,Fraction_recept_sharing,DBLabel";
+		return "Age,Gender,Race,Zip,Syringe_source"
+				+ ",HCV,HCV_friend_preval"
+				+ ",Age_Started"
+				+ ",Drug_in_degree,Drug_out_degree,current_total_network_size"
+				+ ",Daily_injection_intensity,Fraction_recept_sharing,DBLabel"
+				+ ",trial_arm,chicago_community_name"
+				+ ",fraction_total_network_female,fraction_total_network_nh_white"
+				+ ",fraction_total_network_inder30,mean_age_total_network";
 	}
 	
 	@Override
 	public String toString() {
-		return ""+getAge()+","+getGender()+","+getRace()+","+getZip()+","+getSyringe_source()+","+getHcvState()+","+getHcvNeighborPrevalence()
+		return ""+getAge()+","+getGender()+","+getRace()+","+getZip()+","+getSyringe_source()
+				+","+getHcvState()+","+getHcvRNANeighborPrevalence()
 				+","+getAgeStarted()
-				+","+getDrugReceptDegree()+","+getDrugGivingDegree()+","+getNumBuddies()+","+getInjectionIntensity()+","+getFractionReceptSharing()+","+getDatabaseLabel();
+				+","+getDrugReceptDegree()+","+getDrugGivingDegree()+","+getNumBuddies()
+				+","+getInjectionIntensity()+","+getFractionReceptSharing()+","+getDatabaseLabel()
+				+","+getCurrent_trial_arm()+","+getChicagoCommunityName()
+				+","+getFractionTotalNetworkFemale()+","+getFractionTotalNetworkNHWhite()
+				+","+getFractionTotalNetworkUnder30()+","+getMeanAgeTotalNetwork();
 	}
 
 	/*

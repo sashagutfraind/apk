@@ -76,7 +76,7 @@ public class Statistics {
 	private static PrintStream statusStream;
 	
 	private boolean verbose_events			= false;
-	private boolean verbose_populations 		= false;
+	private boolean verbose_populations 	= false;
 	private boolean verbose_regular_status 	= false;
 	private boolean verbose_status 			= false;
 	
@@ -347,11 +347,18 @@ public class Statistics {
 		}
 		
 		String verbosity = params.getValueAsString("verbosity");
-		singleton.verbose_events			= verbosity.contains("events"); 
-		singleton.verbose_populations 		= verbosity.contains("populations");
-		singleton.verbose_regular_status 	= verbosity.contains("regularStatus");
-		singleton.verbose_status 			= verbosity.contains("status");
+		singleton.verbose_events			= verbosity.contains("events");   		//just events when they occur
+		singleton.verbose_populations 		= verbosity.contains("populations"); 	//daily summary of the populations
+		singleton.verbose_regular_status 	= verbosity.contains("regularStatus");	//annual status of each agent
+		singleton.verbose_status 			= verbosity.contains("status");			//status of each agent each P days following activation
 		//parse value="events,populations,regularStatus,status"
+		
+		if (singleton.verbose_status && params.getDouble("status_report_frequency") <= 0) {
+			System.err.println("Status reporting disable: parameter status_report_frequency is not positive");
+		}
+		if (singleton.verbose_regular_status && params.getDouble("status_report_frequency") <= 0) {
+			System.err.println("Regular status reporting disable: parameter status_report_frequency is not positive");
+		}
 
 	}
 	
@@ -606,21 +613,32 @@ public class Statistics {
 	public void finalize_stats()	{
 	}
 
+	/**
+	 * Record change of an agent's status changes
+	 * Note: make sure that HCV state is updated before calling this message
+	 * 
+	 * @param	message enum with type of status change
+	 * @param 	agent	if null, inserts header line
+	 * @return 	void
+	 * 
+	 */
 	public static void fire_status_change(AgentMessage message, IDU agent, String message_info, HashMap details) {
-		//Note: make sure that HCV state is updated before calling this message
 		assert singleton != null;
 		String eventClass = ""; //not used
 		//return; 
 		if(agent==null) {
+			//used for reporting events with the agent - just changes in state
 			eventsStream.printf("NOTE: we don't record failed exposure events or successful exposures during acute or chronic HCV (for space reasons)" + lineSep);
 			eventsStream.printf("Time,EC,Agent,Event,Info,L1,N1,L2,N2,C,");
 			eventsStream.printf(IDU.toString_header());
 			eventsStream.printf(lineSep);
 
+			//used for regular reporting of status
 			statusStream.printf("Time,EC,Agent,Event,Info,L1,N1,L2,N2,C,");
 			statusStream.printf(IDU.toString_header());
 			statusStream.printf(lineSep);
-
+			
+			//used for annual status
 			regularStatusStream.printf("Time,EC,Agent,Event,Info,L1,N1,L2,N2,C,");
 			regularStatusStream.printf(IDU.toString_header());
 			regularStatusStream.printf(lineSep);
@@ -653,7 +671,7 @@ public class Statistics {
 				eventSummaryData.put("losses_daily", eventSummaryData.get("losses_daily") + 1.0);
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
-			case exposed:
+			case exposed: //give exposure, but not necessary transmission (see Immunology.give_exposure()).  success will generate HCV_State.exposed and generate "infected" message
 				break; //not recorded - too many events
 			case failed_treatment:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
@@ -667,10 +685,12 @@ public class Statistics {
 					double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getEntryDate());					
 					fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "-", "-", agent.toString());
 				} else {
-					//time_to_exposure = time_now - agent.getLastExposureDate();
-					//NOTE: we don't record this event for space reasons
-					//fire_helper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "", "", agent.toString());
-				}
+					double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getLastExposureDate());
+					//NOTE: we don't record this event for space reasons, except for agents in a trial. oddly, infectious gets recorded.
+					if(agent.getCurrent_trial_arm() != TRIAL_ARM.noarm) {
+						fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "-", "-", agent.toString());
+					}
+	 			}
 				if(agent.getCurrent_trial_stage() == VACCINE_STAGE.received_dose1 | 
 					agent.getCurrent_trial_stage() == VACCINE_STAGE.received_dose2) { //assumes at most 3 doses; implicitly excludes IDUs not in the trial, i.e. stage == notenrolled
 					
@@ -705,8 +725,10 @@ public class Statistics {
 				eventSummaryData.put("aggregate_courses", eventSummaryData.get("aggregate_courses") + 1.0);
 				break;
 			case vaccinated:
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				break;
 			case trialstarted: 
+				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
 					eventSummaryData.put("started_study_aggregate_vaccine", eventSummaryData.get("started_study_aggregate_vaccine") + 1.0);
 				} else {
@@ -770,8 +792,8 @@ public class Statistics {
 				break;
 		}
 	}
-	/*
-	 * record the event in the event log
+	/**
+	 * called to record the event in the event logs
 	 */
 	private static void fire_entryhelper(double time_now, String eventClass, int agentID, AgentMessage message, Object message_info,
 									    String label1, Object data1, String label2, Object data2, 
@@ -788,7 +810,7 @@ public class Statistics {
 			message_info = "";
 		}
 		PrintStream target_stream = eventsStream;
-		if(message == AgentMessage.status){ 
+		if(message == AgentMessage.status){  //called from IDU.activate
 			target_stream = statusStream;
 			if(! singleton.verbose_status) {
 				return;
@@ -802,7 +824,7 @@ public class Statistics {
 			return; //don't report status
 		}
 		
-        target_stream.printf("%.3f,%s,%d,%s,%s,",	time_now, eventClass, agentID, message.toString(), message_info.toString());
+        target_stream.printf("%.3f,%s,%d,%s,%s,", time_now, eventClass, agentID, message.toString(), message_info.toString());
         target_stream.printf("%s,%s,%s,%s,,%s" + System.lineSeparator(), label1, data1.toString(), label2, label2.toString(), agentDetails.toString());
 	}
 
@@ -951,9 +973,14 @@ public class Statistics {
 
 	/* annual reports of the simulation.  
 	 * 	this is in addition to the agents' status on THEIR anniversary.
+	 * 
+	 * TODO: is this hardcoding the burnin period?  change the scheduling
 	 */
 	@ScheduledMethod(start = 365, interval=365)
 	public void recordRegularStats() {
+		if(! singleton.verbose_regular_status) {
+			return;
+		}
 		System.out.println("Reporting regular agent stats ...");
 		assert this == singleton;
 		for(Object obj : singleton.context) {
@@ -999,6 +1026,9 @@ public class Statistics {
 		
 	}
 
+	/**
+	 * Record any daily events - used for reporting population statistics and debugging
+	 */
 	@ScheduledMethod(start = daily_stats_timing, interval = 1, priority=1000)
 	public void statsDailyAction(){
 		if(burn_in_mode) {

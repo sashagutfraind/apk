@@ -984,25 +984,25 @@ public class APKBuilder implements ContextBuilder<Object> {
 		switch(new_stage) {
 			case received_dose1:
 				idu.receiveVaccineDose(); //updates the stage
+				Statistics.fire_status_change(AgentMessage.trialstarted, idu, "RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
+				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage="+next_stage.toString()+";RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
 				next_stage = VACCINE_STAGE.received_dose2;
-				Statistics.fire_status_change(AgentMessage.trialstarted, idu, "arm="+idu.getCurrent_trial_arm(), null);
-				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage="+next_stage.toString()+";arm="+idu.getCurrent_trial_arm(), null);
 				if(vaccine_total_doses == 1) {
 					completed_doses = true; //see below
 				}
 				break;
 			case received_dose2:
 				idu.receiveVaccineDose(); //updates the stage
+				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage="+next_stage.toString()+";RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
 				next_stage = VACCINE_STAGE.received_dose3;
-				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage="+next_stage.toString()+";arm="+idu.getCurrent_trial_arm(), null);
 				if(vaccine_total_doses == 2) {
 					completed_doses = true; //see below
 				}
 				break;
 			case received_dose3:
 				idu.receiveVaccineDose(); //updates the stage
+				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage="+next_stage.toString()+";RNA="+idu.isHcvRNA()+";arm="+idu.getCurrent_trial_arm(), null);
 				next_stage = VACCINE_STAGE.followup;
-				Statistics.fire_status_change(AgentMessage.vaccinated, idu, "newstage="+next_stage.toString()+";arm="+idu.getCurrent_trial_arm(), null);
 				completed_doses = true; //see below
 				break;
 			case followup: //after the first or subsequently follow-up month
