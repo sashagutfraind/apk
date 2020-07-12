@@ -7,7 +7,7 @@
 
 library(data.table)
 
-simulation_plan_file <- "simulation_plan_2020-0127.csv"
+simulation_plan_file <- "simulation_plan_2020-04.csv"
 
 df <- fread(simulation_plan_file)
 
@@ -47,4 +47,4 @@ for (r in 1:nrow(df)){
   
 }
 
-write(x, file="upf_vaccine_sweep_4.txt")
+write(x, file="upf_vaccine_sweep_5.txt")
