@@ -357,7 +357,7 @@ public class Statistics {
 			System.err.println("Status reporting disable: parameter status_report_frequency is not positive");
 		}
 		if (singleton.verbose_regular_status && params.getDouble("status_report_frequency") <= 0) {
-			System.err.println("Regular status reporting disable: parameter status_report_frequency is not positive");
+			System.err.println("Regular status reporting disabled: parameter status_report_frequency is not positive");
 		}
 
 	}
@@ -449,7 +449,6 @@ public class Statistics {
 				//this is NOT the same as population_vaccineArm=study/placebo: here we only count those still enrolled
 
 				currentData.put("populat_"+vaccinestage,   currentData.get("populat_"+vaccinestage)+1);  
-				//TODO: test
 			}
 			if(agent.isCured()) {
 				currentData.put("cured_ALL",       currentData.get("cured_ALL") + 1);
@@ -685,9 +684,9 @@ public class Statistics {
 					double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getEntryDate());					
 					fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "-", "-", agent.toString());
 				} else {
-					double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getLastExposureDate());
 					//NOTE: we don't record this event for space reasons, except for agents in a trial. oddly, infectious gets recorded.
 					if(agent.getCurrent_trial_arm() != TRIAL_ARM.noarm) {
+						double time_to_exposure = APKBuilder.getDateDifference(APKBuilder.getSimulationDate(), agent.getLastExposureDate());
 						fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "Time_to_exposure", new Double(time_to_exposure), "-", "-", agent.toString());
 					}
 	 			}
@@ -769,11 +768,8 @@ public class Statistics {
 				break;
 			case trialcompleted:
 				fire_entryhelper(time_now, eventClass, agent.hashCode(), message, message_info, "-", "-", "-", "-", agent.toString());
-				//TODO: consider adding immediate loss at recruitment of 20%
-				//TODO: understand the significance for n=1500.  
-				//TODO: test purged compartment for, e.g. those that reach final dose HCV+ and purge them
-				//TODO: understand if the results are the same for when we do unbiased recruitment (currently running)
-				//TODO: not in the paper that we observe stochastic drift, e.g. unbalanced abandonment, which is comparable to the chronic group size
+				//wishlist: consider adding immediate loss at recruitment of 20%
+				//TODO: note in the paper that we observe stochastic drift, e.g. unbalanced abandonment, which is comparable to the chronic group size
 				if(agent.getCurrent_trial_arm() == TRIAL_ARM.study) {
 					if(agent.isChronic()) {
 						eventSummaryData.put("cmpl_study_chronic_aggregate_vaccine", eventSummaryData.get("cmpl_study_chronic_aggregate_vaccine") + 1.0);

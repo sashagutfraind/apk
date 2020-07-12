@@ -582,7 +582,7 @@ public class Immunology implements java.io.Serializable {
 	public boolean is_acute_resolved_successfully() {
 		assert hcv_state == HCV_state.infectiousacute;
 
-		if (vaccine_stage == VACCINE_STAGE.notenrolled) {
+		if (vaccine_trial_arm == TRIAL_ARM.noarm) {
 			if (past_cured) {
 				//because infection disrupts the immune system and wipes out any previously learned response
 				return (treatment_susceptibility < RandomHelper.nextDouble());

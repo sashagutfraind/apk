@@ -206,7 +206,7 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	 */
 	public AreaType getAreaType() {
 		String zip = this.getZip();
-		if((zip != null) && (! zip.substring(0,3).equalsIgnoreCase("606"))) {
+		if((zip != null) && (getChicagoCommunityName() == "OutsideChicago")) {
 			return AreaType.Suburban;
 		} else {
 			return AreaType.City;
@@ -346,19 +346,23 @@ public class IDU implements SimAgent, java.io.Serializable, Cloneable {
 	public static final Set<Integer> WestSide = new HashSet<Integer>(Arrays.asList(60606,60607,60612,60622,60623,60624,60639,60642,60644,60647,60651,60661,60601));  //  60707 captures part of Chicago, although it is mostly in the Suburbs
 	public static final Set<Integer> NorthSide = new HashSet<Integer>(Arrays.asList(60602,60603,60604,60605,60610,60611,60613,60614,60618,60625,60626,60630,60631,60634,60640,60641,60645,60646,60654,60656,60657,60659,60660,60666));
 	
-	public String getChicagoCommunityName() {	
+	public String getChicagoCommunityName() {
+		String zip = getZip();
+		if (zip == null) {
+			return "";
+		}
 		try {
-			if (SouthSide.contains(Integer.parseInt(getZip()))) {
+			if (SouthSide.contains(Integer.parseInt(zip))) {
 				return "SouthSide";
-			} else if(WestSide.contains(Integer.parseInt(getZip()))) {
+			} else if(WestSide.contains(Integer.parseInt(zip))) {
 				return "WestSide";
-			} else if(NorthSide.contains(Integer.parseInt(getZip()))) {
+			} else if(NorthSide.contains(Integer.parseInt(zip))) {
 				return "NorthSide";
 			} else {
 				return "OutsideChicago";
 			}
 		} catch (Exception e) {
-			System.err.println("Error parsing ZIP code as integer: " + getZip());
+			System.err.println("Error parsing ZIP code as integer: " + zip);
 			System.err.println(e.toString());
 			return "OutsideChicago";
 		}
