@@ -1,3 +1,4 @@
+
 <?xml version="1.0" ?>
 <sweep runs="1">
   <parameter name="mean_tie_lifetime" type="constant" constant_type="double" value="1.72"></parameter>
@@ -18,7 +19,6 @@
   <parameter name="interaction_home_cutoff" type="constant" constant_type="double" value="2.0"></parameter>
   <parameter name="prob_clearing" type="constant" constant_type="double" value="0.85"></parameter>
   <parameter name="treatment_svr" type="constant" constant_type="double" value="0.9"></parameter>
-  <parameter name="randomSeed" type="constant" constant_type="int" value="1"></parameter>
   <parameter name="treatment_enrollment_probability_HRP" type="constant" constant_type="double" value="0.2"></parameter>
   <parameter name="vaccine_enrollment_probability_unbiased" type="constant" constant_type="double" value="0.0"></parameter>
   <parameter name="initial_pwid_count" type="constant" constant_type="int" value="32000"></parameter>
@@ -35,7 +35,7 @@
   <parameter name="interaction_rate_constant" type="constant" constant_type="double" value="0.016"></parameter>
   <parameter name="net_inflow" type="constant" constant_type="double" value="0.0"></parameter>
   <parameter name="nonNEP_age_boost" type="constant" constant_type="double" value="3.0"></parameter>
-  <parameter name="vaccine_study_arm_n" type="constant" constant_type="int" value="700"></parameter>
+  <parameter name="vaccine_study_arm_n" type="constant" constant_type="int" value="1599"></parameter>
   <parameter name="vaccine_dose2_day" type="constant" constant_type="double" value="60.0"></parameter>
   <parameter name="vaccine_followup_weeks" type="constant" constant_type="double" value="4.0"></parameter>
   <parameter name="mean_career_duration" type="constant" constant_type="double" value="30.3"></parameter>
@@ -48,7 +48,7 @@
   <parameter name="treatment_nonadherence" type="constant" constant_type="double" value="0.1"></parameter>
   <parameter name="treatment_enrollment_start_delay" type="constant" constant_type="double" value="2190.0"></parameter>
   <parameter name="vaccine_dose3_day" type="constant" constant_type="double" value="180.0"></parameter>
-  <parameter name="vaccine_schedule" type="constant" constant_type="java.lang.String" value="D3E80"></parameter>
+  <parameter name="vaccine_schedule" type="constant" constant_type="java.lang.String" value="D2E60"></parameter>
   <parameter name="treatment_enrollment_probability_inpartner" type="constant" constant_type="double" value="0.1"></parameter>
   <parameter name="vaccine_enrollment_probability_positiveinnetwork" type="constant" constant_type="double" value="1.0"></parameter>
   <parameter name="vaccine_followup2_periods" type="constant" constant_type="int" value="9"></parameter>
@@ -66,6 +66,6 @@
   <parameter name="vaccine_followup_purge_with_rna" type="constant" constant_type="int" value="0"></parameter>
   <parameter name="mean_days_acute_rechallenged" type="constant" constant_type="double" value="28.0"></parameter>
   <parameter name="burn_in_days" type="constant" constant_type="double" value="365.0"></parameter>
-  <parameter name="verbosity" type="constant" constant_type="java.lang.String" value="events+populations+regularStatus+status"></parameter>
+  <parameter name="verbosity" type="constant" constant_type="java.lang.String" value="populations+events"></parameter>
   <parameter name="treatment_duration" type="constant" constant_type="double" value="84.0"></parameter>
 </sweep>
