@@ -9,15 +9,17 @@ System Requirements
 	- Certain java graphics libraries (Java3D,jogl)
 	- Graphics card and drive that supports advanced features (textures, OpenGL)
 
-Running APK
+Running APK from the GUI
 -------------------------
 * Start the program by running start_model.bat (Windows) or start_model.command (Unix and Mac)
 
 * Before starting the simulation, you can change the parameters in the parameters tab.
 
-* To set up a new simulation, click on the "Power" button on the top bar.  Now you can use the buttons Play, Pause, Fast, Stop, and Reset.
+* To set up a new simulation, click on the "Power" button on the top bar.  
+Now you can use the buttons Play, Pause, Fast, Stop, and Reset.
 
-* The globe window supports three layers of the simulation.  These could be turned on and off:
+* The globe window supports three layers of the simulation.  
+It is recommended that the map display is turned off when running large-scale simulations.
 IDU - the persons who inject drugs, also termed "agents" or "IDUs".  Clicking on one of them would bring out his or her individual profile.
 ZoneAgent - ZIP codes showing the geographic areas.  Clicking on one of them would show the prevalence in that area
 LinkAgent - the person-to-person relationships in the injecting drug user network.
@@ -28,10 +30,31 @@ Red (HCV RNA+ in either acute or chronic stage),
 Green (experienced resistant)
 
 * See the overall state of a running simulation with the Epidemiology tab
- 
-* The datagen folder contains synthetic data and the data generator that created it.
+
+* input population data
+** NEP-plus dataset (not for public distribution only) should be selected for most tasks
+** The datagen folder contains synthetic data and the data generator that created it.
 Original (HIPAA-protected) data might be available upon written agreement from the developers
 
+* Simulation output is saved in APK/output.  
+** Configure the output by using the "verbosity" parameter (e.g. population+events)
+** events.csv: major events occurring to each agent (most detailed)
+** population.csv: daily summary of the population status
+** statusRegular.csv: states of all the agents, reported each year (i.e. on ticks 365, 2*365, 3*365 etc)
+** status.csv: status of all the agents reported each year from the time they were activated
+
+
+Running APK in batch mode
+-------------------------
+1. adjust the parameters file and save them in batch/batch_params.xml
+
+2. run batch.bat (Windows) or batch.command (Unix) 
+See the output in APK\output
+
+Make sure to copy the files from this directory, otherwise
+
+Questions:
+------------
 * Please report any problem to Alexander Gutfraind: 
 agutfraind.research@gmail.com
 indicate

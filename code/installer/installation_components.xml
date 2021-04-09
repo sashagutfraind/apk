@@ -5,7 +5,7 @@
 <installation version="1.0">
     <info>
       <appname>APK</appname>
-			<appversion>1.0</appversion>
+			<appversion>2.0</appversion>
       <summarylogfilepath>$INSTALL_PATH/installinfo/Summary.htm</summarylogfilepath>
     </info>
     <guiprefs height="600" resizable="yes" width="800">
@@ -92,12 +92,16 @@
             <description>The core model files</description>
             
             <!-- model run batch and scripts -->
+            <parsable targetfile="$INSTALL_PATH/batch.bat"/>
+            <parsable targetfile="$INSTALL_PATH/batch.command"/>
             <parsable targetfile="$INSTALL_PATH/start_model.bat"/>
             <parsable targetfile="$INSTALL_PATH/start_model.command"/>
 						<executable targetfile="$INSTALL_PATH/start_model.command" stage="never"/>            
             <executable targetfile="$INSTALL_PATH/start_model.command" os="unix" stage="never"/>
             
             <!-- User Model components -->
+            <file src="$StagingArea/installer/batch.bat" targetdir="$INSTALL_PATH"/>
+            <file src="$StagingArea/installer/batch.command" targetdir="$INSTALL_PATH"/>
             <file src="$StagingArea/installer/start_model.bat" targetdir="$INSTALL_PATH"/>
             <file src="$StagingArea/installer/start_model.command" targetdir="$INSTALL_PATH"/>
             <file src="$StagingArea" targetdir="$INSTALL_PATH"/>
