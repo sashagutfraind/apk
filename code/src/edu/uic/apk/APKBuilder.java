@@ -87,7 +87,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 	}
 
 	public enum EnrollmentMethodVaccine { 
-		unbiased, positive_innetwork;
+		unbiased, positive_innetwork, harmreduction;
 	}
 
 		
@@ -229,7 +229,10 @@ public class APKBuilder implements ContextBuilder<Object> {
 		vaccine_followup1_periods = (Integer)params.getValue("vaccine_followup1_periods");
 		vaccine_followup2_periods = (Integer)params.getValue("vaccine_followup2_periods");
 		vaccine_followup_weeks    = (Double)params.getValue("vaccine_followup_weeks");
+		
 		vaccine_followup_purge_with_rna = ((Integer)params.getValue("vaccine_followup_purge_with_rna")) == 1;
+		//this refers to whether we allow people to be counted if they are RNA-positive when they enter follow-up.  
+		//when this flag is set, they are dropped from the trial.
 		
 		if(vaccine_total_doses > 1) {
 			vaccine_dose2_day = (Double)params.getValue("vaccine_dose2_day");
@@ -241,9 +244,11 @@ public class APKBuilder implements ContextBuilder<Object> {
 		//wishlist: check it adds up to 1.0
 		vaccine_enrollment_probability.put(EnrollmentMethodVaccine.unbiased, (Double)params.getValue("vaccine_enrollment_probability_unbiased"));
 		vaccine_enrollment_probability.put(EnrollmentMethodVaccine.positive_innetwork, (Double)params.getValue("vaccine_enrollment_probability_positiveinnetwork"));
+		vaccine_enrollment_probability.put(EnrollmentMethodVaccine.harmreduction, (Double)params.getValue("vaccine_enrollment_probability_harmreduction"));
 		//counts carryover from day to next
 		vaccine_residual_enrollment.put(EnrollmentMethodVaccine.unbiased, 0.0);
 		vaccine_residual_enrollment.put(EnrollmentMethodVaccine.positive_innetwork, 0.0);
+		vaccine_residual_enrollment.put(EnrollmentMethodVaccine.harmreduction, 0.0);
 
 		Statistics.build(params, context, network, zip_to_zones, zone_zone_distance);
 		Statistics.dump_network_distances(params.getValue("dump_network_distances"));
@@ -856,6 +861,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 	/*
 	 * runs daily and recruits PWID for vaccine_trial
 	 * 
+	 * FIXME: ensure that we never enroll PWID who are already deactivated! that somestime happens
 	 */
 	public void vaccine_trial_enroll() {
 		if (RepastEssentials.GetTickCount() > vaccine_start_of_enrollment + vaccine_enrollment_duration_days) {
@@ -889,6 +895,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 			System.out.println("Not enrolling - Enrollable PWIDs: 0");
 			return;
 		}
+		//vaccine_candidates is a set 
 		for(EnrollmentMethodVaccine mthd : EnrollmentMethodVaccine.values()) {
 			double enrollment_target = vaccine_residual_enrollment.get(mthd);
 			if(enrollment_target < 1) {
@@ -898,7 +905,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 			HashSet<IDU> enrolled = vaccine_trial_select(mthd, vaccine_candidates, Math.ceil(enrollment_target)); //set, to avoid accidentally double-recruiting
 			for(IDU idu : enrolled) {
 				vaccine_trial_start(idu);
+				//wishlist: remove from the list vaccine_candidates.remove(idu);
 			}
+			vaccine_candidates.removeAll(enrolled);
 			//wishlist bug fix: make sure that we don't accidentally overshoot vaccine_study_arm_n
 			vaccine_residual_enrollment.put(mthd, enrollment_target - enrolled.size()); 	//carried over from day to the next day.  this can give below 0
 			//System.out.println("Method: " + mthd + ". Enrolled: " + enrolled.size() + ". Residual: " + vaccine_residual_enrollment.get(mthd));
@@ -906,12 +915,16 @@ public class APKBuilder implements ContextBuilder<Object> {
 	}
 	
 	/*
-	 * attempts to recruit for treatment using method enrMethod
+	 * create a list of approved IDUs to be added to the trial
 	 * graceful operation - does not guarantee success in recruiting the desired number
+	 * @param 	candidates: list of IDUs to be considered (must be list to allow shuffling)
+	 * @param	enrMethod:  the method for enrollment
+	 * @param	enrollment_target: number to be recruited
+	 * @returns enrolled - candidates accepted by the method
 	 * 
 	 */
 	public HashSet<IDU> vaccine_trial_select(EnrollmentMethodVaccine enrMethod, ArrayList <IDU> candidates, double enrollment_target) {
-		Collections.shuffle(candidates); //shuffle for every method
+		Collections.shuffle(candidates); //shuffle for every method; wishlist: avoid side effect by copying
 		HashSet<IDU> enrolled = new HashSet<IDU> (); //set, to avoid accidentally double-recruiting
 		if(candidates.size() == 0) {
 			return enrolled;
@@ -922,33 +935,35 @@ public class APKBuilder implements ContextBuilder<Object> {
 				IDU idu = candidates.get(next_candidate_idx);
 				if(idu.isVaccineTrialSuitable()) {
 					enrolled.add(idu);
-				} else {
-					candidates.remove(idu);
+				}
+			}
+		} else if(enrMethod == EnrollmentMethodVaccine.harmreduction) {
+			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
+				IDU idu = candidates.get(next_candidate_idx);
+				if (! idu.isInHarmReduction()) {
+					continue;
+				}
+				if(idu.isVaccineTrialSuitable()) {
+					enrolled.add(idu);
 				}
 			}
 		} else if(enrMethod == EnrollmentMethodVaccine.positive_innetwork) {
 			for(; (enrolled.size() < enrollment_target) && (next_candidate_idx < candidates.size()); ++next_candidate_idx) {
 				IDU idu = candidates.get(next_candidate_idx); //no need to do more shuffling RandomHelper.nextIntFromTo(0, candidates.size()-1));
-				//if(! idu.isVaccineTrialSuitable()) {
-				//	continue;
-				//}
-				//enrolled.add(idu);
-				if(idu == null) {
-					System.out.println(candidates.size());
-					int i = 1; //error
-				}
+//				if(idu == null) {
+//					System.out.println(candidates.size());
+//					int i = 1; //error
+//				}
 				Iterable nbs = null;
 				nbs = network.getSuccessors(idu);
 				if (nbs == null) {
-					continue; //idu removed from context
+					continue;
 				}
 				for(Object nb : nbs) {
 					if ((nb != null) && (nb instanceof IDU)) {
 						if (((IDU)nb).isVaccineTrialSuitable()) {
 							enrolled.add((IDU)nb);
 							break; //only ONE to avoid non-independence of samples
-						} else {
-							candidates.remove(idu);
 						}
 					}
 				}
