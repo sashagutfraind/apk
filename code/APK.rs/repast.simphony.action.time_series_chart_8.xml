@@ -1,4 +1,4 @@
-<repast.simphony.chart2.engine.TimeSeriesChartDescriptor simphonyVersion="2.5.0">
+<repast.simphony.chart2.engine.TimeSeriesChartDescriptor simphonyVersion="2.8.0">
   <name>Prevalence</name>
   <dataSet>PrevalenceData</dataSet>
   <xAxisLabel>Time(days)</xAxisLabel>

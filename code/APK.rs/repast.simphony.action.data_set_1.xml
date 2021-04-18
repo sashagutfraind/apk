@@ -1,4 +1,4 @@
-<repast.simphony.data2.engine.DataSetDescriptor simphonyVersion="2.5.0">
+<repast.simphony.data2.engine.DataSetDescriptor simphonyVersion="2.8.0">
   <name>PopulationData</name>
   <type>AGGREGATE</type>
   <sourceType>Boolean</sourceType>

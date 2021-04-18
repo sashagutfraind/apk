@@ -1,4 +1,4 @@
-<repast.simphony.data2.engine.FileSinkDescriptor simphonyVersion="2.5.0">
+<repast.simphony.data2.engine.FileSinkDescriptor simphonyVersion="2.8.0">
   <name>HCV</name>
   <dataSet>HCV_Data</dataSet>
   <delimiter>,</delimiter>

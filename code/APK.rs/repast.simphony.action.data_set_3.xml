@@ -1,4 +1,4 @@
-<repast.simphony.data2.engine.DataSetDescriptor simphonyVersion="2.5.0">
+<repast.simphony.data2.engine.DataSetDescriptor simphonyVersion="2.8.0">
   <name>PrevalenceData</name>
   <type>AGGREGATE</type>
   <sourceType>edu.uic.apk.Statistics</sourceType>
