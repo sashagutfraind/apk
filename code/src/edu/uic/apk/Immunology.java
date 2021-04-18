@@ -52,7 +52,7 @@ public class Immunology implements java.io.Serializable {
 
 	private static enum VACCINE_SCHEDULE_ENUM {D1E00,
 											  D1E50, D1E60, D1E70, D1E80,
-											  D2E50, D2E60, D2E70, D2E80,
+											  D2E50, D2E60, D2E70, D2E80, D2E85,
 											  D3E50, D3E60, D3E70, D3E80, NONE}; //always upper case
 	private static VACCINE_SCHEDULE_ENUM vaccine_schedule = VACCINE_SCHEDULE_ENUM.NONE;
 											  
@@ -324,6 +324,7 @@ public class Immunology implements java.io.Serializable {
 			case D2E60:
 			case D2E70:
 			case D2E80:
+			case D2E85:
 				vaccine_doses = 2;
 				break;
 			case D3E50:
@@ -362,6 +363,9 @@ public class Immunology implements java.io.Serializable {
 			case D2E80:
 			case D3E80:
 				vaccine_max_ve = 0.8;
+				break;
+			case D2E85:
+				vaccine_max_ve = 0.85;
 				break;
 			default:
 				System.err.println("Vaccine schedule " + vaccine_schedule + " not implemented.  Exiting");
