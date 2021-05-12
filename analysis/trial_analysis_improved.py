@@ -1,22 +1,19 @@
-
-# ## Analyze trial results
+""" Perform analysis on the APK model output populations data.
+"""
 
 import pandas as pd
-import os, sys
+import os
 import os.path
 import numpy as np
 import scipy
 import scipy.stats
-import matplotlib.pyplot as plt
-from IPython.display import HTML, display
-import tabulate, csv
+import csv
 
 def trial_analysis(experiment_dir):
-	print('Processing folder ' + experiment_dir)
+	print('Populations processing folder ' + experiment_dir)
 	file_signature = 'populations.csv'
 
 	run_number = experiment_dir.split('instance_')[-1]	
-	
 	run_output_dir = experiment_dir + '/output'
 	
 	trial_end_date = 1400
