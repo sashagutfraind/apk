@@ -614,7 +614,10 @@ public class Immunology implements java.io.Serializable {
 		double immunity_fractional_boost = 0; //fraction of the most recent dose contributing to the immunity
 		if (days_since_last_dose > VACCINE_ONSET_OF_IMMUNITY_DAY && days_since_last_dose < VACCINE_MAX_INDUCED_IMMUNITY_DAY)  {
 			//between doses
-			immunity_fractional_boost = (days_since_last_dose-VACCINE_ONSET_OF_IMMUNITY_DAY)/(VACCINE_MAX_INDUCED_IMMUNITY_DAY-VACCINE_ONSET_OF_IMMUNITY_DAY);
+			immunity_fractional_boost = (days_since_last_dose-VACCINE_ONSET_OF_IMMUNITY_DAY)/
+									(VACCINE_MAX_INDUCED_IMMUNITY_DAY-VACCINE_ONSET_OF_IMMUNITY_DAY);
+			
+			
 		} else {
 			//waiting for the next one, or finished the dose series
 			immunity_fractional_boost = 1.0;
