@@ -1,3 +1,19 @@
+2022-04-19
+----------
+Added bounds for some stochastically-generated immunological parameters 
+ 
+2021-04-08
+----------
+support for recruitment from HR program
+
+
+2021-02-21
+----------
+New vaccine trial functionality
+Prototype treatment functionality
+Upgraded to Repast 2.8
+
+
 2015-12-30
 ---------------------------
 changes

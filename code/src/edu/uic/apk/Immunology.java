@@ -37,6 +37,13 @@ public class Immunology implements java.io.Serializable {
 	private final double VACCINE_MAX_INDUCED_IMMUNITY_DAY = 28;
 	public static enum TRIAL_ARM {placebo, study, noarm}; //only changes once
 
+	public static final double ACUTE_NAIVE_DAYS_MIN = 77;
+	public static final double ACUTE_NAIVE_DAYS_MAX = 127;
+	public static final double ACUTE_RECHALLENGED_DAYS_MIN = 8;
+	public static final double ACUTE_RECHALLENGED_DAYS_MAX = 48;
+	public static final double BECOME_INFECTIOUS_DAYS_MIN = 2;
+	public static final double BECOME_INFECTIOUS_DAYS_MAX = 4;
+
 	private static double mean_days_acute_naive          	= Double.NaN; //approx. 102; 
 	private static double mean_days_acute_rechallenged   	= Double.NaN; //approx. 28; 
 	private static double mean_days_naive_to_infectious  	= Double.NaN; //approx. 3; 
@@ -103,6 +110,40 @@ public class Immunology implements java.io.Serializable {
 		//TODO: we currently do not clean them when the action is executed, and hence the array might actually hold spent actions.
 	}
 
+	private static double generate_truncated_exponential(String var_name) {
+		double mean_parameter = 0;
+		double min_bound = 0;
+		double max_bound = 0;
+		if(var_name == "acute_naive") {
+			mean_parameter = mean_days_acute_naive;
+			min_bound = ACUTE_NAIVE_DAYS_MIN;
+			max_bound = ACUTE_NAIVE_DAYS_MAX;
+		} else if (var_name == "acute_rechallenged") {
+			mean_parameter = mean_days_acute_rechallenged;
+			min_bound = ACUTE_RECHALLENGED_DAYS_MIN;
+			max_bound = ACUTE_RECHALLENGED_DAYS_MAX;
+		} else if (var_name == "become_infectious") {
+			mean_parameter = mean_days_naive_to_infectious;
+			min_bound = BECOME_INFECTIOUS_DAYS_MIN;
+			max_bound = BECOME_INFECTIOUS_DAYS_MAX;
+		} else {
+			System.err.println("Distribution for " + var_name + " not recognized.  Exiting");
+			System.exit(-1);	
+		}
+		
+		double days = 0;
+		for(int i=0; i<1000; ++i) {
+			days = RandomHelper.createExponential(1./mean_parameter).nextDouble();
+			if ((days >= min_bound) && (days <= max_bound)) {
+				//System.out.println("Generated duration for " + var_name + ": "+ days);
+				return days;
+			}
+			//System.out.println("REJECTED duration for " + var_name + ": " + days);
+		}
+		System.err.println("Inserting default value for " + var_name + ". Is the corresponding parameter out of bounds (hardcoded)?");
+		return (min_bound + max_bound)/2;
+	}
+	
 	/*
 	 * this IDU exposes a partner.  this might lead to an infection.
 	 * the method simulates a contact
@@ -244,7 +285,7 @@ public class Immunology implements java.io.Serializable {
 //				break;
 			case infectiousacute:
 				double acute_end_time = (int)RunEnvironment.getInstance().getCurrentSchedule().getTickCount();
-				acute_end_time += RandomHelper.createExponential(1./mean_days_acute_naive).nextDouble();	
+				acute_end_time += generate_truncated_exponential("acute_naive");	
 				ScheduleParameters acute_end_params = ScheduleParameters.createOneTime(acute_end_time);
 				ISchedule schedule = RunEnvironment.getInstance().getCurrentSchedule();
 				next_immunology_actions.add(schedule.schedule(acute_end_params, this, "leave_acute"));
@@ -492,16 +533,15 @@ public class Immunology implements java.io.Serializable {
 		double time_now = (int)RunEnvironment.getInstance().getCurrentSchedule().getTickCount();
 		
 		ISchedule schedule = RunEnvironment.getInstance().getCurrentSchedule();
-		double exposed_end_time = time_now  
-		   		  + RandomHelper.createExponential(1./mean_days_naive_to_infectious).nextDouble();
+		double exposed_end_time = time_now +  generate_truncated_exponential("become_infectious");
 		ScheduleParameters exposed_end_params = ScheduleParameters.createOneTime(exposed_end_time);
 		next_immunology_actions.add(schedule.schedule(exposed_end_params, this, "leave_exposed"));
 
 		double acute_end_time;
 		if (! past_recovered) {
-			acute_end_time = time_now + RandomHelper.createExponential(1./mean_days_acute_naive).nextDouble();	
+			acute_end_time = time_now + generate_truncated_exponential("acute_naive");	
 		} else {
-			acute_end_time = time_now + RandomHelper.createExponential(1./mean_days_acute_rechallenged).nextDouble();
+			acute_end_time = time_now + generate_truncated_exponential("acute_rechallenged");
 		}					
 		acute_end_time = Math.max(acute_end_time, exposed_end_time + 0.1); //ensure correct sequencing
 		//wishlist: possibly modify duration with vaccine
