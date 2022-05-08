@@ -92,14 +92,14 @@ public class APKBuilder implements ContextBuilder<Object> {
 
 		
 	public static void main(String[] args) {
-		getDistanceTest();
+		//getDistanceTest();
 	}
 	private static Context context;
 	private static Geography geography;
 	private static Network network;
 
 	public static boolean burn_in_mode 		  	         = true;
-	private ArrayList<AgentFactory> factories               = new ArrayList<AgentFactory> ();
+	private ArrayList<AgentFactory> factories            = new ArrayList<AgentFactory> ();
 	private final double  linking_time_window 		     = 0.1;
 	private final double  excess_serosorting              = 0.0; //no longer used
 	private static double interaction_home_cutoff         = Double.NaN;  //distance where the decay in the interaction rate starts
@@ -194,7 +194,12 @@ public class APKBuilder implements ContextBuilder<Object> {
 		interaction_rate_constant 		 = (Double)params.getValue("interaction_rate_constant");
 		interaction_rate_at_drug_sites	 = (Double)params.getValue("interaction_rate_at_drug_sites");
 		interaction_rate_exzone 		 = (Double)params.getValue("interaction_rate_exzone");
-		getDistanceTest();
+		//getDistanceTest();
+		if(interaction_home_cutoff < 0.1 || interaction_home_cutoff > 200){ 
+			System.err.println("interaction_home_cutoff too large...");
+			System.exit(1);
+		}
+
 		
 		zone_zone_distance    = new HashMap <ZoneAgent,HashMap<ZoneAgent,Double>> ();
 		for(ZoneAgent zone1 : zip_to_zones.values()) {  //very broad, constant values
@@ -266,7 +271,7 @@ public class APKBuilder implements ContextBuilder<Object> {
 		IDUbuilder1 factory1 = new IDUbuilder1(context, population_params, extra_params);
 
 		//special code to output the 5000-sized CNEP population; 
-		/* FIXME: 
+		/* TODO: 
 		 * better support loading from CNEP+ file: it is suspected that this function would only work correctly if we generate from surveys.
 		 * the problem is that the function iterates overs keys from 1 to N, but it may not work when we do CNEP+
 		 */
@@ -612,10 +617,6 @@ public class APKBuilder implements ContextBuilder<Object> {
 		assert dis > 1.4;
 		if(Math.abs(dis-true_dis) > 0.5 ){ 
 			System.err.println("Failed distance test ...");
-			System.exit(1);
-		}
-		if(interaction_home_cutoff < 0.1 || interaction_home_cutoff > 200){ 
-			System.err.println("interaction_home_cutoff too large...");
 			System.exit(1);
 		}
 	}
@@ -975,8 +976,9 @@ public class APKBuilder implements ContextBuilder<Object> {
 	
 	public void vaccine_trial_start(IDU idu) {
 		Immunology.TRIAL_ARM arm = (vaccine_study_enrolled % 2 == 0)? Immunology.TRIAL_ARM.study : Immunology.TRIAL_ARM.placebo; //ensure strict balance
+				
 		idu.setCurrent_trial_arm(arm);
-//		System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
+		//System.out.println("IDU: " + idu.getSimID() + " Arm:" + arm.toString());
 		vaccine_study_enrolled++;  //deterministic to maximize balance
 
 		vaccine_trial_advance(idu, VACCINE_STAGE.received_dose1, 0);

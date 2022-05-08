@@ -970,7 +970,7 @@ public class Statistics {
 	/* annual reports of the simulation.  
 	 * 	this is in addition to the agents' status on THEIR anniversary.
 	 * 
-	 * TODO: is this hardcoding the burnin period?  change the scheduling
+	 * TODO: is this hardcoding the burnin period?  write: use the the parameter and add to scheduler
 	 */
 	@ScheduledMethod(start = 365, interval=365)
 	public void recordRegularStats() {

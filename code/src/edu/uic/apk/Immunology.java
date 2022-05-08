@@ -634,11 +634,9 @@ public class Immunology implements java.io.Serializable {
 				return (treatment_susceptibility < RandomHelper.nextDouble());
 			}
 			//infection might self-limit due to either naive response, or with history of recovery
-			double prob_self_limiting = probability_self_limiting(); 
-			
-			return prob_self_limiting > RandomHelper.nextDouble();
+			return probability_self_limiting() > RandomHelper.nextDouble();
 		} else {
-			return does_vaccinee_recover();
+			return does_vaccinee_recover(); //includes placebo arm
 		}
 	}
 	

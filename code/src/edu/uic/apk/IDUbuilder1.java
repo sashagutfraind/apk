@@ -346,7 +346,7 @@ public class IDUbuilder1 implements AgentFactory {
 		HashMap <String, Object> generator_params = new HashMap<String, Object> ();
 		generator_params.put("max_trials", 1);
 		for(Integer iduID = 0; iduID < personGen.catalogueSize(); iduID ++) {
-			//FIXME: depending on the generator, the ID would refer to the CNEP or the CNEP+ population; the var name is confusing
+			//TODO: depending on the generator, the ID would refer to the CNEP or the CNEP+ population; the var name is confusing
 			IDU idu = null;
 			try {
 				generator_params.put("db_reference_number", iduID);
