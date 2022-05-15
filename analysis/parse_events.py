@@ -6,6 +6,12 @@ import pandas as pd
 import pdb
 import argparse
 
+
+print('Use parse_events_function.py - the code below is obsolete')
+sys.exit(-1)
+
+
+
 events_fpath = 'events.csv' 
 
 time_between_bleeds = 28
