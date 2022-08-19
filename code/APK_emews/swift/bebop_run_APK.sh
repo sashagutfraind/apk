@@ -25,15 +25,17 @@ check_directory_exists
 
 # TODO edit the number of processes as required.
 #export PROCS=576
-export PROCS=2016
-#export PROCS=36
+#export PROCS=144
+export PROCS=72
 
 # TODO edit QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME
 # as required. Note that QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME will
 # be ignored if the MACHINE variable (see below) is not set.
-export QUEUE=bdwall
-export WALLTIME=02:00:00
-#export WALLTIME=00:30:00
+export QUEUE=dis
+export PROJECT=condo
+#export QUEUE=bdwall
+#export PROJECT=naerm
+export WALLTIME=04:00:00
 export PPN=18
 export TURBINE_JOBNAME="${EXPID}_job"
 
@@ -68,4 +70,4 @@ log_script
 set -x
 
 swift-t -n $PROCS $MACHINE -p $EMEWS_PROJECT_ROOT/swift/swift_run_sweep.swift \
-   -f="$EMEWS_PROJECT_ROOT/data/upf_vaccine_sweep_3.txt" $CMD_LINE_ARGS
+   -f="$EMEWS_PROJECT_ROOT/data/upf_vaccine_experiment_June_20_2022.txt" $CMD_LINE_ARGS
