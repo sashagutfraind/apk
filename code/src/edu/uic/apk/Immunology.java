@@ -538,7 +538,7 @@ public class Immunology implements java.io.Serializable {
 		next_immunology_actions.add(schedule.schedule(exposed_end_params, this, "leave_exposed"));
 
 		double acute_end_time;
-		if (! past_recovered) {
+		if (! past_recovered) { //NOTE: we are implicitly assuming that vaccinees are naive
 			acute_end_time = time_now + generate_truncated_exponential("acute_naive");	
 		} else {
 			acute_end_time = time_now + generate_truncated_exponential("acute_rechallenged");
