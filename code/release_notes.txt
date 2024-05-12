@@ -1,3 +1,7 @@
+2024-05-12
+----------
+Full release with vaccine clinical trial support
+
 2022-04-19
 ----------
 Added bounds for some stochastically-generated immunological parameters 

@@ -1,1 +1,1 @@
-The APK model is licensed as provided for by the authors. Please contact them for details.
+The HepCEP model is licensed as provided for by the authors. Please contact them for details.

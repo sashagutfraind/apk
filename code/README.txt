@@ -1,15 +1,36 @@
-Installing APK
+Installing HepCEP (formerly APK)
 --------------------------------------
-To install APK, click on the setup jar file, or from the command line use java -jar APK_SETUP.jar
+To install the software, click on the setup jar file, or from the command line use java -jar APK_SETUP.jar
 
 System Requirements
-* Java SE 7 or higher
-* For graphics: 
+* Java SE (JDK 11)
+* Compiled in Eclipse 2021-06 (4.20.0) with RepastSimphony-2.9.1
+* For optional graphics (geographic network visualization): 
 	- Live Internet connection
 	- Certain java graphics libraries (Java3D,jogl)
 	- Graphics card and drive that supports advanced features (textures, OpenGL)
 
-Running APK from the GUI
+Warning: the authors normally run the simulation in batch mode from cnep data
+Other execution modes and functionalities are stale
+
+Data files
+----------
+* the simulation normally runs from CNEP+ data: data/cnep_plus_all_2018.02.13.csv
+* alternatively, it can run from raw data in NEP and NHBS files 
+* datagen folder constructs synthetic NEP and NHBS files
+
+
+Running in batch mode
+-------------------------
+1. adjust the parameters file and save them in batch/batch_params.xml
+
+2. run batch.bat (Windows) or batch.command (Unix) 
+See the output in APK\output
+
+Make sure to copy the files from this directory, otherwise
+
+
+Running from the GUI (deprecated)
 -------------------------
 * Start the program by running start_model.bat (Windows) or start_model.command (Unix and Mac)
 
@@ -42,16 +63,6 @@ Original (HIPAA-protected) data might be available upon written agreement from t
 ** population.csv: daily summary of the population status
 ** statusRegular.csv: states of all the agents, reported each year (i.e. on ticks 365, 2*365, 3*365 etc)
 ** status.csv: status of all the agents reported each year from the time they were activated
-
-
-Running APK in batch mode
--------------------------
-1. adjust the parameters file and save them in batch/batch_params.xml
-
-2. run batch.bat (Windows) or batch.command (Unix) 
-See the output in APK\output
-
-Make sure to copy the files from this directory, otherwise
 
 Questions:
 ------------
@@ -125,14 +136,10 @@ Generally, we know that empirically there are almost no HCV infections occurring
 Although imprisonment rates are quite high among IDUs, we do not have good data.
 For now, all the agents stay within the community for the entire simulation.
 
-APK has a number of dependencies:
-* Repast Simphony 2.1
-* Java SE 7 or higher
+HepCEP (APK) has a number of dependencies:
+* Repast Simphony 2.9
+* Java SE 11 or higher
 * JODA for calendar functionality
 * WEKA for machine learning / imputation of the synthetic population
 
 
-			
-Known problems
----------------
-* Statistical output gives partial rows from time to time.  The reasons is unknown.
