@@ -1,0 +1,843 @@
+{smcl}
+{txt}{sf}{ul off}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\mmamiti\Box\My Projects\Modeling HCV Vaccine\vaccine trial sim\May 2022 sim analysis\vac trial sim analysis code and data\monthly 50\VE50_May22_meta-summary.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}30 May 2024, 14:52:47
+{txt}
+{com}. 
+. ** check ci symmetry 
+. summ diff, d
+
+                            {txt}diff
+{hline 61}
+      Percentiles      Smallest
+ 1%    {res}  .004185        .000749
+{txt} 5%    {res} .0072733       .0032877
+{txt}10%    {res} .0094968       .0039732       {txt}Obs         {res}        500
+{txt}25%    {res} .0134184        .004112       {txt}Sum of wgt. {res}        500
+
+{txt}50%    {res} .0191368                      {txt}Mean          {res} .0195829
+                        {txt}Largest       Std. dev.     {res} .0085324
+{txt}75%    {res} .0241188       .0437888
+{txt}90%    {res} .0300862       .0512921       {txt}Variance      {res} .0000728
+{txt}95%    {res} .0358969       .0530316       {txt}Skewness      {res} .7071733
+{txt}99%    {res} .0427098       .0532877       {txt}Kurtosis      {res} 3.836914
+{txt}
+{com}. list pfe irr_chronic lb_irr ub_irr log_irr_chronic log_lb_irr log_ub_irr if diff>.5
+{txt}
+{com}. 
+. ** common effect model
+. meta set log_irr_chronic log_lb_irr log_ub_irr, studylabel(trial) studysize(total_N) common civartolerance(.035)
+
+{txt}Meta-analysis setting information
+
+{col 2}Study information
+{col 5}No. of studies: {res}500
+{col 8}{txt}Study label: {res}trial
+{col 9}{txt}Study size: {res}total_N
+
+{col 8}{txt}Effect size
+{col 15}Type: <generic>
+{col 14}Label: Effect size
+{col 11}Variable: {res}log_irr_chronic
+
+{col 10}{txt}Precision
+{col 10}Std. err.: {res}_meta_se
+{col 17}{txt}CI: [{res}_meta_cil{txt}, {res}_meta_ciu{txt}]
+{col 11}CI level: {res}95{txt}%, controlled by {res}level()
+{col 12}{txt}User CI: [{res}log_lb_irr{txt}, {res}log_ub_irr{txt}]
+{col 6}User CI level: {res}95{txt}%, controlled by {res}civarlevel()
+
+{txt}{col 3}Model and method
+{col 14}Model: Common effect
+{col 13}Method: Inverse-variance
+
+{com}. meta sum, common eform nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Estimate{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}  exp(theta){col 14}{c |}{res}{space 3} .5180975{col 27}{space 3} .0054982{col 39}{space 1} -61.96{col 47}{space 3}0.000{col 55}{space 3} .5074324{col 67}{space 3} .5289867
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. meta sum, common transform(efficacy) nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{p 9 15 0 77}f(@): 1 - exp(@){p_end}
+{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Efficacy{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}    f(theta){col 14}{c |}{res}{space 3} .4819025{col 27}{space 3} .0054982{col 39}{space 1} -61.96{col 47}{space 3}0.000{col 55}{space 3} .4710133{col 67}{space 3} .4925676
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. 
+. ** exposed
+. meta set log_irr_chronic_exp log_lb_irr_exp log_ub_irr_exp, studylabel(trial) studysize(total_N) common civartolerance(.035)
+
+{txt}Meta-analysis setting information
+
+{col 2}Study information
+{col 5}No. of studies: {res}500
+{col 8}{txt}Study label: {res}trial
+{col 9}{txt}Study size: {res}total_N
+
+{col 8}{txt}Effect size
+{col 15}Type: <generic>
+{col 14}Label: Effect size
+{col 11}Variable: {res}log_irr_chronic_exp
+
+{col 10}{txt}Precision
+{col 10}Std. err.: {res}_meta_se
+{col 17}{txt}CI: [{res}_meta_cil{txt}, {res}_meta_ciu{txt}]
+{col 11}CI level: {res}95{txt}%, controlled by {res}level()
+{col 12}{txt}User CI: [{res}log_lb_irr_exp{txt}, {res}log_ub_irr_exp{txt}]
+{col 6}User CI level: {res}95{txt}%, controlled by {res}civarlevel()
+
+{txt}{col 3}Model and method
+{col 14}Model: Common effect
+{col 13}Method: Inverse-variance
+
+{com}. meta sum, common eform nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic_exp
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Estimate{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}  exp(theta){col 14}{c |}{res}{space 3} .4342139{col 27}{space 3}  .004608{col 39}{space 1} -78.61{col 47}{space 3}0.000{col 55}{space 3} .4252756{col 67}{space 3}   .44334
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. meta sum, common transform(efficacy) nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic_exp
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{p 9 15 0 77}f(@): 1 - exp(@){p_end}
+{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Efficacy{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}    f(theta){col 14}{c |}{res}{space 3} .5657861{col 27}{space 3}  .004608{col 39}{space 1} -78.61{col 47}{space 3}0.000{col 55}{space 3}   .55666{col 67}{space 3} .5747244
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. 
+. ** random effects model
+. meta set log_irr_chronic log_lb_irr log_ub_irr, studylabel(trial) studysize(total_N) civartolerance(.035)
+
+{txt}Meta-analysis setting information
+
+{col 2}Study information
+{col 5}No. of studies: {res}500
+{col 8}{txt}Study label: {res}trial
+{col 9}{txt}Study size: {res}total_N
+
+{col 8}{txt}Effect size
+{col 15}Type: <generic>
+{col 14}Label: Effect size
+{col 11}Variable: {res}log_irr_chronic
+
+{col 10}{txt}Precision
+{col 10}Std. err.: {res}_meta_se
+{col 17}{txt}CI: [{res}_meta_cil{txt}, {res}_meta_ciu{txt}]
+{col 11}CI level: {res}95{txt}%, controlled by {res}level()
+{col 12}{txt}User CI: [{res}log_lb_irr{txt}, {res}log_ub_irr{txt}]
+{col 6}User CI level: {res}95{txt}%, controlled by {res}civarlevel()
+
+{txt}{col 3}Model and method
+{col 14}Model: Random effects
+{col 13}Method: REML
+
+{com}. meta regress rr_convert
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+
+{txt}Random-effects meta-regression{col 53}Number of obs{col 68}= {res}      500
+{txt}Method: REML{res} {txt}{col 53}Residual heterogeneity:
+{col 65}tau2{col 70}={res} 7.3e-09
+{txt}{col 63}I2 (%){col 70}= {res}   0.00
+{txt}{col 67}H2{col 70}= {res}   1.00
+{txt}{col 56}R-squared (%){col 70}= {res}  96.00
+{txt}{col 53}Wald chi2({res}1{txt}){col 68}= {res}   203.96
+{txt}{col 53}Prob > chi2{col 68}= {res}   0.0000
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    _meta_es{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 2}rr_convert {c |}{col 14}{res}{space 2} 1.008813{col 26}{space 2}  .070638{col 37}{space 1}   14.28{col 46}{space 3}0.000{col 54}{space 4} .8703654{col 67}{space 3} 1.147261
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-1.688035{col 26}{space 2} .0729288{col 37}{space 1}  -23.15{col 46}{space 3}0.000{col 54}{space 4}-1.830973{col 67}{space 3}-1.545097
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Test of residual homogeneity: Q_res = chi2({res}498{txt}) = {res}262.44{txt}{col 58}Prob > Q_res = {res}1.0000
+{txt}
+{com}. meta regress ir_acute
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+
+{txt}Random-effects meta-regression{col 53}Number of obs{col 68}= {res}      500
+{txt}Method: REML{res} {txt}{col 53}Residual heterogeneity:
+{col 65}tau2{col 70}={res} 1.1e-07
+{txt}{col 63}I2 (%){col 70}= {res}   0.00
+{txt}{col 67}H2{col 70}= {res}   1.00
+{txt}{col 56}R-squared (%){col 70}= {res}  39.35
+{txt}{col 53}Wald chi2({res}1{txt}){col 68}= {res}     0.79
+{txt}{col 53}Prob > chi2{col 68}= {res}   0.3749
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    _meta_es{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}ir_acute {c |}{col 14}{res}{space 2}-2.965372{col 26}{space 2} 3.341859{col 37}{space 1}   -0.89{col 46}{space 3}0.375{col 54}{space 4}-9.515295{col 67}{space 3} 3.584551
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.5440404{col 26}{space 2} .1284074{col 37}{space 1}   -4.24{col 46}{space 3}0.000{col 54}{space 4}-.7957142{col 67}{space 3}-.2923667
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Test of residual homogeneity: Q_res = chi2({res}498{txt}) = {res}465.62{txt}{col 58}Prob > Q_res = {res}0.8480
+{txt}
+{com}. meta regress pct_chronic1
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+
+{txt}Random-effects meta-regression{col 53}Number of obs{col 68}= {res}      500
+{txt}Method: REML{res} {txt}{col 53}Residual heterogeneity:
+{col 65}tau2{col 70}={res} 4.5e-07
+{txt}{col 63}I2 (%){col 70}= {res}   0.00
+{txt}{col 67}H2{col 70}= {res}   1.00
+{txt}{col 56}R-squared (%){col 70}= {res}   0.00
+{txt}{col 53}Wald chi2({res}1{txt}){col 68}= {res}   143.18
+{txt}{col 53}Prob > chi2{col 68}= {res}   0.0000
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    _meta_es{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+pct_chronic1 {c |}{col 14}{res}{space 2}-.2409827{col 26}{space 2} .0201395{col 37}{space 1}  -11.97{col 46}{space 3}0.000{col 54}{space 4}-.2804553{col 67}{space 3}  -.20151
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2700138{col 26}{space 2} .0782452{col 37}{space 1}    3.45{col 46}{space 3}0.001{col 54}{space 4}  .116656{col 67}{space 3} .4233716
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Test of residual homogeneity: Q_res = chi2({res}498{txt}) = {res}323.22{txt}{col 58}Prob > Q_res = {res}1.0000
+{txt}
+{com}. meta regress ir_acute rr_convert
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+
+{txt}Random-effects meta-regression{col 53}Number of obs{col 68}= {res}      500
+{txt}Method: REML{res} {txt}{col 53}Residual heterogeneity:
+{col 65}tau2{col 70}={res} 7.0e-07
+{txt}{col 63}I2 (%){col 70}= {res}   0.00
+{txt}{col 67}H2{col 70}= {res}   1.00
+{txt}{col 56}R-squared (%){col 70}= {res}   0.00
+{txt}{col 53}Wald chi2({res}2{txt}){col 68}= {res}   204.11
+{txt}{col 53}Prob > chi2{col 68}= {res}   0.0000
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    _meta_es{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}ir_acute {c |}{col 14}{res}{space 2}-1.291152{col 26}{space 2} 3.343939{col 37}{space 1}   -0.39{col 46}{space 3}0.699{col 54}{space 4}-7.845152{col 67}{space 3} 5.262847
+{txt}{space 2}rr_convert {c |}{col 14}{res}{space 2} 1.007855{col 26}{space 2}  .070682{col 37}{space 1}   14.26{col 46}{space 3}0.000{col 54}{space 4}  .869321{col 67}{space 3}  1.14639
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-1.637615{col 26}{space 2} .1495678{col 37}{space 1}  -10.95{col 46}{space 3}0.000{col 54}{space 4}-1.930762{col 67}{space 3}-1.344467
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Test of residual homogeneity: Q_res = chi2({res}497{txt}) = {res}262.29{txt}{col 58}Prob > Q_res = {res}1.0000
+{txt}
+{com}. * predicted log IRR 
+. margins, at(rr_convert=(0.6 0.8 1 1.2 1.4 1.6))
+{res}
+{txt}{col 1}Predictive margins{col 60}{lalign 13:Number of obs}{col 73} = {res}{ralign 3:500}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Fitted values; fixed portion (xb), predict(fitted fixedonly)}{p_end}
+{p2colreset}{...}
+{lalign 7:1._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:.6}}
+{lalign 7:2._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:.8}}
+{lalign 7:3._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1}}
+{lalign 7:4._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1.2}}
+{lalign 7:5._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1.4}}
+{lalign 7:6._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1.6}}
+
+{res}{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26} Delta-method
+{col 14}{c |}     Margin{col 26}   std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}_at {c |}
+{space 10}1  {c |}{col 14}{res}{space 2}-1.082343{col 26}{space 2} .0316222{col 37}{space 1}  -34.23{col 46}{space 3}0.000{col 54}{space 4}-1.144322{col 67}{space 3}-1.020365
+{txt}{space 10}2  {c |}{col 14}{res}{space 2}-.8807721{col 26}{space 2} .0189104{col 37}{space 1}  -46.58{col 46}{space 3}0.000{col 54}{space 4}-.9178359{col 67}{space 3}-.8437084
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.6792011{col 26}{space 2} .0107201{col 37}{space 1}  -63.36{col 46}{space 3}0.000{col 54}{space 4}-.7002121{col 67}{space 3}-.6581901
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}  -.47763{col 26}{space 2} .0164897{col 37}{space 1}  -28.97{col 46}{space 3}0.000{col 54}{space 4}-.5099493{col 67}{space 3}-.4453107
+{txt}{space 10}5  {c |}{col 14}{res}{space 2} -.276059{col 26}{space 2}  .028785{col 37}{space 1}   -9.59{col 46}{space 3}0.000{col 54}{space 4}-.3324767{col 67}{space 3}-.2196414
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0744879{col 26}{space 2} .0422483{col 37}{space 1}   -1.76{col 46}{space 3}0.078{col 54}{space 4}-.1572932{col 67}{space 3} .0083173
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. margins, dydx(rr_convert)
+{res}
+{txt}{col 1}Average marginal effects{col 60}{lalign 13:Number of obs}{col 73} = {res}{ralign 3:500}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Fitted values; fixed portion (xb), predict(fitted fixedonly)}{p_end}
+{p2col:dy/dx wrt:}{res:rr_convert}{p_end}
+{p2colreset}{...}
+
+{res}{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26} Delta-method
+{col 14}{c |}      dy/dx{col 26}   std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 2}rr_convert {c |}{col 14}{res}{space 2} 1.007855{col 26}{space 2}  .070682{col 37}{space 1}   14.26{col 46}{space 3}0.000{col 54}{space 4}  .869321{col 67}{space 3}  1.14639
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. predict log_pred_irr_meta
+{txt}(option {bf:xb} assumed; fitted values)
+
+{com}. gen pred_irr_meta=exp(log_pred_irr_meta)
+{txt}
+{com}. gen pred_VE = 1-pred_irr_meta
+{txt}
+{com}. lab var pred_VE "Predicted vaccine efficacy"
+{txt}
+{com}. 
+. gen rr_convert10 = rr_convert*10
+{txt}
+{com}. meta regress ir_acute rr_convert10
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic
+{txt}{col 11}Std. err.: {res}_meta_se
+
+{txt}Random-effects meta-regression{col 53}Number of obs{col 68}= {res}      500
+{txt}Method: REML{res} {txt}{col 53}Residual heterogeneity:
+{col 65}tau2{col 70}={res} 7.0e-07
+{txt}{col 63}I2 (%){col 70}= {res}   0.00
+{txt}{col 67}H2{col 70}= {res}   1.00
+{txt}{col 56}R-squared (%){col 70}= {res}   0.00
+{txt}{col 53}Wald chi2({res}2{txt}){col 68}= {res}   204.11
+{txt}{col 53}Prob > chi2{col 68}= {res}   0.0000
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    _meta_es{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}ir_acute {c |}{col 14}{res}{space 2}-1.291152{col 26}{space 2} 3.343939{col 37}{space 1}   -0.39{col 46}{space 3}0.699{col 54}{space 4}-7.845152{col 67}{space 3} 5.262847
+{txt}rr_convert10 {c |}{col 14}{res}{space 2} .1007855{col 26}{space 2} .0070682{col 37}{space 1}   14.26{col 46}{space 3}0.000{col 54}{space 4} .0869321{col 67}{space 3}  .114639
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-1.637615{col 26}{space 2} .1495678{col 37}{space 1}  -10.95{col 46}{space 3}0.000{col 54}{space 4}-1.930762{col 67}{space 3}-1.344467
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Test of residual homogeneity: Q_res = chi2({res}497{txt}) = {res}262.29{txt}{col 58}Prob > Q_res = {res}1.0000
+{txt}
+{com}. margins, at(rr_convert10=(6 8 10 12 14 16))
+{res}
+{txt}{col 1}Predictive margins{col 60}{lalign 13:Number of obs}{col 73} = {res}{ralign 3:500}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Fitted values; fixed portion (xb), predict(fitted fixedonly)}{p_end}
+{p2colreset}{...}
+{lalign 7:1._at: }{space 0}{lalign 12:rr_convert10} = {res:{ralign 2:6}}
+{lalign 7:2._at: }{space 0}{lalign 12:rr_convert10} = {res:{ralign 2:8}}
+{lalign 7:3._at: }{space 0}{lalign 12:rr_convert10} = {res:{ralign 2:10}}
+{lalign 7:4._at: }{space 0}{lalign 12:rr_convert10} = {res:{ralign 2:12}}
+{lalign 7:5._at: }{space 0}{lalign 12:rr_convert10} = {res:{ralign 2:14}}
+{lalign 7:6._at: }{space 0}{lalign 12:rr_convert10} = {res:{ralign 2:16}}
+
+{res}{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26} Delta-method
+{col 14}{c |}     Margin{col 26}   std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}_at {c |}
+{space 10}1  {c |}{col 14}{res}{space 2}-1.082343{col 26}{space 2} .0316222{col 37}{space 1}  -34.23{col 46}{space 3}0.000{col 54}{space 4}-1.144322{col 67}{space 3}-1.020365
+{txt}{space 10}2  {c |}{col 14}{res}{space 2}-.8807721{col 26}{space 2} .0189104{col 37}{space 1}  -46.58{col 46}{space 3}0.000{col 54}{space 4}-.9178359{col 67}{space 3}-.8437084
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.6792011{col 26}{space 2} .0107201{col 37}{space 1}  -63.36{col 46}{space 3}0.000{col 54}{space 4}-.7002121{col 67}{space 3}-.6581901
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}  -.47763{col 26}{space 2} .0164897{col 37}{space 1}  -28.97{col 46}{space 3}0.000{col 54}{space 4}-.5099494{col 67}{space 3}-.4453107
+{txt}{space 10}5  {c |}{col 14}{res}{space 2} -.276059{col 26}{space 2} .0287851{col 37}{space 1}   -9.59{col 46}{space 3}0.000{col 54}{space 4}-.3324767{col 67}{space 3}-.2196413
+{txt}{space 10}6  {c |}{col 14}{res}{space 2}-.0744879{col 26}{space 2} .0422483{col 37}{space 1}   -1.76{col 46}{space 3}0.078{col 54}{space 4}-.1572932{col 67}{space 3} .0083173
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. margins, dydx(rr_convert10)
+{res}
+{txt}{col 1}Average marginal effects{col 60}{lalign 13:Number of obs}{col 73} = {res}{ralign 3:500}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Fitted values; fixed portion (xb), predict(fitted fixedonly)}{p_end}
+{p2col:dy/dx wrt:}{res:rr_convert10}{p_end}
+{p2colreset}{...}
+
+{res}{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26} Delta-method
+{col 14}{c |}      dy/dx{col 26}   std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+rr_convert10 {c |}{col 14}{res}{space 2} .1007855{col 26}{space 2} .0070682{col 37}{space 1}   14.26{col 46}{space 3}0.000{col 54}{space 4} .0869321{col 67}{space 3}  .114639
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. ** among acute infected
+. meta set log_irr_chronic_exp log_lb_irr_exp log_ub_irr_exp, studylabel(trial) studysize(total_N) common civartolerance(.035)
+
+{txt}Meta-analysis setting information
+
+{col 2}Study information
+{col 5}No. of studies: {res}500
+{col 8}{txt}Study label: {res}trial
+{col 9}{txt}Study size: {res}total_N
+
+{col 8}{txt}Effect size
+{col 15}Type: <generic>
+{col 14}Label: Effect size
+{col 11}Variable: {res}log_irr_chronic_exp
+
+{col 10}{txt}Precision
+{col 10}Std. err.: {res}_meta_se
+{col 17}{txt}CI: [{res}_meta_cil{txt}, {res}_meta_ciu{txt}]
+{col 11}CI level: {res}95{txt}%, controlled by {res}level()
+{col 12}{txt}User CI: [{res}log_lb_irr_exp{txt}, {res}log_ub_irr_exp{txt}]
+{col 6}User CI level: {res}95{txt}%, controlled by {res}civarlevel()
+
+{txt}{col 3}Model and method
+{col 14}Model: Common effect
+{col 13}Method: Inverse-variance
+
+{com}. meta sum, common eform nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic_exp
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Estimate{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}  exp(theta){col 14}{c |}{res}{space 3} .4342139{col 27}{space 3}  .004608{col 39}{space 1} -78.61{col 47}{space 3}0.000{col 55}{space 3} .4252756{col 67}{space 3}   .44334
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. meta sum, common transform(efficacy) nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_irr_chronic_exp
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{p 9 15 0 77}f(@): 1 - exp(@){p_end}
+{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Efficacy{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}    f(theta){col 14}{c |}{res}{space 3} .5657861{col 27}{space 3}  .004608{col 39}{space 1} -78.61{col 47}{space 3}0.000{col 55}{space 3}   .55666{col 67}{space 3} .5747244
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. 
+. ** Cox model
+. meta set log_cox_hr0 log_hr0_ll log_hr0_ul, studylabel(trial) studysize(total_N) common 
+
+{txt}Meta-analysis setting information
+
+{col 2}Study information
+{col 5}No. of studies: {res}500
+{col 8}{txt}Study label: {res}trial
+{col 9}{txt}Study size: {res}total_N
+
+{col 8}{txt}Effect size
+{col 15}Type: <generic>
+{col 14}Label: Effect size
+{col 11}Variable: {res}log_cox_hr0
+
+{col 10}{txt}Precision
+{col 10}Std. err.: {res}_meta_se
+{col 17}{txt}CI: [{res}_meta_cil{txt}, {res}_meta_ciu{txt}]
+{col 11}CI level: {res}95{txt}%, controlled by {res}level()
+{col 12}{txt}User CI: [{res}log_hr0_ll{txt}, {res}log_hr0_ul{txt}]
+{col 6}User CI level: {res}95{txt}%, controlled by {res}civarlevel()
+
+{txt}{col 3}Model and method
+{col 14}Model: Common effect
+{col 13}Method: Inverse-variance
+
+{com}. meta sum, common eform nostudies
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_cox_hr0
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Estimate{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}  exp(theta){col 14}{c |}{res}{space 3} .5127048{col 27}{space 3} .0051451{col 39}{space 1} -66.57{col 47}{space 3}0.000{col 55}{space 3} .5027191{col 67}{space 3} .5228889
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. meta sum, common transform(efficacy) nostudies 
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_cox_hr0
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{p 9 15 0 77}f(@): 1 - exp(@){p_end}
+{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Efficacy{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}    f(theta){col 14}{c |}{res}{space 3} .4872952{col 27}{space 3} .0051451{col 39}{space 1} -66.57{col 47}{space 3}0.000{col 55}{space 3} .4771111{col 67}{space 3} .4972809
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. 
+. ** time to clearance
+. meta set log_hr0_clear log_hr0_clear_ll log_hr0_clear_ul, studylabel(trial) studysize(exposed_total) common 
+
+{txt}Meta-analysis setting information
+
+{col 2}Study information
+{col 5}No. of studies: {res}500
+{col 8}{txt}Study label: {res}trial
+{col 9}{txt}Study size: {res}exposed_total
+
+{col 8}{txt}Effect size
+{col 15}Type: <generic>
+{col 14}Label: Effect size
+{col 11}Variable: {res}log_hr0_clear
+
+{col 10}{txt}Precision
+{col 10}Std. err.: {res}_meta_se
+{col 17}{txt}CI: [{res}_meta_cil{txt}, {res}_meta_ciu{txt}]
+{col 11}CI level: {res}95{txt}%, controlled by {res}level()
+{col 12}{txt}User CI: [{res}log_hr0_clear_ll{txt}, {res}log_hr0_clear_ul{txt}]
+{col 6}User CI level: {res}95{txt}%, controlled by {res}civarlevel()
+
+{txt}{col 3}Model and method
+{col 14}Model: Common effect
+{col 13}Method: Inverse-variance
+
+{com}. meta sum, common eform nostudies
+{res}
+{txt}{col 3}Effect-size label: Effect size
+{col 9}Effect size: {res}log_hr0_clear
+{txt}{col 11}Std. err.: {res}_meta_se
+{txt}{col 9}Study label: {res}trial
+
+{txt}Meta-analysis summary{col 53}Number of studies = {res}   500
+{txt}Common-effect model
+Method: Inverse-variance {res}
+
+{txt}{hline 13}{c TT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 14}{c |}    Estimate{col 27}    Std. err.{col 39}     z{col 47}   P>|z|{col 55}    [95% conf. interval]
+{hline 13}{c +}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+{col 1}  exp(theta){col 14}{c |}{res}{space 3} .9973512{col 27}{space 3} .0128423{col 39}{space 1}  -0.21{col 47}{space 3}0.837{col 55}{space 3} .9724957{col 67}{space 3} 1.022842
+{txt}{hline 13}{c BT}{hline 12}{hline 12}{hline 8}{hline 8}{hline 12}{hline 12}
+
+{com}. 
+. 
+{txt}end of do-file
+
+{com}. do "C:\Users\mmamiti\AppData\Local\Temp\STD331c0_000000.tmp"
+{txt}
+{com}. lab var pct_chronic1 "Prevalence of chronic HCV in placebo group"
+{txt}
+{com}. lab var pct_chronic2 "Prevalence of chronic HCV in treatment group"
+{txt}
+{com}. lab var rr_convert "Acute HCV Risk Ratio"
+{txt}
+{com}. 
+. 
+. lab var rr_convert "Risk ratio of acute HCV infection: study arm vs. placebo"
+{txt}
+{com}. scatter pred_VE rr_convert, msize(small) yti("Predicted VE") graphregion(c(white)) ysc(titlegap(2)) xsc(titlegap(2)) xsize(6) xlab(.4(.2)2.2) ylab(0(.1).8) xli(.75 1.33, lc(cranberry)) yli(.3 .6, lc(midblue) lpattern(dash)) yli(.5, lc(midblue)) caption("(a)") ti("Effect of Trial Arm Balance on Predicted VE over 500 Simulated Trials", size(medlarge)) subti("Model aVE 50%") 
+{res}{txt}
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\mmamiti\AppData\Local\Temp\STD331c0_000000.tmp"
+{txt}
+{com}. scatter pfe rr_convert, msize(small) yti("Estimated VE") graphregion(c(white)) ysc(titlegap(2)) xsc(titlegap(2)) xsize(6) xlab(.4(.2)2.2) ylab(0(.1).8) xli(.75 1.33, lc(cranberry)) yli(.3 .6, lc(midblue) lpattern(dash)) yli(.5, lc(midblue)) caption("(a)") ti("Effect of Trial Arm Balance on Estimated VE in 500 Simulated Trials", size(medlarge)) subti("Model aVE 50%") 
+{res}{txt}
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\mmamiti\AppData\Local\Temp\STD331c0_000000.tmp"
+{txt}
+{com}. summ recruited? n_arm? pct_convert? pct_chronic?, sep(0)
+{err}variable {bf}recruited?{sf} not found
+{txt}{search r(111), local:r(111);}
+
+end of do-file
+
+{search r(111), local:r(111);}
+
+{com}. do "C:\Users\mmamiti\AppData\Local\Temp\STD331c0_000000.tmp"
+{txt}
+{com}. merge 1:1 trial using trials_VE50_May22_summary_wide, nogen
+{res}{txt}{p 0 7 2}
+(variable
+{bf:trial} was {bf:int}, now {bf:float} to accommodate using data's values)
+{p_end}
+
+{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               0
+{txt}{col 5}Matched{col 30}{res}             500{txt}  
+{col 5}{hline 41}
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\mmamiti\AppData\Local\Temp\STD331c0_000000.tmp"
+{txt}
+{com}. summ recruited? n_arm? pct_convert? pct_chronic?, sep(0)
+
+{txt}    Variable {c |}        Obs        Mean    Std. dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 2}recruited1 {c |}{res}        500        1603           0       1603       1603
+{txt}{space 2}recruited2 {c |}{res}        500        1604           0       1604       1604
+{txt}{space 6}n_arm1 {c |}{res}        500    1544.722    7.115474       1523       1563
+{txt}{space 6}n_arm2 {c |}{res}        500    1545.652    7.607539       1523       1574
+{txt}pct_convert1 {c |}{res}        500    .0578574     .006492   .0394822   .0831169
+{txt}pct_convert2 {c |}{res}        500    .0582279    .0063749   .0362694   .0780645
+{txt}pct_chronic1 {c |}{res}        500    3.818575    .5242425   2.587322   5.501618
+{txt}pct_chronic2 {c |}{res}        500    1.977659    .3751984   1.036941   3.079947
+{txt}
+{com}. summ ir_arm* rr_convert pct_chronic1 irr_chronic pfe fail_pval_exact cox_hr0 , sep(0)
+
+{txt}    Variable {c |}        Obs        Mean    Std. dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}ir_arm1 {c |}{res}        500    .0254442    .0035781   .0167955   .0371734
+{txt}{space 5}ir_arm2 {c |}{res}        500    .0130627    .0025063   .0067873   .0205151
+{txt}{space 2}rr_convert {c |}{res}        500    1.017818    .1510552   .6058344   1.523631
+{txt}pct_chronic1 {c |}{res}        500    3.818575    .5242425   2.587322   5.501618
+{txt}{space 1}irr_chronic {c |}{res}        500    .5228597    .1231325   .2511093   .9749313
+{txt}{space 9}pfe {c |}{res}        500    .4771403    .1231325   .0250687   .7488906
+{txt}fail_pval_~t {c |}{res}        500        .166    .3724533          0          1
+{txt}{space 5}cox_hr0 {c |}{res}        500    .5179981    .1224831     .25023   .9675509
+{txt}
+{com}. summ irr_chronic_exp cox_hr0_exp
+
+{txt}    Variable {c |}        Obs        Mean    Std. dev.       Min        Max
+{hline 13}{c +}{hline 57}
+irr_chron~xp {c |}{res}        500    .4374858    .0946324   .2128621   .7221158
+{txt}{space 1}cox_hr0_exp {c |}{res}        500     .430933    .0976312   .1972864   .7529825
+{txt}
+{com}. 
+. ci means rr_convert pct_chronic1 irr_chronic pfe cox_hr0 
+
+{txt}    Variable {c |}        Obs        Mean    Std. err.       [95% conf. interval]
+{hline 13}{c +}{hline 63}
+  rr_convert {c |}{col 16}{res}       500{col 29} 1.017818{col 41} .0067554{col 57} 1.004545{col 69}  1.03109{txt}
+pct_chronic1 {c |}{col 16}{res}       500{col 29} 3.818575{col 41} .0234448{col 57} 3.772512{col 69} 3.864638{txt}
+ irr_chronic {c |}{col 16}{res}       500{col 29} .5228597{col 41} .0055067{col 57} .5120406{col 69} .5336788{txt}
+         pfe {c |}{col 16}{res}       500{col 29} .4771403{col 41} .0055067{col 57} .4663212{col 69} .4879594{txt}
+     cox_hr0 {c |}{col 16}{res}       500{col 29} .5179981{col 41} .0054776{col 57}  .507236{col 69} .5287601{txt}
+
+{com}. ci proportion fail_pval_exact
+
+{txt}{col 58}   Binomial exact   
+    Variable {c |}        Obs  Proportion    Std. err.       [95% conf. interval]
+{hline 13}{c +}{hline 63}
+fail_pval_~t {c |}{col 16}{res}       500{col 29}     .166{col 41}   .01664{col 57} .1344418{col 69} .2015678{txt}
+
+{com}. 
+. pwcorr irr_chronic rr_convert
+
+             {txt}{c |} irr_ch~c rr_con~t
+{hline 13}{c +}{hline 18}
+ irr_chronic {c |} {res}  1.0000 
+  {txt}rr_convert {c |} {res}  0.6627   1.0000 
+{txt}
+{com}. reg irr_chronic rr_convert 
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       500
+{txt}{hline 13}{c +}{hline 34}   F(1, 498)       = {res}   389.95
+{txt}       Model {c |} {res} 3.32253238         1  3.32253238   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 4.24311648       498  .008520314   {txt}R-squared       ={res}    0.4392
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4380
+{txt}       Total {c |} {res} 7.56564886       499  .015161621   {txt}Root MSE        =   {res} .09231
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1} irr_chronic{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 2}rr_convert {c |}{col 14}{res}{space 2} .5401925{col 26}{space 2} .0273553{col 37}{space 1}   19.75{col 46}{space 3}0.000{col 54}{space 4} .4864465{col 67}{space 3} .5939386
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.0269579{col 26}{space 2} .0281471{col 37}{space 1}   -0.96{col 46}{space 3}0.339{col 54}{space 4}-.0822596{col 67}{space 3} .0283438
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. linktest
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       500
+{txt}{hline 13}{c +}{hline 34}   F(2, 497)       = {res}   194.70
+{txt}       Model {c |} {res} 3.32364812         2  1.66182406   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 4.24200074       497  .008535213   {txt}R-squared       ={res}    0.4393
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4371
+{txt}       Total {c |} {res} 7.56564886       499  .015161621   {txt}Root MSE        =   {res} .09239
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1} irr_chronic{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}_hat {c |}{col 14}{res}{space 2} 1.162677{col 26}{space 2} .4527829{col 37}{space 1}    2.57{col 46}{space 3}0.011{col 54}{space 4} .2730725{col 67}{space 3} 2.052282
+{txt}{space 6}_hatsq {c |}{col 14}{res}{space 2}-.1512369{col 26}{space 2} .4182954{col 37}{space 1}   -0.36{col 46}{space 3}0.718{col 54}{space 4}-.9730823{col 67}{space 3} .6706084
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.0427069{col 26}{space 2} .1211267{col 37}{space 1}   -0.35{col 46}{space 3}0.725{col 54}{space 4}-.2806903{col 67}{space 3} .1952766
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. reg irr_chronic pct_chronic1
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       500
+{txt}{hline 13}{c +}{hline 34}   F(1, 498)       = {res}   217.62
+{txt}       Model {c |} {res} 2.30073576         1  2.30073576   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res}  5.2649131       498  .010572115   {txt}R-squared       ={res}    0.3041
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.3027
+{txt}       Total {c |} {res} 7.56564886       499  .015161621   {txt}Root MSE        =   {res} .10282
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1} irr_chronic{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+pct_chronic1 {c |}{col 14}{res}{space 2}-.1295242{col 26}{space 2} .0087801{col 37}{space 1}  -14.75{col 46}{space 3}0.000{col 54}{space 4}-.1467748{col 67}{space 3}-.1122736
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1.017458{col 26}{space 2} .0338412{col 37}{space 1}   30.07{col 46}{space 3}0.000{col 54}{space 4} .9509683{col 67}{space 3} 1.083947
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. linktest
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       500
+{txt}{hline 13}{c +}{hline 34}   F(2, 497)       = {res}   116.85
+{txt}       Model {c |} {res}  2.4196885         2  1.20984425   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 5.14596036       497  .010354045   {txt}R-squared       ={res}    0.3198
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.3171
+{txt}       Total {c |} {res} 7.56564886       499  .015161621   {txt}Root MSE        =   {res} .10175
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1} irr_chronic{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}_hat {c |}{col 14}{res}{space 2}-1.422174{col 26}{space 2} .7177588{col 37}{space 1}   -1.98{col 46}{space 3}0.048{col 54}{space 4}-2.832389{col 67}{space 3}-.0119584
+{txt}{space 6}_hatsq {c |}{col 14}{res}{space 2} 2.357972{col 26}{space 2} .6956754{col 37}{space 1}    3.39{col 46}{space 3}0.001{col 54}{space 4}  .991145{col 67}{space 3}   3.7248
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6109792{col 26}{space 2} .1836952{col 37}{space 1}    3.33{col 46}{space 3}0.001{col 54}{space 4} .2500642{col 67}{space 3} .9718941
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. scatter irr_chronic pct_chronic1
+{res}{txt}
+{com}. 
+. 
+. reg log_irr_chronic rr_convert pct_chronic1
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       500
+{txt}{hline 13}{c +}{hline 34}   F(2, 497)       = {res}   234.91
+{txt}       Model {c |} {res} 13.2280289         2  6.61401445   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 13.9935872       497  .028156111   {txt}R-squared       ={res}    0.4859
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4839
+{txt}       Total {c |} {res} 27.2216161       499  .054552337   {txt}Root MSE        =   {res}  .1678
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}log_irr_ch~c{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 2}rr_convert {c |}{col 14}{res}{space 2} .7959201{col 26}{space 2} .0592543{col 37}{space 1}   13.43{col 46}{space 3}0.000{col 54}{space 4} .6795003{col 67}{space 3} .9123399
+{txt}pct_chronic1 {c |}{col 14}{res}{space 2}-.1190399{col 26}{space 2} .0170735{col 37}{space 1}   -6.97{col 46}{space 3}0.000{col 54}{space 4}-.1525851{col 67}{space 3}-.0854947
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-1.031133{col 26}{space 2} .1105464{col 37}{space 1}   -9.33{col 46}{space 3}0.000{col 54}{space 4}-1.248329{col 67}{space 3}-.8139369
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. linktest
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       500
+{txt}{hline 13}{c +}{hline 34}   F(2, 497)       = {res}   235.09
+{txt}       Model {c |} {res} 13.2334742         2  6.61673709   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 13.9881419       497  .028145155   {txt}R-squared       ={res}    0.4861
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4841
+{txt}       Total {c |} {res} 27.2216161       499  .054552337   {txt}Root MSE        =   {res} .16777
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}log_irr_ch~c{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}_hat {c |}{col 14}{res}{space 2} .8874365{col 26}{space 2}  .260035{col 37}{space 1}    3.41{col 46}{space 3}0.001{col 54}{space 4}  .376533{col 67}{space 3}  1.39834
+{txt}{space 6}_hatsq {c |}{col 14}{res}{space 2} -.085036{col 26}{space 2} .1933279{col 37}{space 1}   -0.44{col 46}{space 3}0.660{col 54}{space 4}-.4648768{col 67}{space 3} .2948047
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.0349848{col 26}{space 2} .0857531{col 37}{space 1}   -0.41{col 46}{space 3}0.683{col 54}{space 4} -.203468{col 67}{space 3} .1334985
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. margins, at(rr_convert=(1) pct_chronic1=(2 3 4 5 6))
+{res}
+{txt}{col 1}Adjusted predictions{col 60}{lalign 13:Number of obs}{col 73} = {res}{ralign 3:500}
+{txt}{col 1}Model VCE: {res:OLS}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Linear prediction, predict()}{p_end}
+{p2colreset}{...}
+{lalign 7:1._at: }{space 0}{lalign 12:rr_convert} = {res:{ralign 1:1}}
+{lalign 7:}{space 0}{lalign 12:pct_chronic1} = {res:{ralign 1:2}}
+{lalign 7:2._at: }{space 0}{lalign 12:rr_convert} = {res:{ralign 1:1}}
+{lalign 7:}{space 0}{lalign 12:pct_chronic1} = {res:{ralign 1:3}}
+{lalign 7:3._at: }{space 0}{lalign 12:rr_convert} = {res:{ralign 1:1}}
+{lalign 7:}{space 0}{lalign 12:pct_chronic1} = {res:{ralign 1:4}}
+{lalign 7:4._at: }{space 0}{lalign 12:rr_convert} = {res:{ralign 1:1}}
+{lalign 7:}{space 0}{lalign 12:pct_chronic1} = {res:{ralign 1:5}}
+{lalign 7:5._at: }{space 0}{lalign 12:rr_convert} = {res:{ralign 1:1}}
+{lalign 7:}{space 0}{lalign 12:pct_chronic1} = {res:{ralign 1:6}}
+
+{res}{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26} Delta-method
+{col 14}{c |}     Margin{col 26}   std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}_at {c |}
+{space 10}1  {c |}{col 14}{res}{space 2}-.4732924{col 26}{space 2} .0325139{col 37}{space 1}  -14.56{col 46}{space 3}0.000{col 54}{space 4} -.537174{col 67}{space 3}-.4094109
+{txt}{space 10}2  {c |}{col 14}{res}{space 2}-.5923323{col 26}{space 2} .0163952{col 37}{space 1}  -36.13{col 46}{space 3}0.000{col 54}{space 4}-.6245448{col 67}{space 3}-.5601199
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.7113723{col 26}{space 2} .0079665{col 37}{space 1}  -89.30{col 46}{space 3}0.000{col 54}{space 4}-.7270244{col 67}{space 3}-.6957201
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.8304122{col 26}{space 2} .0210033{col 37}{space 1}  -39.54{col 46}{space 3}0.000{col 54}{space 4}-.8716784{col 67}{space 3}-.7891459
+{txt}{space 10}5  {c |}{col 14}{res}{space 2}-.9494521{col 26}{space 2}  .037441{col 37}{space 1}  -25.36{col 46}{space 3}0.000{col 54}{space 4}-1.023014{col 67}{space 3}  -.87589
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. margins, at(rr_convert=(1.0 1.1 1.2 1.3))
+{res}
+{txt}{col 1}Predictive margins{col 60}{lalign 13:Number of obs}{col 73} = {res}{ralign 3:500}
+{txt}{col 1}Model VCE: {res:OLS}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Linear prediction, predict()}{p_end}
+{p2colreset}{...}
+{lalign 7:1._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1}}
+{lalign 7:2._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1.1}}
+{lalign 7:3._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1.2}}
+{lalign 7:4._at: }{space 0}{lalign 10:rr_convert} = {res:{ralign 3:1.3}}
+
+{res}{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26} Delta-method
+{col 14}{c |}     Margin{col 26}   std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}_at {c |}
+{space 10}1  {c |}{col 14}{res}{space 2}-.6897754{col 26}{space 2} .0075781{col 37}{space 1}  -91.02{col 46}{space 3}0.000{col 54}{space 4}-.7046644{col 67}{space 3}-.6748864
+{txt}{space 10}2  {c |}{col 14}{res}{space 2}-.6101834{col 26}{space 2} .0089457{col 37}{space 1}  -68.21{col 46}{space 3}0.000{col 54}{space 4}-.6277594{col 67}{space 3}-.5926073
+{txt}{space 10}3  {c |}{col 14}{res}{space 2}-.5305914{col 26}{space 2} .0131471{col 37}{space 1}  -40.36{col 46}{space 3}0.000{col 54}{space 4}-.5564221{col 67}{space 3}-.5047606
+{txt}{space 10}4  {c |}{col 14}{res}{space 2}-.4509994{col 26}{space 2} .0183272{col 37}{space 1}  -24.61{col 46}{space 3}0.000{col 54}{space 4}-.4870078{col 67}{space 3} -.414991
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. predict pred_irr
+{txt}(option {bf:xb} assumed; fitted values)
+
+{com}. predict resid, r
+{txt}
+{com}. 
+{txt}end of do-file
+
+{com}. exit, clear
