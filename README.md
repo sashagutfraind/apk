@@ -1,4 +1,12 @@
-Installing HepCEP (formerly APK)
+Summary
+-------
+HepCEP (formerly APK) simulates the PWID population in metropolitan Chicago, including the social interactions that result in HCV infection
+
+References: 
+- Gutfraind, Boodram et al. 2015 "Agent-Based Model Forecasts Aging of the Population of People Who Inject Drugs in Metropolitan Chicago and Changing Prevalence of Hepatitis C Infections". PLoS ONE https://doi.org/10.1371/journal.pone.0137993 
+- Mackesy-Amiti, Gutfraind et al. 2024. "Modeling of randomized hepatitis C vaccine trials: bridging the gap between controlled human infection models and real-word testing" to appear.
+
+Installing HepCEP
 --------------------------------------
 To install the software, click on the setup jar file, or from the command line use java -jar APK_SETUP.jar
 
@@ -66,9 +74,9 @@ Original (HIPAA-protected) data might be available upon written agreement from t
 
 Questions:
 ------------
-* Please report any problem to Alexander Gutfraind: 
-agutfraind.research@gmail.com
-indicate
+Please report any problem to Alexander Gutfraind:  agutfraind.research@gmail.com
+
+Indicate
 1. your operating system and version of java (java -version)
 2. the steps you took to reach the error, to the extent you can remember
 3. is the error reproducible?
